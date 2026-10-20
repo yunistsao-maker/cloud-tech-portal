@@ -1,0 +1,57 @@
+[
+  {
+    "id": "data-warehouse",
+    "category": "analytics",
+    "name": { "en": "Data warehouse", "zh": "資料倉儲" },
+    "keywords": ["data warehouse", "lakehouse", "iceberg"],
+    "services": {
+      "aws": [{ "name": "Amazon Redshift", "aliases": ["Redshift", "Redshift Serverless"] }],
+      "azure": [{ "name": "Fabric Data Warehouse", "aliases": ["Microsoft Fabric"] }, { "name": "Azure Synapse Analytics", "aliases": ["Synapse"] }],
+      "gcp": [{ "name": "BigQuery" }]
+    }
+  },
+  {
+    "id": "event-streaming",
+    "category": "analytics",
+    "name": { "en": "Event streaming", "zh": "串流資料" },
+    "keywords": ["streaming", "kafka", "real-time data"],
+    "services": {
+      "aws": [{ "name": "Amazon Kinesis Data Streams", "aliases": ["Kinesis", "Amazon MSK", "MSK"] }],
+      "azure": [{ "name": "Azure Event Hubs", "aliases": ["Event Hubs"] }],
+      "gcp": [{ "name": "Pub/Sub", "aliases": ["Managed Service for Apache Kafka"] }]
+    }
+  },
+  {
+    "id": "managed-spark",
+    "category": "analytics",
+    "name": { "en": "Managed Spark / Hadoop", "zh": "代管 Spark" },
+    "keywords": ["apache spark", "spark job", "pyspark", "hadoop", "big data processing"],
+    "services": {
+      "aws": [{ "name": "Amazon EMR", "aliases": ["EMR", "EMR Serverless"] }],
+      "azure": [{ "name": "Azure Databricks" }],
+      "gcp": [{ "name": "Dataproc", "aliases": ["Serverless for Apache Spark"] }]
+    }
+  },
+  {
+    "id": "data-integration",
+    "category": "analytics",
+    "name": { "en": "Data integration (ETL)", "zh": "資料整合" },
+    "keywords": ["etl", "data pipeline", "data integration"],
+    "services": {
+      "aws": [{ "name": "AWS Glue", "aliases": ["Glue"] }],
+      "azure": [{ "name": "Azure Data Factory", "aliases": ["Data Factory"] }],
+      "gcp": [{ "name": "Dataflow", "aliases": ["Cloud Data Fusion"] }]
+    }
+  },
+  {
+    "id": "business-intelligence",
+    "category": "analytics",
+    "name": { "en": "Business intelligence", "zh": "商業智慧" },
+    "keywords": ["dashboard", "business intelligence", "bi "],
+    "services": {
+      "aws": [{ "name": "Amazon Quick Sight", "formerly": ["Amazon QuickSight"] }],
+      "azure": [{ "name": "Power BI" }],
+      "gcp": [{ "name": "Looker", "aliases": ["Looker Studio"] }]
+    }
+  }
+]

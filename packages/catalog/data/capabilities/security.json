@@ -1,0 +1,57 @@
+[
+  {
+    "id": "identity-access",
+    "category": "security",
+    "name": { "en": "Identity & access", "zh": "身分與存取管理" },
+    "keywords": ["identity", "sso", "single sign-on", "permissions", "rbac", "role-based access"],
+    "services": {
+      "aws": [{ "name": "AWS IAM", "aliases": ["IAM"] }, { "name": "AWS IAM Identity Center", "formerly": ["AWS Single Sign-On"] }],
+      "azure": [{ "name": "Microsoft Entra ID", "formerly": ["Azure Active Directory", "Azure AD"] }],
+      "gcp": [{ "name": "Cloud IAM" }, { "name": "Cloud Identity" }]
+    }
+  },
+  {
+    "id": "key-management",
+    "category": "security",
+    "name": { "en": "Key management", "zh": "金鑰管理" },
+    "keywords": ["encryption key", "kms", "hsm", "customer-managed key"],
+    "services": {
+      "aws": [{ "name": "AWS KMS", "aliases": ["Key Management Service", "AWS CloudHSM"] }],
+      "azure": [{ "name": "Azure Key Vault", "aliases": ["Key Vault", "Managed HSM"] }],
+      "gcp": [{ "name": "Cloud KMS", "aliases": ["Cloud HSM"] }]
+    }
+  },
+  {
+    "id": "secrets",
+    "category": "security",
+    "name": { "en": "Secrets", "zh": "機密管理" },
+    "keywords": ["secret rotation", "secrets"],
+    "services": {
+      "aws": [{ "name": "AWS Secrets Manager", "aliases": ["Secrets Manager"] }],
+      "azure": [{ "name": "Azure Key Vault secrets" }],
+      "gcp": [{ "name": "Secret Manager" }]
+    }
+  },
+  {
+    "id": "threat-detection",
+    "category": "security",
+    "name": { "en": "Threat detection & posture", "zh": "威脅偵測與資安態勢" },
+    "keywords": ["threat detection", "cspm", "posture management", "vulnerability"],
+    "services": {
+      "aws": [{ "name": "Amazon GuardDuty", "aliases": ["GuardDuty"] }, { "name": "AWS Security Hub", "aliases": ["Security Hub"] }],
+      "azure": [{ "name": "Microsoft Defender for Cloud", "formerly": ["Azure Security Center"] }],
+      "gcp": [{ "name": "Security Command Center" }]
+    }
+  },
+  {
+    "id": "waf",
+    "category": "security",
+    "name": { "en": "Web application firewall", "zh": "網頁應用程式防火牆" },
+    "keywords": ["web application firewall", "ddos"],
+    "services": {
+      "aws": [{ "name": "AWS WAF", "aliases": ["AWS Shield"] }],
+      "azure": [{ "name": "Azure Web Application Firewall", "aliases": ["Azure WAF", "Azure DDoS Protection"] }],
+      "gcp": [{ "name": "Cloud Armor" }]
+    }
+  }
+]

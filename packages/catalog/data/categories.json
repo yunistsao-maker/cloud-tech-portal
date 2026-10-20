@@ -1,0 +1,11 @@
+[
+  { "id": "compute", "name": { "en": "Compute", "zh": "運算" } },
+  { "id": "storage", "name": { "en": "Storage", "zh": "儲存" } },
+  { "id": "networking", "name": { "en": "Networking", "zh": "網路" } },
+  { "id": "database", "name": { "en": "Database", "zh": "資料庫" } },
+  { "id": "analytics", "name": { "en": "Analytics", "zh": "分析" } },
+  { "id": "ai-ml", "name": { "en": "AI / ML", "zh": "AI / 機器學習" } },
+  { "id": "security", "name": { "en": "Security & Identity", "zh": "資安與身分" } },
+  { "id": "integration", "name": { "en": "Integration", "zh": "應用整合" } },
+  { "id": "devops", "name": { "en": "DevOps & Management", "zh": "DevOps 與管理" } }
+]

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "infrastructure-as-code",
+    "category": "devops",
+    "name": { "en": "Infrastructure as code", "zh": "基礎架構即程式碼" },
+    "keywords": ["infrastructure as code", "iac", "terraform", "template"],
+    "services": {
+      "aws": [{ "name": "AWS CloudFormation", "aliases": ["CloudFormation"] }, { "name": "AWS CDK", "aliases": ["Cloud Development Kit"] }],
+      "azure": [{ "name": "Azure Resource Manager", "aliases": ["ARM templates", "Bicep"] }],
+      "gcp": [{ "name": "Infrastructure Manager", "formerly": ["Cloud Deployment Manager"] }]
+    }
+  },
+  {
+    "id": "monitoring",
+    "category": "devops",
+    "name": { "en": "Monitoring & logging", "zh": "監控與日誌" },
+    "keywords": ["observability", "metrics", "logs", "tracing", "opentelemetry"],
+    "services": {
+      "aws": [{ "name": "Amazon CloudWatch", "aliases": ["CloudWatch", "AWS X-Ray"] }],
+      "azure": [{ "name": "Azure Monitor", "aliases": ["Application Insights", "Log Analytics"] }],
+      "gcp": [{ "name": "Cloud Monitoring" }, { "name": "Cloud Logging" }]
+    }
+  },
+  {
+    "id": "ci-cd",
+    "category": "devops",
+    "name": { "en": "CI / CD", "zh": "持續整合與部署" },
+    "keywords": ["ci/cd", "continuous integration", "continuous delivery", "pipeline"],
+    "services": {
+      "aws": [{ "name": "AWS CodePipeline", "aliases": ["CodePipeline", "AWS CodeBuild", "CodeBuild"] }],
+      "azure": [{ "name": "Azure Pipelines", "aliases": ["Azure DevOps"] }],
+      "gcp": [{ "name": "Cloud Build", "aliases": ["Cloud Deploy"] }]
+    }
+  },
+  {
+    "id": "container-registry",
+    "category": "devops",
+    "name": { "en": "Container registry", "zh": "容器映像檔倉庫" },
+    "keywords": ["container registry", "container image"],
+    "services": {
+      "aws": [{ "name": "Amazon ECR", "aliases": ["ECR", "Elastic Container Registry"] }],
+      "azure": [{ "name": "Azure Container Registry", "aliases": ["ACR"] }],
+      "gcp": [{ "name": "Artifact Registry", "formerly": ["Container Registry"] }]
+    }
+  },
+  {
+    "id": "audit-logging",
+    "category": "devops",
+    "name": { "en": "Audit trail", "zh": "稽核紀錄" },
+    "keywords": ["audit log", "api activity"],
+    "services": {
+      "aws": [{ "name": "AWS CloudTrail", "aliases": ["CloudTrail"] }],
+      "azure": [{ "name": "Azure Activity Log", "aliases": ["Activity Log"] }],
+      "gcp": [{ "name": "Cloud Audit Logs" }]
+    }
+  },
+  {
+    "id": "cost-management",
+    "category": "devops",
+    "name": { "en": "Cost management", "zh": "成本管理" },
+    "keywords": ["finops", "cost optimization", "billing", "savings plans"],
+    "services": {
+      "aws": [{ "name": "AWS Cost Explorer", "aliases": ["AWS Billing and Cost Management", "Cost Explorer"] }],
+      "azure": [{ "name": "Microsoft Cost Management", "aliases": ["Azure Cost Management"] }],
+      "gcp": [{ "name": "Cloud Billing reports", "aliases": ["Cloud Billing", "FinOps hub"] }]
+    }
+  }
+]

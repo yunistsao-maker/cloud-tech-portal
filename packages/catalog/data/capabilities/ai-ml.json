@@ -1,0 +1,113 @@
+[
+  {
+    "id": "foundation-model-platform",
+    "category": "ai-ml",
+    "name": { "en": "Foundation model platform", "zh": "基礎模型平台" },
+    "keywords": ["foundation model", "large language model", "llm", "model catalog", "model garden", "generative ai", "fine-tuning"],
+    "services": {
+      "aws": [{ "name": "Amazon Bedrock", "aliases": ["Bedrock"] }],
+      "azure": [{ "name": "Microsoft Foundry", "formerly": ["Azure AI Foundry", "Azure AI Studio"], "aliases": ["Foundry Models", "Azure OpenAI"] }],
+      "gcp": [{ "name": "Gemini Enterprise Agent Platform", "formerly": ["Vertex AI"], "aliases": ["Agent Platform", "Model Garden"] }]
+    },
+    "attributes": [
+      {
+        "label": { "en": "Model catalog (examples)", "zh": "模型目錄（舉例）" },
+        "values": {
+          "aws": "Claude, Nova, Llama, Mistral; OpenAI in limited preview",
+          "azure": "OpenAI, Claude, Llama, Mistral",
+          "gcp": "Gemini, Claude, Llama, Gemma via Model Garden"
+        }
+      },
+      {
+        "label": { "en": "Agent framework", "zh": "代理程式框架" },
+        "values": { "aws": "Strands Agents · any framework", "azure": "Microsoft Agent Framework", "gcp": "Agent Development Kit (ADK)" }
+      },
+      {
+        "label": { "en": "Grounding / RAG", "zh": "知識檢索 / RAG" },
+        "values": { "aws": "Bedrock Knowledge Bases", "azure": "Foundry IQ · Azure AI Search", "gcp": "RAG Engine · enterprise search" }
+      },
+      {
+        "label": { "en": "Safety controls", "zh": "安全控管" },
+        "values": { "aws": "Bedrock Guardrails", "azure": "Azure AI Content Safety", "gcp": "Model Armor" }
+      },
+      {
+        "label": { "en": "Formerly", "zh": "舊名稱" },
+        "values": { "aws": "—", "azure": "Azure AI Studio → Azure AI Foundry", "gcp": "Vertex AI" }
+      }
+    ]
+  },
+  {
+    "id": "agent-runtime",
+    "category": "ai-ml",
+    "name": { "en": "Agent runtime", "zh": "代理程式執行環境" },
+    "keywords": ["ai agent", "agents", "agentic", "mcp", "model context protocol", "a2a", "multi-agent"],
+    "services": {
+      "aws": [{ "name": "Amazon Bedrock AgentCore", "aliases": ["AgentCore", "Bedrock AgentCore", "Strands Agents"] }],
+      "azure": [{ "name": "Foundry Agent Service", "formerly": ["Azure AI Agent Service"], "aliases": ["Microsoft Agent Framework"] }],
+      "gcp": [{ "name": "Agent Runtime", "formerly": ["Vertex AI Agent Engine"], "aliases": ["Agent Engine", "Agent Development Kit", "ADK"] }]
+    },
+    "attributes": [
+      {
+        "label": { "en": "Hosted runtime", "zh": "代管執行環境" },
+        "values": { "aws": "AgentCore Runtime", "azure": "Foundry Agent Service hosted agents", "gcp": "Agent Runtime" }
+      },
+      {
+        "label": { "en": "Agent identity", "zh": "代理程式身分" },
+        "values": { "aws": "AgentCore Identity", "azure": "Microsoft Entra Agent ID", "gcp": "Agent Identity" }
+      },
+      {
+        "label": { "en": "Tool gateway (MCP)", "zh": "工具閘道（MCP）" },
+        "values": { "aws": "AgentCore Gateway", "azure": "Foundry tools catalog", "gcp": "Agent Gateway" },
+        "needsReview": true
+      },
+      {
+        "label": { "en": "Observability", "zh": "可觀測性" },
+        "values": { "aws": "AgentCore Observability", "azure": "Foundry tracing", "gcp": "Agent Observability" }
+      }
+    ]
+  },
+  {
+    "id": "ml-platform",
+    "category": "ai-ml",
+    "name": { "en": "ML build & train", "zh": "機器學習開發與訓練" },
+    "keywords": ["model training", "mlops", "notebook", "hyperpod", "distributed training"],
+    "services": {
+      "aws": [{ "name": "Amazon SageMaker AI", "formerly": ["Amazon SageMaker"], "aliases": ["SageMaker", "SageMaker HyperPod"] }],
+      "azure": [{ "name": "Azure Machine Learning", "aliases": ["Azure ML"] }],
+      "gcp": [{ "name": "Agent Platform model training", "formerly": ["Vertex AI Training"] }]
+    }
+  },
+  {
+    "id": "ai-accelerators",
+    "category": "ai-ml",
+    "name": { "en": "AI accelerators", "zh": "AI 加速晶片" },
+    "keywords": ["accelerator", "gpu", "ai chip", "ultracluster", "ultraserver"],
+    "services": {
+      "aws": [{ "name": "AWS Trainium", "aliases": ["Trainium", "Trainium2", "Trainium3"] }, { "name": "AWS Inferentia", "aliases": ["Inferentia"] }],
+      "azure": [{ "name": "Azure Maia", "aliases": ["Maia"] }],
+      "gcp": [{ "name": "Cloud TPU", "aliases": ["TPU", "Ironwood"] }]
+    }
+  },
+  {
+    "id": "enterprise-assistant",
+    "category": "ai-ml",
+    "name": { "en": "Enterprise AI assistant", "zh": "企業 AI 助理" },
+    "keywords": ["ai assistant", "copilot", "workplace ai"],
+    "services": {
+      "aws": [{ "name": "Amazon Quick", "aliases": ["Amazon Quick Suite", "Amazon Q Business"] }],
+      "azure": [{ "name": "Microsoft 365 Copilot", "aliases": ["Copilot Studio"] }],
+      "gcp": [{ "name": "Gemini Enterprise", "formerly": ["Google Agentspace"], "aliases": ["Agentspace"] }]
+    }
+  },
+  {
+    "id": "ai-guardrails",
+    "category": "ai-ml",
+    "name": { "en": "Model safety guardrails", "zh": "模型安全護欄" },
+    "keywords": ["guardrail", "content safety", "prompt injection", "jailbreak"],
+    "services": {
+      "aws": [{ "name": "Amazon Bedrock Guardrails", "aliases": ["Bedrock Guardrails"] }],
+      "azure": [{ "name": "Azure AI Content Safety", "aliases": ["Prompt Shields"] }],
+      "gcp": [{ "name": "Model Armor" }]
+    }
+  }
+]

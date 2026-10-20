@@ -1,0 +1,46 @@
+[
+  {
+    "id": "object-storage",
+    "category": "storage",
+    "name": { "en": "Object storage", "zh": "物件儲存" },
+    "keywords": ["object storage", "bucket"],
+    "services": {
+      "aws": [{ "name": "Amazon S3", "aliases": ["S3", "S3 Express One Zone", "S3 Tables", "S3 Vectors"] }],
+      "azure": [{ "name": "Azure Blob Storage", "aliases": ["Blob Storage", "ADLS Gen2", "Data Lake Storage"] }],
+      "gcp": [{ "name": "Cloud Storage", "aliases": ["GCS"] }]
+    }
+  },
+  {
+    "id": "block-storage",
+    "category": "storage",
+    "name": { "en": "Block storage", "zh": "區塊儲存" },
+    "keywords": ["block storage", "volume", "disk"],
+    "services": {
+      "aws": [{ "name": "Amazon EBS", "aliases": ["EBS", "Elastic Block Store"] }],
+      "azure": [{ "name": "Azure Managed Disks", "aliases": ["Managed Disks", "Premium SSD", "Ultra Disk"] }],
+      "gcp": [{ "name": "Persistent Disk", "aliases": ["Hyperdisk"] }]
+    }
+  },
+  {
+    "id": "file-storage",
+    "category": "storage",
+    "name": { "en": "Managed file shares", "zh": "檔案儲存" },
+    "keywords": ["file share", "nfs", "smb", "file system"],
+    "services": {
+      "aws": [{ "name": "Amazon EFS", "aliases": ["EFS", "Amazon FSx", "FSx"] }],
+      "azure": [{ "name": "Azure Files", "aliases": ["Azure NetApp Files"] }],
+      "gcp": [{ "name": "Filestore", "aliases": ["Parallelstore", "NetApp Volumes"] }]
+    }
+  },
+  {
+    "id": "archive-storage",
+    "category": "storage",
+    "name": { "en": "Archive tier", "zh": "封存儲存" },
+    "keywords": ["archive", "cold storage", "glacier"],
+    "services": {
+      "aws": [{ "name": "S3 Glacier storage classes", "aliases": ["S3 Glacier", "Glacier Deep Archive"] }],
+      "azure": [{ "name": "Blob Archive tier", "aliases": ["Archive tier"] }],
+      "gcp": [{ "name": "Archive storage class", "aliases": ["Coldline"] }]
+    }
+  }
+]

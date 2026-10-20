@@ -1,0 +1,11 @@
+{
+  "app": "npx tsx bin/portal.ts",
+  "context": {
+    "modelId": "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "ingestRate": "2 hours",
+    "maxSummaries": 40,
+    "runIngestOnDeploy": true,
+    "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
+    "@aws-cdk/core:target-partitions": ["aws"]
+  }
+}

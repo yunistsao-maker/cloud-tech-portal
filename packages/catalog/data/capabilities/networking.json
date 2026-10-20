@@ -1,0 +1,57 @@
+[
+  {
+    "id": "virtual-network",
+    "category": "networking",
+    "name": { "en": "Virtual network", "zh": "虛擬網路" },
+    "keywords": ["virtual network", "subnet", "peering", "private link", "privatelink", "transit gateway"],
+    "services": {
+      "aws": [{ "name": "Amazon VPC", "aliases": ["VPC Lattice", "AWS Transit Gateway", "AWS PrivateLink"] }],
+      "azure": [{ "name": "Azure Virtual Network", "aliases": ["VNet", "Azure Private Link", "Virtual WAN"] }],
+      "gcp": [{ "name": "VPC", "aliases": ["Google Cloud VPC", "Private Service Connect", "Network Connectivity Center"] }]
+    }
+  },
+  {
+    "id": "load-balancing",
+    "category": "networking",
+    "name": { "en": "Load balancing", "zh": "負載平衡" },
+    "keywords": ["load balancer", "load balancing"],
+    "services": {
+      "aws": [{ "name": "Elastic Load Balancing", "aliases": ["ELB", "Application Load Balancer", "Network Load Balancer", "ALB", "NLB"] }],
+      "azure": [{ "name": "Azure Load Balancer" }, { "name": "Azure Application Gateway", "aliases": ["Application Gateway"] }],
+      "gcp": [{ "name": "Cloud Load Balancing" }]
+    }
+  },
+  {
+    "id": "cdn",
+    "category": "networking",
+    "name": { "en": "CDN & edge", "zh": "內容傳遞網路" },
+    "keywords": ["cdn", "content delivery", "edge"],
+    "services": {
+      "aws": [{ "name": "Amazon CloudFront", "aliases": ["CloudFront"] }],
+      "azure": [{ "name": "Azure Front Door", "aliases": ["Front Door"] }],
+      "gcp": [{ "name": "Cloud CDN", "aliases": ["Media CDN"] }]
+    }
+  },
+  {
+    "id": "dns",
+    "category": "networking",
+    "name": { "en": "DNS", "zh": "網域名稱服務" },
+    "keywords": ["dns", "domain name"],
+    "services": {
+      "aws": [{ "name": "Amazon Route 53", "aliases": ["Route 53"] }],
+      "azure": [{ "name": "Azure DNS" }],
+      "gcp": [{ "name": "Cloud DNS" }]
+    }
+  },
+  {
+    "id": "dedicated-connectivity",
+    "category": "networking",
+    "name": { "en": "Dedicated connectivity", "zh": "專線連線" },
+    "keywords": ["dedicated connection", "hybrid connectivity", "site-to-site vpn"],
+    "services": {
+      "aws": [{ "name": "AWS Direct Connect", "aliases": ["Direct Connect", "AWS Site-to-Site VPN"] }],
+      "azure": [{ "name": "Azure ExpressRoute", "aliases": ["ExpressRoute", "Azure VPN Gateway"] }],
+      "gcp": [{ "name": "Cloud Interconnect", "aliases": ["Cloud VPN", "Cross-Cloud Interconnect"] }]
+    }
+  }
+]

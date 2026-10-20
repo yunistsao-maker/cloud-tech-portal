@@ -1,0 +1,86 @@
+# cloud/pulse — cross-cloud tech portal
+
+AWS, Azure and Google Cloud announcements, engineering blogs and research in one feed, with every item tied to a **capability** so you can see the equivalent services on the other two clouds side by side.
+
+- **Pulse** (`/`) — the latest items across clouds, filterable by provider, type and time.
+- **Compare** (`/compare/`) — capability matrix per category; pick a row to see attribute rows, former names and recent changes.
+- **Category hubs** (`/category/<id>/`) — capability cards plus that category's feed, renames/retirements and papers.
+- Search resolves old names (`Vertex AI` → Gemini Enterprise Agent Platform, `Azure AD` → Microsoft Entra ID).
+- Three themes (white / gray / storm cloud) and EN / 繁中 throughout.
+
+## Architecture
+
+```
+EventBridge (rate 2h) ──▶ Lambda: ingest ──▶ DynamoDB  items (pk id, GSI byPublished)
+                              │   fetch 9 feeds → parse → tag capability → Bedrock summary (EN + zh-TW)
+                              └──▶ S3 data bucket  data/items.json  (latest 400)
+                                            │
+Browser ──▶ CloudFront ──┬── /*       → S3 site bucket (Next.js static export)
+                         └── /data/*  → S3 data bucket
+```
+
+| Path | What it is |
+| --- | --- |
+| `packages/catalog` | Capability catalog (JSON per category), zod schema, search, keyword tagger. Shared by everything else. |
+| `services/ingest` | Feed fetchers/parsers, classifier, Bedrock summariser, DynamoDB/file stores, Lambda handler, local CLI. |
+| `apps/web` | Next.js 16 + Tailwind v4, static export. Reads `/data/items.json` in the browser. |
+| `infra` | CDK stack: buckets, CloudFront (OAC), DynamoDB, ingest Lambda, schedule, alarm, first-run trigger. |
+
+### Ingestion details
+
+- **Sources** (`services/ingest/src/sources.ts`): AWS What's New, AWS News / ML / Architecture blogs, Azure Updates, Azure Blog, Google Cloud release notes, Google Cloud Blog, arXiv cs.DC. A failing feed is reported in the run log and skipped; it never fails the run.
+- **Google Cloud release notes** publish one entry per day for every product; the parser splits it into one item per product.
+- **arXiv** keeps only `new` papers that the tagger can place in a capability.
+- **Tagging** is keyword-based from the catalog (service names, aliases, former names, capability keywords). Generic words like "Batch" or "Workflows" only count on their own provider's items. Bedrock then confirms or corrects the capability ids (restricted to catalog ids) and writes the summaries.
+- **Cost guard**: at most `maxSummaries` (default 40) model calls per run; newer items beyond that wait for the next run. Items already in DynamoDB are never re-summarised. Reserved concurrency 1 keeps runs from overlapping.
+- Feed text is passed to the model as fenced, untrusted data; replies are schema-validated and unknown capability ids dropped.
+
+## Local development
+
+Requires Node 22.
+
+```bash
+npm install
+npm run ingest:local          # fetch live feeds, tag only → apps/web/public/data/items.json
+npm run dev                   # http://localhost:3000
+```
+
+Add summaries locally with your own AWS credentials and Bedrock model access:
+
+```bash
+npm run ingest:local -- --bedrock global.anthropic.claude-haiku-4-5-20251001-v1:0 --max 10
+```
+
+Checks: `npm run typecheck`, `npm test`, `npm run build:web`, `npm run synth`.
+
+## Deploy
+
+```bash
+export CDK_DEFAULT_ACCOUNT=<account> CDK_DEFAULT_REGION=<region with Bedrock access>
+(cd infra && npx cdk bootstrap)   # once per account/region
+npm run deploy                     # builds the site, then cdk deploy
+```
+
+The stack prints `SiteUrl`. With `runIngestOnDeploy` (default) the first ingest runs during the deploy so the site has data immediately.
+
+Context settings (`infra/cdk.json`, or `-c key=value`):
+
+| Key | Default | Notes |
+| --- | --- | --- |
+| `modelId` | `global.anthropic.claude-haiku-4-5-20251001-v1:0` | Any Bedrock model or inference profile your account can invoke in the region. The IAM policy is scoped to this id. |
+| `ingestRate` | `2 hours` | EventBridge `rate()` body. |
+| `maxSummaries` | `40` | Bedrock calls per run. |
+| `runIngestOnDeploy` | `true` | Invoke the ingester once during deploy. |
+
+Retained on `cdk destroy`: the DynamoDB table (PITR on) and the versioned data bucket. The site bucket is rebuilt from source.
+
+## Editing the catalog
+
+Each category is one file in `packages/catalog/data/capabilities/`. A capability has bilingual names, keywords for the tagger, one or more services per provider (with `aliases` and `formerly`), and optional `attributes` rows for the Compare detail panel. Mark a value you have not confirmed against current docs with `"needsReview": true` — the UI flags it. `npm test` validates the schema, unique ids and that every capability names a service on all three clouds.
+
+## Known gaps (milestone 1)
+
+- The Google Cloud Blog feed returned HTTP 500 from the build sandbox; check its row in the first Lambda run's log.
+- The snapshot committed in `apps/web/public/data/items.json` came from a live run without Bedrock, so it has no summaries; deployed runs add them.
+- Events are hand-maintained in `apps/web/lib/events.ts` and list only organiser-confirmed dates.
+- No custom domain / certificate yet; add an ACM certificate and `domainNames` on the distribution.

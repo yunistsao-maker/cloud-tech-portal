@@ -1,0 +1,117 @@
+[
+  {
+    "id": "virtual-machines",
+    "category": "compute",
+    "name": { "en": "Virtual machines", "zh": "虛擬機器" },
+    "keywords": ["virtual machine", "instance type", "instances", "vm series"],
+    "services": {
+      "aws": [{ "name": "Amazon EC2", "aliases": ["EC2", "Elastic Compute Cloud"] }],
+      "azure": [{ "name": "Azure Virtual Machines", "aliases": ["Azure VM"] }],
+      "gcp": [{ "name": "Compute Engine", "aliases": ["GCE"] }]
+    }
+  },
+  {
+    "id": "arm-cpus",
+    "category": "compute",
+    "name": { "en": "Arm-based CPUs", "zh": "Arm 架構處理器" },
+    "keywords": ["arm-based", "arm64", "processor"],
+    "services": {
+      "aws": [{ "name": "AWS Graviton", "aliases": ["Graviton", "Graviton4", "Graviton5"] }],
+      "azure": [{ "name": "Azure Cobalt", "aliases": ["Cobalt 100", "Cobalt"] }],
+      "gcp": [{ "name": "Google Axion", "aliases": ["Axion"] }]
+    }
+  },
+  {
+    "id": "serverless-functions",
+    "category": "compute",
+    "name": { "en": "Serverless functions", "zh": "無伺服器函式" },
+    "keywords": ["serverless function", "function as a service", "faas"],
+    "services": {
+      "aws": [{ "name": "AWS Lambda", "aliases": ["Lambda"] }],
+      "azure": [{ "name": "Azure Functions", "aliases": ["Durable Functions", "Flex Consumption"] }],
+      "gcp": [{ "name": "Cloud Run functions", "formerly": ["Cloud Functions"] }]
+    },
+    "attributes": [
+      {
+        "label": { "en": "Event sources", "zh": "事件來源" },
+        "values": {
+          "aws": "EventBridge, S3, SQS, Kinesis, API Gateway",
+          "azure": "Event Grid, Blob, Service Bus, Event Hubs, HTTP",
+          "gcp": "Eventarc, Pub/Sub, Cloud Storage, HTTP"
+        }
+      },
+      {
+        "label": { "en": "Runs on", "zh": "執行基礎" },
+        "values": {
+          "aws": "Firecracker microVMs",
+          "azure": "Functions host — Flex Consumption, Premium, Dedicated plans",
+          "gcp": "Cloud Run (container-based)"
+        }
+      },
+      {
+        "label": { "en": "Long-running workflows", "zh": "長時間工作流程" },
+        "values": {
+          "aws": "Lambda durable functions · Step Functions",
+          "azure": "Durable Functions",
+          "gcp": "Workflows"
+        }
+      },
+      {
+        "label": { "en": "Max execution time", "zh": "最長執行時間" },
+        "values": { "aws": "15 minutes", "azure": "[verify per plan]", "gcp": "[verify per trigger]" },
+        "needsReview": true
+      }
+    ]
+  },
+  {
+    "id": "serverless-containers",
+    "category": "compute",
+    "name": { "en": "Serverless containers", "zh": "無伺服器容器" },
+    "keywords": ["serverless container", "container app"],
+    "services": {
+      "aws": [{ "name": "Amazon ECS on AWS Fargate", "aliases": ["Fargate", "Amazon ECS", "ECS"] }],
+      "azure": [{ "name": "Azure Container Apps" }],
+      "gcp": [{ "name": "Cloud Run" }]
+    }
+  },
+  {
+    "id": "kubernetes",
+    "category": "compute",
+    "name": { "en": "Managed Kubernetes", "zh": "代管 Kubernetes" },
+    "keywords": ["kubernetes", "k8s", "karpenter", "node pool"],
+    "services": {
+      "aws": [{ "name": "Amazon EKS", "aliases": ["EKS", "EKS Auto Mode"] }],
+      "azure": [{ "name": "Azure Kubernetes Service", "aliases": ["AKS", "AKS Automatic"] }],
+      "gcp": [{ "name": "Google Kubernetes Engine", "aliases": ["GKE", "GKE Autopilot"] }]
+    },
+    "attributes": [
+      {
+        "label": { "en": "Hands-off mode", "zh": "全代管模式" },
+        "values": { "aws": "EKS Auto Mode", "azure": "AKS Automatic", "gcp": "GKE Autopilot" }
+      },
+      {
+        "label": { "en": "Node autoscaling", "zh": "節點自動擴展" },
+        "values": {
+          "aws": "Karpenter",
+          "azure": "Node auto-provisioning (Karpenter-based)",
+          "gcp": "Cluster autoscaler · node auto-provisioning"
+        }
+      },
+      {
+        "label": { "en": "Arm node pools", "zh": "Arm 節點" },
+        "values": { "aws": "Graviton", "azure": "Cobalt", "gcp": "Axion" }
+      }
+    ]
+  },
+  {
+    "id": "batch",
+    "category": "compute",
+    "name": { "en": "Batch computing", "zh": "批次運算" },
+    "keywords": ["batch job", "hpc"],
+    "services": {
+      "aws": [{ "name": "AWS Batch" }],
+      "azure": [{ "name": "Azure Batch" }],
+      "gcp": [{ "name": "Batch", "aliases": ["Google Cloud Batch"] }]
+    }
+  }
+]

@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+/*
+ * Three "sky" themes from the design canvas: white cloud, gray cloud, storm cloud.
+ * Components only use the semantic tokens below, never raw colours.
+ */
+:root,
+:root[data-sky="white"] {
+  --bg: #ffffff;
+  --header: #ffffff;
+  --surface: #f7f8fa;
+  --raised: #eef0f4;
+  --input: #f7f8fa;
+  --line: #e7e9ed;
+  --border: #e3e6eb;
+  --control: #d5dae3;
+  --text: #111318;
+  --strong: #111318;
+  --sub: #3a404c;
+  --muted: #5a6170;
+  --accent: #111318;
+  --on-accent: #ffffff;
+  --dot: #d97706;
+  --aws: #8a4b00;
+  --azure: #0b5cad;
+  --gcp: #17703f;
+  --aws-bg: #fff1dc;
+  --azure-bg: #e3eefb;
+  --gcp-bg: #e2f4e9;
+  --warn: #8a4b00;
+  --warn-bg: #fff1dc;
+  --danger: #a3261c;
+  --danger-bg: #fde8e6;
+  color-scheme: light;
+}
+
+:root[data-sky="gray"] {
+  --bg: #eceef1;
+  --header: #f7f8fa;
+  --surface: #ffffff;
+  --raised: #e2e5ea;
+  --input: #ffffff;
+  --line: #e7e9ed;
+  --border: #d3d7de;
+  --control: #c5cad3;
+  --text: #111318;
+  --strong: #111318;
+  --sub: #3a404c;
+  --muted: #555c69;
+  --accent: #111318;
+  --on-accent: #ffffff;
+  --dot: #c2410c;
+  color-scheme: light;
+}
+
+:root[data-sky="black"] {
+  --bg: #0e1116;
+  --header: #0b0e12;
+  --surface: #12161c;
+  --raised: #1b222b;
+  --input: #151a21;
+  --line: #1e252e;
+  --border: #232a33;
+  --control: #2c3440;
+  --text: #e6eaf0;
+  --strong: #ffffff;
+  --sub: #b5bdc9;
+  --muted: #9aa4b2;
+  --accent: #e6eaf0;
+  --on-accent: #0e1116;
+  --dot: #f0a93b;
+  --aws: #f0a93b;
+  --azure: #5ab0f7;
+  --gcp: #6bd49b;
+  --aws-bg: #2a2113;
+  --azure-bg: #132233;
+  --gcp-bg: #13281d;
+  --warn: #f0c47a;
+  --warn-bg: #2a2113;
+  --danger: #ff9b8f;
+  --danger-bg: #3a1714;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-header: var(--header);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-input: var(--input);
+  --color-line: var(--line);
+  --color-border: var(--border);
+  --color-control: var(--control);
+  --color-text: var(--text);
+  --color-strong: var(--strong);
+  --color-sub: var(--sub);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-dot: var(--dot);
+  --color-aws: var(--aws);
+  --color-azure: var(--azure);
+  --color-gcp: var(--gcp);
+  --color-aws-bg: var(--aws-bg);
+  --color-azure-bg: var(--azure-bg);
+  --color-gcp-bg: var(--gcp-bg);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --font-sans: "IBM Plex Sans", "Noto Sans TC", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.label-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}

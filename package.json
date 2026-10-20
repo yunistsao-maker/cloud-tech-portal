@@ -1,0 +1,24 @@
+{
+  "name": "cloud-tech-portal",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Cross-cloud tech portal: AWS, Azure and Google Cloud news, research and side-by-side service comparison.",
+  "workspaces": [
+    "packages/*",
+    "services/*",
+    "apps/*",
+    "infra"
+  ],
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "build:web": "npm run build -w @ctp/web",
+    "dev": "npm run dev -w @ctp/web",
+    "ingest:local": "npm run local -w @ctp/ingest --",
+    "synth": "npm run synth -w @ctp/infra",
+    "deploy": "npm run build:web && npm run deploy -w @ctp/infra"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

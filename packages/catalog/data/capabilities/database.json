@@ -1,0 +1,67 @@
+[
+  {
+    "id": "managed-relational",
+    "category": "database",
+    "name": { "en": "Managed relational", "zh": "代管關聯式資料庫" },
+    "keywords": ["mysql", "postgresql", "sql server", "relational database"],
+    "services": {
+      "aws": [{ "name": "Amazon RDS", "aliases": ["RDS", "RDS for PostgreSQL", "RDS for MySQL"] }],
+      "azure": [{ "name": "Azure SQL Database" }, { "name": "Azure Database for PostgreSQL", "aliases": ["Azure Database for MySQL"] }],
+      "gcp": [{ "name": "Cloud SQL" }]
+    },
+    "attributes": [
+      {
+        "label": { "en": "Engines (examples)", "zh": "支援引擎（舉例）" },
+        "values": {
+          "aws": "PostgreSQL, MySQL, MariaDB, SQL Server, Oracle, Db2",
+          "azure": "SQL Server (Azure SQL), PostgreSQL, MySQL",
+          "gcp": "PostgreSQL, MySQL, SQL Server"
+        }
+      }
+    ]
+  },
+  {
+    "id": "cloud-native-relational",
+    "category": "database",
+    "name": { "en": "Cloud-native relational", "zh": "雲端原生關聯式" },
+    "keywords": ["distributed storage engine"],
+    "services": {
+      "aws": [{ "name": "Amazon Aurora", "aliases": ["Aurora", "Aurora Serverless"] }],
+      "azure": [{ "name": "Azure SQL Database Hyperscale", "aliases": ["Hyperscale"] }],
+      "gcp": [{ "name": "AlloyDB for PostgreSQL", "aliases": ["AlloyDB"] }]
+    }
+  },
+  {
+    "id": "distributed-sql",
+    "category": "database",
+    "name": { "en": "Globally distributed SQL", "zh": "全球分散式 SQL" },
+    "keywords": ["globally distributed", "multi-region active-active", "distributed sql"],
+    "services": {
+      "aws": [{ "name": "Amazon Aurora DSQL", "aliases": ["Aurora DSQL"] }],
+      "azure": [{ "name": "Azure Cosmos DB", "aliases": ["Cosmos DB"] }],
+      "gcp": [{ "name": "Spanner", "aliases": ["Cloud Spanner"] }]
+    }
+  },
+  {
+    "id": "nosql",
+    "category": "database",
+    "name": { "en": "Key-value & document", "zh": "鍵值與文件資料庫" },
+    "keywords": ["nosql", "key-value", "document database"],
+    "services": {
+      "aws": [{ "name": "Amazon DynamoDB", "aliases": ["DynamoDB", "Amazon DocumentDB"] }],
+      "azure": [{ "name": "Azure Cosmos DB", "aliases": ["Cosmos DB"] }],
+      "gcp": [{ "name": "Firestore", "aliases": ["Bigtable", "Cloud Bigtable"] }]
+    }
+  },
+  {
+    "id": "in-memory-cache",
+    "category": "database",
+    "name": { "en": "In-memory cache", "zh": "記憶體快取" },
+    "keywords": ["redis", "valkey", "memcached", "cache"],
+    "services": {
+      "aws": [{ "name": "Amazon ElastiCache", "aliases": ["ElastiCache", "Amazon MemoryDB"] }],
+      "azure": [{ "name": "Azure Managed Redis", "aliases": ["Azure Cache for Redis"] }],
+      "gcp": [{ "name": "Memorystore" }]
+    }
+  }
+]

@@ -1,0 +1,46 @@
+[
+  {
+    "id": "message-queue",
+    "category": "integration",
+    "name": { "en": "Message queue", "zh": "訊息佇列" },
+    "keywords": ["message queue", "queue", "pub/sub messaging"],
+    "services": {
+      "aws": [{ "name": "Amazon SQS", "aliases": ["SQS", "Amazon SNS", "SNS"] }],
+      "azure": [{ "name": "Azure Service Bus", "aliases": ["Service Bus", "Queue Storage"] }],
+      "gcp": [{ "name": "Pub/Sub", "aliases": ["Cloud Tasks"] }]
+    }
+  },
+  {
+    "id": "event-bus",
+    "category": "integration",
+    "name": { "en": "Event bus & routing", "zh": "事件匯流排" },
+    "keywords": ["event bus", "event-driven", "event routing"],
+    "services": {
+      "aws": [{ "name": "Amazon EventBridge", "aliases": ["EventBridge"] }],
+      "azure": [{ "name": "Azure Event Grid", "aliases": ["Event Grid"] }],
+      "gcp": [{ "name": "Eventarc" }]
+    }
+  },
+  {
+    "id": "workflow-orchestration",
+    "category": "integration",
+    "name": { "en": "Workflow orchestration", "zh": "工作流程編排" },
+    "keywords": ["workflow", "orchestration", "state machine"],
+    "services": {
+      "aws": [{ "name": "AWS Step Functions", "aliases": ["Step Functions", "Amazon MWAA"] }],
+      "azure": [{ "name": "Azure Logic Apps", "aliases": ["Logic Apps"] }],
+      "gcp": [{ "name": "Workflows", "aliases": ["Cloud Composer"] }]
+    }
+  },
+  {
+    "id": "api-management",
+    "category": "integration",
+    "name": { "en": "API management", "zh": "API 管理" },
+    "keywords": ["api gateway", "api management", "rest api"],
+    "services": {
+      "aws": [{ "name": "Amazon API Gateway", "aliases": ["API Gateway"] }],
+      "azure": [{ "name": "Azure API Management", "aliases": ["APIM"] }],
+      "gcp": [{ "name": "Apigee", "aliases": ["API Gateway"] }]
+    }
+  }
+]
