@@ -6,7 +6,9 @@ import { dateTime } from "@/lib/format";
 import { t, TYPE_LABEL } from "@/lib/i18n";
 import { filterItems, useFeed } from "@/lib/items";
 import { usePrefs } from "@/lib/prefs";
+import { reports } from "@/lib/reports";
 import { CategoryRail } from "./CategoryRail";
+import { ReportsCard } from "./reports/ReportChrome";
 import { FeedList, FeedStatus } from "./Feed";
 import { ProviderFilter, toggle } from "./ProviderFilter";
 import { EquivalentsCard, EventsCard, ItemListCard } from "./SideCards";
@@ -107,6 +109,7 @@ export function PulsePage({ category }: { category?: string }) {
 
       <aside aria-label="Context" className="flex max-w-[360px] flex-[1_1_300px] flex-col gap-4">
         {focus && <EquivalentsCard capability={focus} />}
+        <ReportsCard items={reports.slice(0, 3)} />
         <ItemListCard title={t("research", lang)} items={research} />
         <EventsCard />
       </aside>

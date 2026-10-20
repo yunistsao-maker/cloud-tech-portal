@@ -80,6 +80,9 @@ export function Shell({ children }: { children: ReactNode }) {
             <NavLink href="/category/ai-ml/" active={path.startsWith("/category")}>
               {t("categories", lang)}
             </NavLink>
+            <NavLink href="/reports/" active={path.startsWith("/reports")}>
+              {t("reports", lang)}
+            </NavLink>
           </nav>
           <SearchBox />
           <div role="group" aria-label={t("language", lang)} className="flex overflow-hidden rounded-lg border border-control">

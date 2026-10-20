@@ -6,7 +6,9 @@ import { useMemo, useState } from "react";
 import { t, TYPE_LABEL } from "@/lib/i18n";
 import { filterItems, recentlyChanged, useFeed } from "@/lib/items";
 import { usePrefs } from "@/lib/prefs";
+import { reportsFor } from "@/lib/reports";
 import { PROVIDER_TEXT } from "./Badges";
+import { ReportsCard } from "./reports/ReportChrome";
 import { FeedList, FeedStatus } from "./Feed";
 import { compareHref } from "./SearchBox";
 import { EventsCard, ItemListCard } from "./SideCards";
@@ -101,6 +103,7 @@ export function CategoryHub({ id }: { id: string }) {
           )}
         </section>
         <aside aria-label="Context" className="flex max-w-[400px] flex-[1_1_320px] flex-col gap-4">
+          <ReportsCard items={reportsFor({ category: id })} />
           <ItemListCard title={t("lifecycle", lang)} items={lifecycle} />
           <ItemListCard title={t("research", lang)} items={research} />
           <EventsCard />

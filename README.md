@@ -78,6 +78,19 @@ Retained on `cdk destroy`: the DynamoDB table (PITR on) and the versioned data b
 
 Each category is one file in `packages/catalog/data/capabilities/`. A capability has bilingual names, keywords for the tagger, one or more services per provider (with `aliases` and `formerly`), and optional `attributes` rows for the Compare detail panel. Mark a value you have not confirmed against current docs with `"needsReview": true` — the UI flags it. `npm test` validates the schema, unique ids and that every capability names a service on all three clouds.
 
+## Reports
+
+Long-form surveys live under `/reports/`, each tagged with the categories and capabilities it covers, so it also appears on those category hubs and in the Compare detail panel.
+
+A report is written in Claude Docs and imported as JSON:
+
+1. Save the doc tab's XML (from the Claude Docs connector's `read` of the tab) to a file.
+2. Write a small meta file: `slug`, `summary` (`en` + `zh`), `lang`, `categories`, `capabilities`, `sourceUrl`.
+3. `cd apps/web && npx tsx scripts/import-doc.ts tab.xml meta.json > content/reports/<slug>.json`
+4. Add the import to `lib/reports.ts`. If the doc has embedded diagrams, register a component for each embed id in `components/reports/ReportBody.tsx` (tests fail on an unregistered figure).
+
+The page links back to the source doc, which stays the place to edit; re-run the import to refresh.
+
 ## Known gaps (milestone 1)
 
 - The Google Cloud Blog feed returned HTTP 500 from the build sandbox; check its row in the first Lambda run's log.

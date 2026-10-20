@@ -41,6 +41,16 @@ const STRINGS = {
   showMore: { en: "Show more", zh: "顯示更多" },
   upcoming: { en: "Upcoming", zh: "即將舉行" },
   untagged: { en: "Unmapped", zh: "未分類" },
+  reports: { en: "Reports", zh: "研究報告" },
+  reportsIntro: {
+    en: "In-depth surveys written by the team, each tied to the capabilities it covers.",
+    zh: "團隊撰寫的深度調查報告，並對應到所涵蓋的雲端能力。",
+  },
+  contents: { en: "Contents", zh: "目錄" },
+  coversCapabilities: { en: "Covers", zh: "涵蓋能力" },
+  editableSource: { en: "Open the editable source doc", zh: "開啟可編輯的原始文件" },
+  readReport: { en: "Read report", zh: "閱讀報告" },
+  bodyInChinese: { en: "Report body is in Traditional Chinese.", zh: "" },
 } satisfies Record<string, Record<Lang, string>>;
 
 export type StringKey = keyof typeof STRINGS;

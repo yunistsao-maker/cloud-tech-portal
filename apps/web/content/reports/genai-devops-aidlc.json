@@ -1,0 +1,4170 @@
+{
+  "slug": "genai-devops-aidlc",
+  "title": "GenAI for Cloud DevOps & AIDLC — Research Survey",
+  "summary": {
+    "en": "How GenAI agents now span spec, IaC, CI, operations, security and modernisation in cloud DevOps: market data, the AWS AI-DLC methodology, the cross-cloud tool landscape, security risks, and an 18-month, three-phase adoption roadmap for Cloud, CCoE and AICoE teams.",
+    "zh": "GenAI 在雲端 DevOps 已從寫程式的 copilot 擴展到規格、IaC、CI、維運、安全與現代化全流程。本調查整理市場數據、AWS AI-DLC 方法論、跨雲工具版圖、安全風險，以及給 Cloud、CCoE、AICoE 團隊的 18 個月三階段導入路線圖。"
+  },
+  "author": "Eunice Tsao",
+  "publishedAt": "2026-10-20",
+  "lang": "zh-Hant-TW",
+  "categories": [
+    "ai-ml",
+    "devops",
+    "security"
+  ],
+  "capabilities": [
+    "agent-runtime",
+    "foundation-model-platform",
+    "ci-cd",
+    "infrastructure-as-code",
+    "ai-guardrails",
+    "monitoring"
+  ],
+  "sourceUrl": "https://claude.ai/artifact/NWnLrsvTDrNQAQS5KX5fD1",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "執行摘要-executive-summary",
+      "text": "執行摘要 Executive Summary"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "GenAI 在雲端 DevOps 已從「寫程式的 copilot」擴展到「規格、IaC、CI、維運、安全、現代化」全流程的 agent；成效取決於工程基本功與治理，而不是工具本身。",
+          "bold": true
+        },
+        {
+          "text": " 建議 Cloud team、CCoE、AICoE 以 AWS AI-DLC 為方法論骨架，分三階段導入，先從低風險、可驗證的情境開始。"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        [
+          [
+            {
+              "text": "市場",
+              "bold": true
+            },
+            {
+              "text": "：約 90% 開發者已使用 AI，但僅 3% 高度信任其產出；DORA 證實 AI 是「放大器」，成熟團隊受益、不成熟團隊放大問題。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "方法論",
+              "bold": true
+            },
+            {
+              "text": "：AI-DLC 採「AI 規劃與執行、人類決策與核可」，以 Inception → Construction → Operations 三階段與 Mob Elaboration／Mob Construction 儀式落實，已開源為 rules／steering。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "工具",
+              "bold": true
+            },
+            {
+              "text": "：AWS 主力為 Kiro（取代 Q Developer，後者 IDE plugin 於 2027-04-30 停止支援）、AWS DevOps Agent 與 Security Agent（2026-03 GA）、AWS Transform；競品包含 GitHub Copilot + Azure SRE Agent、Gemini Cloud Assist、GitLab Duo Agent Platform。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "高價值情境",
+              "bold": true
+            },
+            {
+              "text": "：自主 RCA、IaC 產生與守門、測試生成、runtime／框架升級、FinOps 異常調查。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "安全",
+              "bold": true
+            },
+            {
+              "text": "：AI 產生的程式碼約 45% 含漏洞；MCP tool poisoning 與惡意 skills 已有實際案例。控制核心是 agent 身分最小權限、MCP 白名單、工具呼叫邊界的政策強制與完整稽核。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "趨勢",
+              "bold": true
+            },
+            {
+              "text": "：開放標準（MCP、A2A、AGENTS.md）在 Linux Foundation 下收斂；Gartner 預測 2027 年底前超過 40% agent 專案會因 ROI 不明被取消。"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "對三個團隊的一句話建議",
+      "text": "對三個團隊的一句話建議"
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "團隊"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "首要行動"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Cloud／平台團隊"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "在 CI 加入 AI 產出驗證關卡，並以 DevOps Agent 做唯讀 RCA POC"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "CCoE"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "把 Landing Zone 與安全基線寫成 steering／rules 與 policy-as-code，讓 AI 產出預設合規"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "AICoE"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "發布 AI 使用政策與核准工具清單，建立 agent 平台（AgentCore + MCP Gateway）與評測機制"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "市場趨勢-market-trends",
+      "text": "市場趨勢 Market Trends"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：GenAI 在開發端已近乎全面採用（約 90%），但組織層級的交付效益取決於平台與流程成熟度；2026 年焦點已從「Copilot 輔助」轉向「自主代理（agent）進入 DevOps 與維運」。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "關鍵數據",
+      "text": "關鍵數據"
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "指標"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "數值"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "來源"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "軟體從業者 AI 採用率"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "90%（較 2024 年 +14%），每日中位數使用約 2 小時"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Google DORA 2025",
+                  "href": "https://blog.google/technology/developers/dora-report-2025/"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "認為 AI 提升程式碼品質"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "59%"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Google DORA 2025",
+                  "href": "https://blog.google/technology/developers/dora-report-2025/"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "對 AI 產出僅「有點信任」或「不信任」"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "30%"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "TechRepublic",
+                  "href": "https://www.techrepublic.com/article/news-dora-ai-report-2025/"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "開發者使用或計畫使用 AI 工具"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "84%；不信任其準確度 46%，高度信任僅 3%"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "InfoWorld / Stack Overflow 2025",
+                  "href": "https://infoworld.com/article/4031673/ai-use-among-software-developers-grows-but-trust-remains-an-issue-stack-overflow-survey.html"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "每日使用 AI agent 的開發者"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "14%；38% 無採用計畫"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "The Decoder / Stack Overflow 2025",
+                  "href": "https://the-decoder.com/developers-rely-on-ai-tools-more-than-ever-but-trust-is-slipping/"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "對 agent 有安全／隱私疑慮"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "81%；對準確度有疑慮 87%"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "The Decoder",
+                  "href": "https://the-decoder.com/developers-rely-on-ai-tools-more-than-ever-but-trust-is-slipping/"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026 年企業應用內嵌任務型 AI agent（Gartner 預測）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "40%（2025 年低於 5%）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Mind Studios 引述 Gartner",
+                  "href": "https://themindstudios.com/blog/software-development-trends/"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "五個趨勢判讀",
+      "text": "五個趨勢判讀"
+    },
+    {
+      "type": "list",
+      "kind": "ordered",
+      "items": [
+        [
+          [
+            {
+              "text": "AI 是「放大器」而非解方",
+              "bold": true
+            },
+            {
+              "text": "：DORA 2025 將團隊分為七群，只有成熟度最高的兩群能在提升吞吐量時不增加變更失敗率；其餘團隊的速度增益多被品質問題抵銷 ("
+            },
+            {
+              "text": "Rob Bowley 分析",
+              "href": "https://blog.robbowley.net/2025/10/01/dora-2025-ai-assisted-dev-report-some-benefit-most-dont/"
+            },
+            {
+              "text": ")。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "ROI 來自工程系統，不是工具本身",
+              "bold": true
+            },
+            {
+              "text": "：DORA 2026 年的 AI ROI 研究指出回報取決於內部平台品質、流程清晰度與團隊對齊 ("
+            },
+            {
+              "text": "Allstacks",
+              "href": "https://www.allstacks.com/blog/why-engineering-infrastructure-not-tools-drives-returns"
+            },
+            {
+              "text": ")。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "瓶頸往下游移動",
+              "bold": true
+            },
+            {
+              "text": "：程式碼產出變快後，瓶頸轉到審查、驗證、基礎設施與部署 ("
+            },
+            {
+              "text": "Encore 2026",
+              "href": "https://encore.dev/library/state-of-ai-native-delivery-2026"
+            },
+            {
+              "text": ")。DORA 也新增 rework rate 作為第五項指標 ("
+            },
+            {
+              "text": "Pulse",
+              "href": "https://pulse.support/blog/dora-metrics-devops"
+            },
+            {
+              "text": ")。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "平台工程成為 AI 的治理層",
+              "bold": true
+            },
+            {
+              "text": "：Gartner 2026 平台工程 Hype Cycle 提出 Agent Experience（AX），要求 API、文件、流程對 agent 可讀、可發現 ("
+            },
+            {
+              "text": "TrueFoundry 解讀",
+              "href": "https://www.truefoundry.com/es/blog/decoding-the-gartner-hype-cycle-for-platform-engineering-2026"
+            },
+            {
+              "text": ")。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "雲端大廠推出「自主維運代理」",
+              "bold": true
+            },
+            {
+              "text": "：AWS DevOps Agent、Azure SRE Agent 等已 GA，維運端成為 2026 年 agent 落地最快的領域之一（詳見工具版圖）。"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "對 CCoE／AICoE 的意涵：導入前應先評估 DevOps 成熟度（版本控制、測試、小批次交付），否則 AI 只會放大既有問題。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "aidlc-概念與方法論",
+      "text": "AIDLC 概念與方法論"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：AWS AI-DLC（AI-Driven Development Lifecycle）走的是「AI 主導執行、人類決策與核可」的中間路線，介於 AI 自動補全與全自動開發之間；它是方法論而非單一工具，可在 Kiro、Q Developer 或其他 coding agent 上以 rules／steering 落地。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "核心心智模型",
+      "text": "核心心智模型"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "AI 先產出計畫並提出澄清問題 → 人類回答與核可 → AI 執行 → 人類驗證結果；此循環在每一個 SDLC 活動重複 ("
+        },
+        {
+          "text": "AWS DevOps Blog, 2025-07-31",
+          "href": "https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle"
+        },
+        {
+          "text": ")。計畫、需求與設計產物存回 repo，讓跨 session 的 context 可延續。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "三個階段",
+      "text": "三個階段"
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "階段"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AI 做什麼"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "人類儀式"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Inception"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "將業務意圖轉為需求、user stories、Units of Work"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Mob Elaboration：全團隊即時驗證 AI 的問題與提案"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Construction"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "提出邏輯架構、領域模型、程式碼與測試"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Mob Construction：團隊即時釐清技術與架構決策"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Operations"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "以累積的 context 管理 IaC 與部署"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "團隊監督部署與維運"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "術語變化",
+      "text": "術語變化"
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "傳統 Agile"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AI-DLC"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Sprint（週）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Bolt（小時到天）"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Epic"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Unit of Work"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "冗長規格撰寫"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "一句 Intent 起手，由 AI 追問細節"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "開源-workflow-與-適應性-原則",
+      "text": "開源 workflow 與「適應性」原則"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "2025-11-29 AWS 開源 "
+        },
+        {
+          "text": "awslabs/aidlc-workflows",
+          "href": "https://github.com/awslabs/aidlc-workflows"
+        },
+        {
+          "text": "，以 Amazon Q Rules 與 Kiro Steering Files 實作 ("
+        },
+        {
+          "text": "AWS DevOps Blog",
+          "href": "https://aws.amazon.com/blogs/devops/open-sourcing-adaptive-workflows-for-ai-driven-development-life-cycle-ai-dlc/"
+        },
+        {
+          "text": ")。它針對三個常見問題："
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        [
+          [
+            {
+              "text": "流程一體適用",
+              "bold": true
+            },
+            {
+              "text": "：修一個 bug 不需要完整需求分析；AI 依意圖建議要跑哪些階段（Principle 10：不寫死 SDLC 流程）。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "深度無法調整",
+              "bold": true
+            },
+            {
+              "text": "：小工具不需要完整 DDD；AI 依複雜度調整每階段深度，由人類調整。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "過度自動化",
+              "bold": true
+            },
+            {
+              "text": "：避免「process atrophy」，每個決策點都要人類核可，且所有核可都留下稽核紀錄。"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "與-spec-driven-development-的關係",
+      "text": "與 Spec-Driven Development 的關係"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "Kiro 的 spec 流程（requirements → design → tasks）是 AI-DLC Inception／Construction 在 IDE 內的具體實作；金融業版本強調 AI-DLC 是「治理密集」的方法，對受監管產業更易被接受 ("
+        },
+        {
+          "text": "AWS for Industries",
+          "href": "https://aws.amazon.com/de/blogs/industries/ai-driven-development-lifecycle-for-financial-services/"
+        },
+        {
+          "text": ")。對 CCoE 而言，steering／rules 檔即是「把組織標準（命名、安全基線、架構模式）編碼給 AI」的載體，應納入版本控管與審查。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "工具版圖-tool-landscape",
+      "text": "工具版圖 Tool Landscape"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：2026 年各大廠都已把 AI 從 IDE 延伸到維運與安全，形成「coding agent + DevOps/SRE agent + 現代化 agent + MCP 連接層」四層結構；AWS 的主力組合是 Kiro、AWS DevOps Agent、AWS Security Agent、AWS Transform。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "aws-生態",
+      "text": "AWS 生態"
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "工具"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "定位"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "狀態與重點"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Kiro",
+                  "href": "https://kiro.dev/"
+                },
+                {
+                  "text": "（IDE／CLI／Cloud Agent）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Spec-driven agentic IDE，取代 Q Developer"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2026-03 GA；具 agent hooks、steering、MCP、Kiro Powers、headless CLI ("
+                },
+                {
+                  "text": "softwareseni",
+                  "href": "https://www.softwareseni.com/aws-kiro-amazons-spec-first-bet-on-agentic-development/"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Amazon Q Developer IDE plugins",
+                  "href": "https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/q-developer-ide-end-of-support.html"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "舊版 coding assistant"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2027-04-30 終止支援，官方建議遷移至 Kiro"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "AWS DevOps Agent",
+                  "href": "https://aws.amazon.com/blogs/aws/aws-devops-agent-helps-you-accelerate-incident-response-and-improve-system-reliability-preview"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Frontier agent：自主 on-call、RCA、事件預防"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2026-03-31 GA；支援 AWS／Azure／地端，整合 PagerDuty、Grafana、Datadog、GitHub、Azure DevOps；按秒計費 ("
+                },
+                {
+                  "text": "aws-news",
+                  "href": "https://aws-news.com/article/2026-03-31-announcing-general-availability-of-aws-devops-agent"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "AWS Security Agent"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "自主滲透測試與應用安全"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2026-03-31 與 DevOps Agent 同步 GA ("
+                },
+                {
+                  "text": "itdaily",
+                  "href": "https://itdaily.com/news/software/aws-frontier-agents/"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "AWS Transform",
+                  "href": "https://aws.amazon.com/transform/"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Agentic 現代化：.NET、mainframe、VMware、custom 轉換"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Transform custom 2025-12 GA；.NET CLI 2026-09 GA，每月含 50,000 免費 agent 分鐘 ("
+                },
+                {
+                  "text": "What's New",
+                  "href": "https://aws.amazon.com/about-aws/whats-new/2026/09/aws-transform-dotnet-cli"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Bedrock AgentCore"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "自建 DevOps agent 的執行平台（Runtime、Gateway、Identity、Observability）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "適合 AICoE 打造內部專屬 agent"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "AWS 官方宣稱 DevOps Agent 在 preview 客戶中 MTTR 最多降低 75%、調查速度快 80%、RCA 準確率 94% ("
+        },
+        {
+          "text": "AWS 發表文",
+          "href": "https://aihub.hkuspace.hku.hk/?p=6103"
+        },
+        {
+          "text": ")；此為廠商數據，建議 POC 自行驗證。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "其他雲與平台",
+      "text": "其他雲與平台"
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "廠商"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Coding / 交付"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "維運 / SRE"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Microsoft / GitHub"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "GitHub Copilot agent mode、coding agent、app modernization agent ("
+                },
+                {
+                  "text": "Azure Blog",
+                  "href": "https://azure.microsoft.com/en-us/blog/agentic-devops-evolving-software-development-with-github-copilot-and-microsoft-azure/"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Azure SRE Agent：24/7 監控、自動排障，修復動作記錄為 GitHub issue"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Google Cloud"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Gemini Code Assist／Gemini CLI"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Gemini Cloud Assist investigations",
+                  "href": "https://docs.cloud.google.com/cloud-assist/investigations"
+                },
+                {
+                  "text": "：RCA agent，可分析成本暴增；背景執行時用專屬 Agent Identity"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "GitLab"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Duo Agent Platform",
+                  "href": "https://about.gitlab.com/blog/gitlab-duo-agent-platform-is-generally-available/"
+                },
+                {
+                  "text": "（2026-01-15 GA）：Planner、Security Analyst 等 foundational agents"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "涵蓋 DevSecOps 全流程"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Datadog"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "—"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Bits AI SRE",
+                  "href": "https://www.datadoghq.com/ja/about/latest-news/press-releases/datadog-launches-bits-ai-sre-agent-to-resolve-incidents-faster/"
+                },
+                {
+                  "text": "（2025-12 GA）：自動調查告警並提出根因"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "PagerDuty / incident.io"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "—"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AIOps 降噪、Slack 內事件生命週期 ("
+                },
+                {
+                  "text": "Augment 評比",
+                  "href": "https://www.augmentcode.com/tools/best-ai-sre-tools"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "mcp-連接層-iac-與雲端-api",
+      "text": "MCP 連接層（IaC 與雲端 API）"
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        [
+          [
+            {
+              "text": "Terraform MCP Server",
+              "bold": true
+            },
+            {
+              "text": "（HashiCorp 官方，2026-06 GA）：讓 agent 查詢 Registry 文件、模組、Sentinel 政策並操作 HCP Terraform 工作區，沿用既有 Terraform 授權，不讓 agent 直接持有憑證 ("
+            },
+            {
+              "text": "InfoQ",
+              "href": "https://infoq.com/news/2026/06/terraform-mcp-server-ga/"
+            },
+            {
+              "text": ")。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "Pulumi、kubectl、Azure、Datadog 等 MCP servers",
+              "bold": true
+            },
+            {
+              "text": " 已普及 ("
+            },
+            {
+              "text": "fast.io 整理",
+              "href": "https://fast.io/resources/best-mcp-servers-for-cloud-infrastructure/"
+            },
+            {
+              "text": ")。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "AWS MCP servers",
+              "bold": true
+            },
+            {
+              "text": "（awslabs）：CDK、CloudFormation、Cost Explorer、EKS 等，可接 Kiro 或任何 MCP client。"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "選型原則：CCoE 應以「工具可替換」為前提，標準化 MCP、Agent Skills（SKILL.md）與 rules／steering 檔，而不是綁定單一 IDE。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "devops-生命週期使用情境-use-cases",
+      "text": "DevOps 生命週期使用情境 Use Cases"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：建議優先導入「讀多寫少、可驗證、可回滾」的情境（RCA、文件、IaC 審查、測試生成、版本升級），高風險寫入動作（直接改 production、自動合併）放在後期並保留人工核可。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "階段"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "GenAI 使用情境"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "代表工具"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "成熟度"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "主要負責"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Plan"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "意圖 → 需求、user story、Units of Work；backlog 拆解"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Kiro spec、AI-DLC Inception、GitLab Planner Agent"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "中"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "產品 + 架構"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Code"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Agentic coding、重構、程式碼解說、內部 SDK 使用指引"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Kiro、GitHub Copilot、Claude Code、Gemini CLI"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "高"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "開發團隊"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "IaC"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "產生／審查 Terraform、CDK、CloudFormation；plan 解說；drift 偵測；政策（Sentinel/OPA）檢查"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Terraform MCP、AWS CDK／CFN MCP、Pulumi Neo"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "中高"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Cloud／平台團隊"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Build / CI"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "失敗 pipeline 自動診斷、建置腳本修正、headless agent 在 CI 執行任務"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Kiro CLI headless、Copilot coding agent、GitLab Duo"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "中"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "平台團隊"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Test"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "單元／property-based 測試生成、測試缺口分析、E2E 腳本"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Kiro（property-based tests）、Copilot"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "中高"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "開發 + QA"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Review / Sec"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AI code review、SAST 結果分級與修補建議、滲透測試"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AWS Security Agent、GitLab Security Analyst、Snyk/Veracode"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "中"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "資安 + 平台"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Deploy / Release"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "變更風險評估、release notes、部署前檢查"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AWS DevOps Agent release management（preview）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "低中"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "SRE"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Operate / SRE"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "告警分流、RCA、runbook 執行、事後檢討草稿、事件預防建議"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AWS DevOps Agent、Azure SRE Agent、Gemini Cloud Assist、Datadog Bits AI SRE"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "中高"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "SRE／維運"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "FinOps"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "成本異常調查、rightsizing 建議、標籤合規"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Gemini Cloud Assist（成本調查）、AWS Cost Explorer MCP"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "中"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "CCoE"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Modernize"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "語言／框架升級、.NET／Java 現代化、mainframe 轉換"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AWS Transform custom、GitHub Copilot app modernization"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "中高"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "應用團隊 + CCoE"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Knowledge"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "內部文件問答、架構決策紀錄（ADR）、新人 onboarding"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Bedrock Knowledge Bases、Amazon Quick"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "高"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AICoE"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "雲端團隊-ccoe-aicoe-的高價值切入點",
+      "text": "雲端團隊／CCoE／AICoE 的高價值切入點"
+    },
+    {
+      "type": "list",
+      "kind": "ordered",
+      "items": [
+        [
+          [
+            {
+              "text": "Landing Zone 與 IaC 守門",
+              "bold": true
+            },
+            {
+              "text": "：把 CCoE 的安全基線、命名與標籤規則寫成 steering／rules，讓 coding agent 產出的 IaC 預設合規，再由 policy-as-code 在 CI 擋下例外。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "自主 RCA",
+              "bold": true
+            },
+            {
+              "text": "：維運端每次事件先由 agent 調查並附上證據，人類只做判斷；這是目前廠商數據最完整、風險最低的 agent 情境。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "技術債清償",
+              "bold": true
+            },
+            {
+              "text": "：以 AWS Transform custom 批次處理 runtime／SDK 升級，例如 Java 8→17、Python／Node.js 版本、Lambda 現代化 ("
+            },
+            {
+              "text": "What's New",
+              "href": "https://aws.amazon.com/about-aws/whats-new/2025/12/transform-custom-organization-wide-modernization"
+            },
+            {
+              "text": ")。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "內部 agent 平台",
+              "bold": true
+            },
+            {
+              "text": "：AICoE 以 Bedrock AgentCore 提供統一的 Runtime、Gateway、Identity 與觀測能力，讓各團隊的 DevOps agent 走同一套治理。"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "社群觀點-community-insights",
+      "text": "社群觀點 Community Insights"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：實務社群的共識是「結構化（spec／rules）+ 嚴格驗證 + 限縮權限」，並對生產力宣稱保持懷疑；主要爭論在 spec 的粒度與 agent 自主程度。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "來源"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "觀點重點"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "對我們的啟示"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Thoughtworks Tech Radar Vol.34（2026-04）",
+                  "href": "https://www.thoughtworks.com/en-us/radar"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "主題包含「為權限飢渴的 agent 加固」「替 coding agent 套上牽繩」；認可 GitHub Spec Kit、OpenSpec 等 SDD 框架；提醒 cognitive debt 與人類退出迴圈的誘惑"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "人在迴圈內要設計成流程，不是口號"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Thoughtworks：Spec-driven development（Assess）",
+                  "href": "https://www.thoughtworks.com/radar/techniques/spec-driven-development"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Kiro、spec-kit、Tessl 對 SDD 詮釋不同；部分工具產生冗長難審的規格"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "先以小範圍試行，量測審查負擔"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Birgitta Böckeler, martinfowler.com",
+                  "href": "https://www.martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "比較三種 SDD 工具，Kiro 最輕量；spec-kit 最可客製但冗長，agent 仍可能忽略 constitution"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Steering／constitution 不等於強制，需要 CI 端的驗證"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Simon Willison：Lethal Trifecta",
+                  "href": "https://aiweekly.co/alerts/willison-names-lethal-trifecta-behind-ai-agent-data-leaks"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "私有資料存取 + 不受信任內容 + 對外通訊同時存在時，prompt injection 可導致資料外洩；95% 攔截率的 guardrail 不及格"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "每個 DevOps agent 設計時先檢查三要素，至少拿掉一個"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Meta：Agents Rule of Two",
+                  "href": "https://memx.app/blog/lethal-trifecta-ai-agent-data-exfiltration/"
+                },
+                {
+                  "text": "（2025-10）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "單一 session 最多同時具備三要素中的兩項"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "可直接寫進 AICoE 的 agent 設計審查清單"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "METR 隨機對照實驗（2025-07）",
+                  "href": "https://newsletter.getdx.com/p/metr-study-on-how-ai-affects-developer-productivity"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "16 位資深開發者在熟悉的大型 repo 中用 AI 反而慢 19%，但自認快 20%"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "生產力要用實測數據，不能用自評問卷"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "GitLab：AI paradox",
+                  "href": "https://about.gitlab.com/blog/gitlab-duo-agent-platform-is-generally-available/"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "開發者只有約 20% 時間在寫程式，加速寫程式只帶來增量改善，瓶頸轉到審查與合規"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "投資要延伸到 review、測試、安全，而非只買 coding 工具"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Rob Bowley 解讀 DORA",
+                  "href": "https://blog.robbowley.net/2025/10/01/dora-2025-ai-assisted-dev-report-some-benefit-most-dont/"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "約四分之三的產業尚未具備從 AI coding 受益的條件"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "先補 DevOps 基本功"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "值得追蹤的社群資源",
+      "text": "值得追蹤的社群資源"
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        [
+          [
+            {
+              "text": "awslabs/aidlc-workflows",
+              "href": "https://github.com/awslabs/aidlc-workflows"
+            },
+            {
+              "text": "：AI-DLC rules／steering 開源實作。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "GitHub Spec Kit、OpenSpec：與工具無關的 SDD 框架。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "OWASP GenAI Security Project",
+              "href": "https://genai.owasp.org/"
+            },
+            {
+              "text": "：LLM Top 10、Agentic Top 10、MCP Top 10。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "Cloud Security Alliance AI Safety Initiative：MCP 與 coding agent 攻擊面研究。"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "最佳實踐與營運模式-best-practices-and-operating-model",
+      "text": "最佳實踐與營運模式 Best Practices & Operating Model"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：採「聯邦式」營運模式——AICoE 定義 AI 政策與 agent 平台，CCoE 把雲端治理編碼進 AI 工具鏈，Cloud／平台團隊負責落地與量測；以 DORA 七項 AI 能力作為成熟度基準。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "dora-ai-capabilities-model-七項放大-ai-效益的能力",
+      "text": "DORA AI Capabilities Model（七項放大 AI 效益的能力）"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "依 "
+        },
+        {
+          "text": "Google Cloud 部落格",
+          "href": "https://cloud.google.com/blog/products/ai-machine-learning/introducing-doras-inaugural-ai-capabilities-model"
+        },
+        {
+          "text": " 與 "
+        },
+        {
+          "text": "Techstrong",
+          "href": "https://techstrong.ai/features/ai-doesnt-fix-whats-already-broken-what-doras-new-model-tells-us-about-getting-ai-right/"
+        },
+        {
+          "text": "："
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "ordered",
+      "items": [
+        [
+          [
+            {
+              "text": "清楚且公開的 AI 立場",
+              "bold": true
+            },
+            {
+              "text": "：明確允許哪些工具、期望與實驗空間。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "健康的資料生態",
+              "bold": true
+            },
+            {
+              "text": "：內部資料品質高、可取得、統一。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "AI 可存取的內部資料",
+              "bold": true
+            },
+            {
+              "text": "：讓 AI 連到內部文件與程式碼脈絡。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "嚴謹的版本控制",
+              "bold": true
+            },
+            {
+              "text": "：頻繁 commit、可快速回滾。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "小批次工作",
+              "bold": true
+            },
+            {
+              "text": "：降低 AI 大量產出帶來的審查與失敗風險。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "以使用者為中心",
+              "bold": true
+            },
+            {
+              "text": "：缺乏使用者焦點的團隊導入 AI 後績效反而下降。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "高品質內部平台",
+              "bold": true
+            },
+            {
+              "text": "：DORA 指出 90% 組織已有內部平台、76% 有專責平台團隊 ("
+            },
+            {
+              "text": "Google Cloud",
+              "href": "https://cloud.google.com/resources/content/2025-dora-ai-capabilities-model-report?hl=de"
+            },
+            {
+              "text": ")。"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "三個團隊的分工",
+      "text": "三個團隊的分工"
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "面向"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AICoE"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "CCoE"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Cloud／平台團隊"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "政策"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AI 使用政策、核准工具清單、模型與資料分級"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "雲端治理基線轉成 steering／rules、policy-as-code"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "在 repo 與 pipeline 套用 rules 模板"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "平台"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Agent 平台（AgentCore、MCP Gateway、Agent Registry）、評測框架"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Landing Zone、帳號與 IAM 模型、成本歸屬"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "CI/CD 整合 headless agent、觀測與日誌"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "安全"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Agentic 威脅模型（OWASP ASI）、紅隊"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Agent 身分與最小權限、SCP、稽核紀錄"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "SAST/SCA、secrets 掃描、沙箱執行"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "量測"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "採用率、模型成本、品質指標"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "合規率、雲端成本"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "DORA 五項指標、事件 MTTR"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "賦能"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AI-DLC 工作坊、prompt／spec 撰寫訓練"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "架構審查與參考實作"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "內部 champion、經驗分享"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "AWS 建議設立 AI CoE 與模型治理委員會，並建立可重用的 GenAI 模式庫 ("
+        },
+        {
+          "text": "AWS Prescriptive Guidance",
+          "href": "https://docs.aws.amazon.com/prescriptive-guidance/latest/strategy-enterprise-ready-gen-ai-platform/best-practices.html"
+        },
+        {
+          "text": ")；聯邦式模型由中央平台團隊管理身分、guardrails 與存取政策，業務單位在各自帳號內建置 ("
+        },
+        {
+          "text": "AWS ML Blog",
+          "href": "https://aihub.hkuspace.hku.hk/2025/01/30/generative-ai-operating-models-in-enterprise-organizations-with-amazon-bedrock/"
+        },
+        {
+          "text": ")。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "十條實作準則",
+      "text": "十條實作準則"
+    },
+    {
+      "type": "list",
+      "kind": "ordered",
+      "items": [
+        [
+          [
+            {
+              "text": "Spec／rules 進版控",
+              "bold": true
+            },
+            {
+              "text": "：steering、SKILL.md、AI-DLC rules 與程式碼同樣經 PR 審查。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "人工核可設在不可逆動作前",
+              "bold": true
+            },
+            {
+              "text": "：合併到 main、套用 production IaC、刪除資源一律需人類批准。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "Agent 使用專屬身分",
+              "bold": true
+            },
+            {
+              "text": "：不共用個人憑證；短效 token、逐次授權（參照 Gemini Agent Identity、AgentCore Identity 做法）。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "先唯讀，後寫入",
+              "bold": true
+            },
+            {
+              "text": "：維運 agent 先開放 RCA 與建議，累積準確率後再開放修復動作。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "CI 端強制驗證",
+              "bold": true
+            },
+            {
+              "text": "：AI 產出的程式碼與 IaC 一律走 SAST、SCA、policy-as-code、測試覆蓋門檻。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "小批次 PR",
+              "bold": true
+            },
+            {
+              "text": "：限制 agent 單次變更大小，避免審查疲勞。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "MCP server 白名單",
+              "bold": true
+            },
+            {
+              "text": "：只允許經審查且固定版本的 MCP server 與 skills。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "完整稽核",
+              "bold": true
+            },
+            {
+              "text": "：記錄 prompt、工具呼叫、核可者與結果，供事後檢討與法遵。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "量測以實測為準",
+              "bold": true
+            },
+            {
+              "text": "：追蹤 DORA 五項指標（含 rework rate）與成本，不以自評問卷判斷成效。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "保留學習時間",
+              "bold": true
+            },
+            {
+              "text": "：DORA 數據顯示提供結構化學習時間的組織，AI 採用率高 131% ("
+            },
+            {
+              "text": "esynergy 引述 DORA",
+              "href": "https://www.mexc.com/tr-CT/news/761867"
+            },
+            {
+              "text": ")。"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "建議-kpi",
+      "text": "建議 KPI"
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "類別"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "指標"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "交付"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "部署頻率、變更前置時間、變更失敗率、復原時間、rework rate"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "品質／安全"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AI 產出 PR 的缺陷率、漏洞密度、policy 違規次數"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "維運"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "MTTR、RCA 準確率（人工覆核）、告警自動分流比例"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "成本"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "每位開發者 AI 成本、agent 分鐘數、token 用量 vs. 節省工時"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "採用"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "活躍使用者、spec 覆蓋率、開發者體驗（DevEx）調查"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "安全與風險-security-and-risk",
+      "text": "安全與風險 Security & Risk"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：coding agent 與 DevOps agent 已成為新的供應鏈攻擊面；控制重點是「agent 身分最小權限 + MCP／skills 視為供應鏈資產 + 工具呼叫邊界強制政策 + 完整稽核」，不能只靠模型端的 guardrail。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "風險數據",
+      "text": "風險數據"
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "風險"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "證據"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "來源"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "AI 產生的程式碼含漏洞"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "80 個任務、100+ 模型中，45% 引入安全漏洞；Java 失敗率超過 70%；模型越大不代表越安全"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Veracode 2025",
+                  "href": "https://www.veracode.com/press-release/ai-generated-code-poses-major-security-risks-in-nearly-half-of-all-development-tasks-veracode-research-reveals/"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Coding agent 遭 prompt injection"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2026-01 研究指出主流 coding agent 在自適應攻擊下成功率超過 85%"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "CSA Labs",
+                  "href": "https://labs.cloudsecurityalliance.org/research/ai-coding-agent-attack-surface-mcp-repository-poisoning-v1-0/"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "MCP tool poisoning"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "各模型平均攻擊成功率 36.5%；可透過已核准的 Slack MCP 改寫 IDE 的 MCP 設定檔"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "CSA Research Note",
+                  "href": "https://labs.cloudsecurityalliance.org/research/csa-research-note-mcp-tool-poisoning-auto-execution-20260701/"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "MCP server 實作漏洞"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2,614 個實作中，82% 有路徑穿越風險、34% 有命令注入風險"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Endor Labs 整理",
+                  "href": "https://godberrystudios.com/posts/mcp-security-tool-poisoning-prompt-injection-2026/"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "惡意 agent skills"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "3,984 個公開 skills 中 13.4% 有重大安全問題"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Snyk ToxicSkills 整理",
+                  "href": "https://godberrystudios.com/posts/mcp-security-tool-poisoning-prompt-injection-2026/"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "首個惡意 MCP 套件"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2025-09 公開 registry 出現確認的惡意 MCP server（Postmark 後門）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "CSA",
+                  "href": "https://labs.cloudsecurityalliance.org/research-rb/csa-whitepaper-mcp-security-tool-poisoning-20260506-csa-styl/"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "框架對照",
+      "text": "框架對照"
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        [
+          [
+            {
+              "text": "OWASP Top 10 for Agentic Applications 2026",
+              "bold": true,
+              "href": "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026"
+            },
+            {
+              "text": "（2025-12-09）：ASI01–ASI10 涵蓋目標劫持、工具濫用、身分與權限濫用、agentic 供應鏈、非預期程式碼執行、記憶／context 投毒、agent 間通訊不安全、連鎖失效、人機信任被利用、失控 agent ("
+            },
+            {
+              "text": "Modulos 摘要",
+              "href": "https://docs.modulos.ai/frameworks/owasp-top-10-agentic"
+            },
+            {
+              "text": ")。它延伸而非取代 OWASP LLM Top 10；另有 OWASP MCP Top 10 涵蓋工具連接層。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "AWS Agentic AI Security Scoping Matrix",
+              "bold": true,
+              "href": "https://aws.amazon.com/ai/security/agentic-ai-scoping-matrix/"
+            },
+            {
+              "text": "：依 agency 與人類監督程度分四個 scope（無 agency → 預設 agency → 受監督 agency → 完全自主），並列出身分、記憶與狀態等六個安全面向。適合作為 DevOps agent 盤點與分級工具。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "Lethal Trifecta／Rule of Two",
+              "bold": true
+            },
+            {
+              "text": "：同一 session 內避免同時擁有私有資料、不受信任輸入、對外通訊三者（見社群觀點）。"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "devops-情境的控制清單",
+      "text": "DevOps 情境的控制清單"
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "層級"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "控制措施"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "身分"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Agent 專屬 IAM role／service account；短效憑證；禁止 token passthrough；依任務縮小權限（例如 RCA agent 只給唯讀）"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "供應鏈"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "MCP server 與 skills 白名單、固定版本、雜湊驗證；工具描述變更需重新核准；內部 MCP registry"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "執行"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Agent 在沙箱或 microVM 執行；網路 egress 白名單；禁止 agent 自動修改自身 MCP 設定"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "政策邊界"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "在工具呼叫邊界做授權（MCP Gateway、AgentCore Gateway），而不只依賴上游 prompt 過濾 ("
+                },
+                {
+                  "text": "CSA",
+                  "href": "https://labs.cloudsecurityalliance.org/research-rb/csa-whitepaper-mcp-security-agentic-attack-surface-20260516/"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "程式碼"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AI 產出的程式碼走 SAST、SCA、secrets 掃描；IaC 走 policy-as-code（OPA、Sentinel、cfn-guard）"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "人工核可"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "production 變更、權限變更、資料刪除前必經人類批准"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "稽核"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Append-only 紀錄所有 agent 工具呼叫、輸入來源與核可者；接入 SIEM"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "資料"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "資料分級決定可用模型與區域；Gemini Cloud Assist 文件也提醒受資料落地法規限制的資料不應用於調查 ("
+                },
+                {
+                  "text": "Google Cloud Docs",
+                  "href": "https://docs.cloud.google.com/cloud-assist/investigations"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "台灣企業特別注意：金融業需對應金管會的 AI 指引與委外規範，模型推論區域與資料落地要在 AICoE 政策中明確定義。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "未來趨勢-future-trends-2027-起",
+      "text": "未來趨勢 Future Trends（2027 起）"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：未來 2–3 年的主軸是「從單一 copilot 走向受治理的多 agent 系統」；開放標準（MCP、A2A、AGENTS.md）會收斂，但大量不具明確 ROI 的 agent 專案會被淘汰。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "趨勢"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "依據"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "對三個團隊的意涵"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "AI code assistant 成為標配"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Gartner 預測 2028 年 90% 企業軟體工程師使用 AI code assistant（2024 年初低於 14%）("
+                },
+                {
+                  "text": "GitHub Blog",
+                  "href": "https://github.blog/ai-and-ml/github-copilot/gartner-positions-github-as-a-leader-in-the-2025-magic-quadrant-for-ai-code-assistants-for-the-second-year-in-a-row/"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "工具採購不再是差異點；差異在流程與平台"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "工程師角色轉向「引導 agent」"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Gartner 指出 2027 年前約五分之四工程師需要再培訓，並提出 AI engineer 角色 ("
+                },
+                {
+                  "text": "HR Dive",
+                  "href": "https://www.hrdive.com/news/software-engineers-upskilling-generative-AI-Gartner/728988/"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AICoE 需建立 spec 撰寫、agent 審查、評測的培訓路徑"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Agent 專案大量淘汰"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Gartner 預測 2027 年底前超過 40% agentic AI 專案取消，原因是成本、價值不明、風險控管不足；僅約 130 家廠商是真正 agentic ("
+                },
+                {
+                  "text": "Outlook Business",
+                  "href": "https://www.outlookbusiness.com/artificial-intelligence/over-40-of-agentic-ai-projects-will-be-scrapped-by-2027-says-gartner"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "每個 agent 用例都要有可量測 ROI 與退出條件"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "自主決策比例上升"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Gartner 預測 2028 年至少 15% 日常工作決策由 agentic AI 自主做出（2024 年為 0%）("
+                },
+                {
+                  "text": "OODA Loop",
+                  "href": "https://oodaloop.com/briefs/technology/over-40-of-agentic-ai-projects-will-be-scrapped-by-2027-gartner-says"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "核可流程需依 Scoping Matrix 分級，而非一律人工"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "開放標準收斂"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Linux Foundation 於 2025-12-09 成立 Agentic AI Foundation，收納 MCP、goose、AGENTS.md ("
+                },
+                {
+                  "text": "Linux Foundation",
+                  "href": "https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation?hsLang=en"
+                },
+                {
+                  "text": ")；2026-08 會員 247 家，A2A 獲 150+ 組織支持 ("
+                },
+                {
+                  "text": "AI Engineer",
+                  "href": "https://www.ai.engineer/orgs/agentic-ai-foundation"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "CCoE 以標準協定設計內部 agent 架構，降低鎖定"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Agent Experience（AX）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Gartner 2026 平台工程 Hype Cycle 將 AX 評為 Transformational ("
+                },
+                {
+                  "text": "TrueFoundry",
+                  "href": "https://www.truefoundry.com/es/blog/decoding-the-gartner-hype-cycle-for-platform-engineering-2026"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "平台團隊要讓 API、文件、runbook 對 agent 可讀、可發現"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Frontier agents 長時間自主運作"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AWS 將 DevOps／Security Agent 定位為可連續運作數小時至數天的自主 agent ("
+                },
+                {
+                  "text": "itdaily",
+                  "href": "https://itdaily.com/news/software/aws-frontier-agents/"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "維運模式從「人值班」轉為「人監督 agent 值班」"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "持續現代化"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AWS Transform 把技術債清償從一次性專案轉為常態能力 ("
+                },
+                {
+                  "text": "PyData St. Louis",
+                  "href": "https://stlouis.pydata.org/news/2026-09-01-accelerating-enterprise-modernization-with-agentic-ai/"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "CCoE 可規劃每季自動化升級批次"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "驗證成為新瓶頸"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "程式碼產出加速後，審查、測試、部署成為瓶頸 ("
+                },
+                {
+                  "text": "Encore",
+                  "href": "https://encore.dev/library/state-of-ai-native-delivery-2026"
+                },
+                {
+                  "text": ")"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "投資 AI code review、property-based test、policy-as-code"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "待觀察事項",
+      "text": "待觀察事項"
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        [
+          [
+            {
+              "text": "AWS re:Invent 2026（12 月）可能的 Kiro、DevOps Agent、AgentCore 更新。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "OWASP Agent Control Standard（2026-09 發布）是否成為產業稽核基準 ("
+            },
+            {
+              "text": "OWASP GenAI",
+              "href": "https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications/"
+            },
+            {
+              "text": ")。"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "台灣金融與公部門對 coding agent、雲端推論資料落地的監理指引。"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "建議路線圖-recommended-roadmap",
+      "text": "建議路線圖 Recommended Roadmap"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：用 18 個月分三階段推進，每階段以 DORA 指標與安全條件作為出關門檻，而非以時間到期自動前進。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "figure",
+      "ref": "0c77155c-215c",
+      "caption": "adoption roadmap · 3 phases × 3 teams, exit gates per phase"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "第一階段只開放唯讀與守門類 agent，累積準確率與審查機制；第二階段擴大到寫入型工作但仍保留人工核可；第三階段才依 Scoping Matrix 讓低風險事件由 agent 自主處理。時程為建議值，應依各組織的 DevOps 成熟度調整。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "第一個-90-天可立即執行",
+      "text": "第一個 90 天可立即執行"
+    },
+    {
+      "type": "list",
+      "kind": "check",
+      "items": [
+        [
+          [
+            {
+              "text": "AICoE 發布 AI 使用政策、核准工具與 MCP server 清單"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "CCoE 將 Landing Zone 命名、標籤、加密基線寫成 Kiro steering／AI-DLC rules，放入共用 repo"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "Cloud 團隊在一個非關鍵帳號啟用 AWS DevOps Agent（唯讀 Agent Space），比對 10 次事件的 RCA 與人工結論"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "在 CI 加入 SAST、SCA、secrets 掃描與 IaC policy 檢查，所有 AI 產出 PR 必經"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "量測基準：部署頻率、變更失敗率、MTTR、rework rate"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "舉辦一場 AI-DLC Mob Elaboration 工作坊，選一個小型新服務實作"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "參考資料-sources",
+      "text": "參考資料 Sources"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "市場與研究",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        [
+          [
+            {
+              "text": "Google: 2025 DORA Report",
+              "href": "https://blog.google/technology/developers/dora-report-2025/"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "DORA AI Capabilities Model",
+              "href": "https://cloud.google.com/blog/products/ai-machine-learning/introducing-doras-inaugural-ai-capabilities-model"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "Allstacks: DORA AI ROI 2026",
+              "href": "https://www.allstacks.com/blog/why-engineering-infrastructure-not-tools-drives-returns"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "InfoWorld: Stack Overflow 2025 Survey",
+              "href": "https://infoworld.com/article/4031673/ai-use-among-software-developers-grows-but-trust-remains-an-issue-stack-overflow-survey.html"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "The Decoder",
+              "href": "https://the-decoder.com/developers-rely-on-ai-tools-more-than-ever-but-trust-is-slipping/"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "METR study（DX 摘要）",
+              "href": "https://newsletter.getdx.com/p/metr-study-on-how-ai-affects-developer-productivity"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "Encore: State of AI-Native Delivery 2026",
+              "href": "https://encore.dev/library/state-of-ai-native-delivery-2026"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "Gartner 40% agent 專案取消預測",
+              "href": "https://www.outlookbusiness.com/artificial-intelligence/over-40-of-agentic-ai-projects-will-be-scrapped-by-2027-says-gartner"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "Gartner 平台工程 Hype Cycle 2026 解讀",
+              "href": "https://www.truefoundry.com/es/blog/decoding-the-gartner-hype-cycle-for-platform-engineering-2026"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "AWS",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        [
+          [
+            {
+              "text": "AI-Driven Development Life Cycle",
+              "href": "https://aws.amazon.com/blogs/devops/ai-driven-development-life-cycle"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "Open-sourcing AI-DLC workflows",
+              "href": "https://aws.amazon.com/blogs/devops/open-sourcing-adaptive-workflows-for-ai-driven-development-life-cycle-ai-dlc/"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "awslabs/aidlc-workflows",
+              "href": "https://github.com/awslabs/aidlc-workflows"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "AI-DLC for Financial Services",
+              "href": "https://aws.amazon.com/de/blogs/industries/ai-driven-development-lifecycle-for-financial-services/"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "Q Developer IDE plugins end of support",
+              "href": "https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/q-developer-ide-end-of-support.html"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "Kiro",
+              "href": "https://kiro.dev/"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "AWS DevOps Agent（News Blog）",
+              "href": "https://aws.amazon.com/blogs/aws/aws-devops-agent-helps-you-accelerate-incident-response-and-improve-system-reliability-preview"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "DevOps Agent GA 摘要",
+              "href": "https://aws-news.com/article/2026-03-31-announcing-general-availability-of-aws-devops-agent"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "AWS Transform",
+              "href": "https://aws.amazon.com/transform/"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "Transform custom GA",
+              "href": "https://aws.amazon.com/about-aws/whats-new/2025/12/transform-custom-organization-wide-modernization"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "Transform .NET CLI GA",
+              "href": "https://aws.amazon.com/about-aws/whats-new/2026/09/aws-transform-dotnet-cli"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "Agentic AI Security Scoping Matrix",
+              "href": "https://aws.amazon.com/ai/security/agentic-ai-scoping-matrix/"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "Enterprise GenAI best practices",
+              "href": "https://docs.aws.amazon.com/prescriptive-guidance/latest/strategy-enterprise-ready-gen-ai-platform/best-practices.html"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "其他廠商",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        [
+          [
+            {
+              "text": "Azure: Agentic DevOps",
+              "href": "https://azure.microsoft.com/en-us/blog/agentic-devops-evolving-software-development-with-github-copilot-and-microsoft-azure/"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "Gemini Cloud Assist investigations",
+              "href": "https://docs.cloud.google.com/cloud-assist/investigations"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "GitLab Duo Agent Platform GA",
+              "href": "https://about.gitlab.com/blog/gitlab-duo-agent-platform-is-generally-available/"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "Datadog Bits AI SRE",
+              "href": "https://www.datadoghq.com/ja/about/latest-news/press-releases/datadog-launches-bits-ai-sre-agent-to-resolve-incidents-faster/"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "InfoQ: Terraform MCP Server GA",
+              "href": "https://infoq.com/news/2026/06/terraform-mcp-server-ga/"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "社群與安全",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        [
+          [
+            {
+              "text": "Thoughtworks Tech Radar",
+              "href": "https://www.thoughtworks.com/en-us/radar"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "Böckeler: SDD tools",
+              "href": "https://www.martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "Lethal Trifecta 摘要",
+              "href": "https://aiweekly.co/alerts/willison-names-lethal-trifecta-behind-ai-agent-data-leaks"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "OWASP Top 10 for Agentic Applications 2026",
+              "href": "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "Veracode 2025 GenAI Code Security",
+              "href": "https://www.veracode.com/press-release/ai-generated-code-poses-major-security-risks-in-nearly-half-of-all-development-tasks-veracode-research-reveals/"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "CSA: AI coding agent attack surface",
+              "href": "https://labs.cloudsecurityalliance.org/research/ai-coding-agent-attack-surface-mcp-repository-poisoning-v1-0/"
+            },
+            {
+              "text": " · "
+            },
+            {
+              "text": "CSA: MCP tool poisoning",
+              "href": "https://labs.cloudsecurityalliance.org/research-rb/csa-whitepaper-mcp-security-agentic-attack-surface-20260516/"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "text": "Linux Foundation: Agentic AI Foundation",
+              "href": "https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation?hsLang=en"
+            }
+          ]
+        ]
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "廠商宣稱數據（MTTR、加速倍數）未經獨立驗證，引用時請標註來源。"
+        }
+      ]
+    }
+  ]
+}
