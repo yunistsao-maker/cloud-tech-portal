@@ -7,8 +7,13 @@ const GITHUB_OIDC_URL = "https://token.actions.githubusercontent.com";
 export interface GithubDeployStackProps extends StackProps {
   /** "owner/repo" allowed to deploy. */
   repo: string;
-  /** Branch whose pushes may deploy. */
-  branch: string;
+  /**
+   * GitHub environment the deploy job runs in. A job with an environment gets
+   * an OIDC `sub` of `repo:<repo>:environment:<name>` (not the branch ref), so
+   * the trust policy keys on it. Restrict which branches may use it in
+   * Settings → Environments → deployment branches.
+   */
+  environment: string;
   /**
    * The account's existing GitHub OIDC provider. An account can hold only one
    * provider per URL, so pass this when another project already created it.
@@ -19,7 +24,7 @@ export interface GithubDeployStackProps extends StackProps {
 }
 
 /**
- * Deployed once by hand. Gives GitHub Actions on one branch of one repo a role
+ * Deployed once by hand. Gives GitHub Actions jobs in one environment of one repo a role
  * that can do nothing except assume the CDK bootstrap roles in this account and
  * region — the same path `cdk deploy` uses from a laptop. No access keys exist.
  */
@@ -33,12 +38,12 @@ export class GithubDeployStack extends Stack {
       : new iam.OidcProviderNative(this, "GithubOidc", { url: GITHUB_OIDC_URL, clientIds: ["sts.amazonaws.com"] });
 
     const role = new iam.Role(this, "DeployRole", {
-      description: `GitHub Actions deploy for ${props.repo}@${props.branch}`,
+      description: `GitHub Actions deploy for ${props.repo} (${props.environment})`,
       maxSessionDuration: Duration.hours(1),
       assumedBy: new iam.WebIdentityPrincipal(provider.oidcProviderArn, {
         StringEquals: {
           "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-          "token.actions.githubusercontent.com:sub": `repo:${props.repo}:ref:refs/heads/${props.branch}`,
+          "token.actions.githubusercontent.com:sub": `repo:${props.repo}:environment:${props.environment}`,
         },
       }),
     });

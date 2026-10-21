@@ -97,9 +97,17 @@ Then in GitHub → Settings → Secrets and variables → Actions → **Variable
 
 or with the GitHub CLI: `gh variable set AWS_DEPLOY_ROLE_ARN -b <arn>` and `gh variable set AWS_REGION -b ap-northeast-1`.
 
+Finally, in Settings → Environments → **production** (created by the first CI run on `main`, or create it now), set **Deployment branches and tags** to *Selected branches* → `main`. The role trusts the environment, not the branch, so this rule is what keeps other branches from deploying:
+
+```bash
+gh api -X PUT repos/yunistsao-maker/cloud-tech-portal/environments/production \
+  -F 'deployment_branch_policy[protected_branches]=false' -F 'deployment_branch_policy[custom_branch_policies]=true'
+gh api -X POST repos/yunistsao-maker/cloud-tech-portal/environments/production/deployment-branch-policies -f name=main
+```
+
 Until both variables exist the deploy job is skipped, so CI stays green. Re-run a deploy any time from Actions → ci → **Run workflow**. To require a manual approval before each deploy, add required reviewers to the `production` environment (Settings → Environments).
 
-What the role can do: only `sts:AssumeRole` on this account's CDK bootstrap roles (`cdk-hnb659fds-*-role-<account>-<region>`), and only from pushes to `main` of `yunistsao-maker/cloud-tech-portal`. CloudFormation changes run under the bootstrap deploy role, exactly as a local `cdk deploy` does. Change the repo or branch with the `githubRepo` / `githubBranch` context values and re-run `npm run deploy:ci-role`.
+What the role can do: only `sts:AssumeRole` on this account's CDK bootstrap roles (`cdk-hnb659fds-*-role-<account>-<region>`), and only from jobs in the `production` environment of `yunistsao-maker/cloud-tech-portal` (OIDC `sub` = `repo:yunistsao-maker/cloud-tech-portal:environment:production`), which the environment's branch rule limits to `main`. CloudFormation changes run under the bootstrap deploy role, exactly as a local `cdk deploy` does. Change the repo or environment with the `githubRepo` / `githubEnvironment` context values and re-run `npm run deploy:ci-role`.
 
 Retained on `cdk destroy`: the DynamoDB table (PITR on) and the versioned data bucket. The site bucket is rebuilt from source.
 

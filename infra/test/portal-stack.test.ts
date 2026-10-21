@@ -7,9 +7,9 @@ import { bedrockResources, PortalStack } from "../lib/portal-stack";
 describe("GithubDeployStack", () => {
   const env = { account: "111122223333", region: "ap-northeast-1" };
   const make = (existingOidcProviderArn?: string) =>
-    Template.fromStack(new GithubDeployStack(new App(), "Gh", { env, repo: "owner/repo", branch: "main", existingOidcProviderArn }));
+    Template.fromStack(new GithubDeployStack(new App(), "Gh", { env, repo: "owner/repo", environment: "production", existingOidcProviderArn }));
 
-  it("trusts only pushes to main of the one repo", () => {
+  it("trusts only the production environment of the one repo", () => {
     const t = make();
     t.resourceCountIs("AWS::IAM::OIDCProvider", 1);
     t.hasResourceProperties("AWS::IAM::Role", {
@@ -20,7 +20,7 @@ describe("GithubDeployStack", () => {
             Condition: {
               StringEquals: {
                 "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-                "token.actions.githubusercontent.com:sub": "repo:owner/repo:ref:refs/heads/main",
+                "token.actions.githubusercontent.com:sub": "repo:owner/repo:environment:production",
               },
             },
           }),
