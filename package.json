@@ -16,7 +16,8 @@
     "dev": "npm run dev -w @ctp/web",
     "ingest:local": "npm run local -w @ctp/ingest --",
     "synth": "npm run synth -w @ctp/infra",
-    "deploy": "npm run build:web && npm run deploy -w @ctp/infra"
+    "deploy": "npm run build:web && npm run deploy -w @ctp/infra",
+    "deploy:ci-role": "npm run deploy:ci-role -w @ctp/infra"
   },
   "engines": {
     "node": ">=20"

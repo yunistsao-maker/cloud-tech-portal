@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -26,3 +27,43 @@ jobs:
         env:
           CDK_DEFAULT_REGION: ap-northeast-1
           CDK_DEFAULT_ACCOUNT: "000000000000"
+
+  # Runs only on main, after checks pass, and only once the repository
+  # variables AWS_DEPLOY_ROLE_ARN and AWS_REGION are set (see README › Automated deploys).
+  deploy:
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.AWS_DEPLOY_ROLE_ARN != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    # Never run two deploys at once; a newer push waits for the current one.
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    environment:
+      name: production
+      url: ${{ steps.out.outputs.site_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-session-name: gh-${{ github.run_id }}
+      - run: npm ci
+      - run: npm run build:web
+      - name: cdk deploy
+        working-directory: infra
+        run: npx cdk deploy CloudTechPortal --require-approval never --outputs-file cdk-outputs.json --progress events
+      - name: Site URL
+        id: out
+        working-directory: infra
+        run: |
+          url=$(node -e 'console.log(require("./cdk-outputs.json").CloudTechPortal.SiteUrl)')
+          echo "site_url=$url" >> "$GITHUB_OUTPUT"
+          echo "Deployed: $url" >> "$GITHUB_STEP_SUMMARY"

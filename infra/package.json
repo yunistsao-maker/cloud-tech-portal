@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "synth": "cdk synth",
-    "deploy": "cdk deploy",
+    "deploy": "cdk deploy CloudTechPortal",
+    "deploy:ci-role": "cdk deploy CloudTechPortalGithubDeploy",
     "diff": "cdk diff",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json"

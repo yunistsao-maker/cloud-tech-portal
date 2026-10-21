@@ -1,7 +1,49 @@
 import { App, Stack } from "aws-cdk-lib";
 import { Match, Template } from "aws-cdk-lib/assertions";
 import { describe, expect, it } from "vitest";
+import { GithubDeployStack } from "../lib/github-deploy-stack";
 import { bedrockResources, PortalStack } from "../lib/portal-stack";
+
+describe("GithubDeployStack", () => {
+  const env = { account: "111122223333", region: "ap-northeast-1" };
+  const make = (existingOidcProviderArn?: string) =>
+    Template.fromStack(new GithubDeployStack(new App(), "Gh", { env, repo: "owner/repo", branch: "main", existingOidcProviderArn }));
+
+  it("trusts only pushes to main of the one repo", () => {
+    const t = make();
+    t.resourceCountIs("AWS::IAM::OIDCProvider", 1);
+    t.hasResourceProperties("AWS::IAM::Role", {
+      AssumeRolePolicyDocument: {
+        Statement: [
+          Match.objectLike({
+            Action: "sts:AssumeRoleWithWebIdentity",
+            Condition: {
+              StringEquals: {
+                "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+                "token.actions.githubusercontent.com:sub": "repo:owner/repo:ref:refs/heads/main",
+              },
+            },
+          }),
+        ],
+      },
+    });
+  });
+
+  it("can only assume the CDK bootstrap roles", () => {
+    const t = make();
+    const policies = Object.values(t.findResources("AWS::IAM::Policy"));
+    const stmts = policies.flatMap((p) => (p as { Properties: { PolicyDocument: { Statement: { Action: string[]; Resource: unknown }[] } } }).Properties.PolicyDocument.Statement);
+    expect(stmts).toHaveLength(1);
+    expect(stmts[0]!.Action).toEqual(["sts:AssumeRole", "sts:TagSession"]);
+    const res = JSON.stringify(stmts[0]!.Resource);
+    expect(res).toContain(":iam::111122223333:role/cdk-hnb659fds-deploy-role-111122223333-ap-northeast-1");
+    expect(res).not.toContain("*");
+  });
+
+  it("reuses an existing OIDC provider when given one", () => {
+    make("arn:aws:iam::111122223333:oidc-provider/token.actions.githubusercontent.com").resourceCountIs("AWS::IAM::OIDCProvider", 0);
+  });
+});
 
 const synth = () => {
   const app = new App();

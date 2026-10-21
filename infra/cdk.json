@@ -5,6 +5,9 @@
     "ingestRate": "2 hours",
     "maxSummaries": 40,
     "runIngestOnDeploy": true,
+    "githubRepo": "yunistsao-maker/cloud-tech-portal",
+    "githubBranch": "main",
+    "githubOidcProviderArn": "",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:target-partitions": ["aws"]
   }

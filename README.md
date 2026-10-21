@@ -72,6 +72,35 @@ Context settings (`infra/cdk.json`, or `-c key=value`):
 | `maxSummaries` | `40` | Bedrock calls per run. |
 | `runIngestOnDeploy` | `true` | Invoke the ingester once during deploy. |
 
+### Automated deploys (GitHub Actions + OIDC)
+
+Every push to `main` runs the checks and, if they pass, deploys the `CloudTechPortal` stack. GitHub gets short-lived credentials through OIDC; no AWS keys are stored in GitHub.
+
+One-time setup, from your machine with admin credentials for the target account and region:
+
+```bash
+npm run deploy:ci-role          # creates the OIDC provider + deploy role, prints DeployRoleArn
+```
+
+If the account already has a GitHub OIDC provider (another project created `token.actions.githubusercontent.com`), reuse it instead of creating a second one:
+
+```bash
+npm run deploy:ci-role -- -c githubOidcProviderArn=arn:aws:iam::<account>:oidc-provider/token.actions.githubusercontent.com
+```
+
+Then in GitHub → Settings → Secrets and variables → Actions → **Variables**, add:
+
+| Variable | Value |
+| --- | --- |
+| `AWS_DEPLOY_ROLE_ARN` | the `DeployRoleArn` output |
+| `AWS_REGION` | the region you bootstrapped, e.g. `ap-northeast-1` |
+
+or with the GitHub CLI: `gh variable set AWS_DEPLOY_ROLE_ARN -b <arn>` and `gh variable set AWS_REGION -b ap-northeast-1`.
+
+Until both variables exist the deploy job is skipped, so CI stays green. Re-run a deploy any time from Actions → ci → **Run workflow**. To require a manual approval before each deploy, add required reviewers to the `production` environment (Settings → Environments).
+
+What the role can do: only `sts:AssumeRole` on this account's CDK bootstrap roles (`cdk-hnb659fds-*-role-<account>-<region>`), and only from pushes to `main` of `yunistsao-maker/cloud-tech-portal`. CloudFormation changes run under the bootstrap deploy role, exactly as a local `cdk deploy` does. Change the repo or branch with the `githubRepo` / `githubBranch` context values and re-run `npm run deploy:ci-role`.
+
 Retained on `cdk destroy`: the DynamoDB table (PITR on) and the versioned data bucket. The site bucket is rebuilt from source.
 
 ## Editing the catalog
