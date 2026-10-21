@@ -100,8 +100,8 @@ or with the GitHub CLI: `gh variable set AWS_DEPLOY_ROLE_ARN -b <arn>` and `gh v
 Finally, in Settings → Environments → **production** (created by the first CI run on `main`, or create it now), set **Deployment branches and tags** to *Selected branches* → `main`. The role trusts the environment, not the branch, so this rule is what keeps other branches from deploying:
 
 ```bash
-gh api -X PUT repos/yunistsao-maker/cloud-tech-portal/environments/production \
-  -F 'deployment_branch_policy[protected_branches]=false' -F 'deployment_branch_policy[custom_branch_policies]=true'
+echo '{"deployment_branch_policy":{"protected_branches":false,"custom_branch_policies":true}}' \
+  | gh api -X PUT repos/yunistsao-maker/cloud-tech-portal/environments/production --input -
 gh api -X POST repos/yunistsao-maker/cloud-tech-portal/environments/production/deployment-branch-policies -f name=main
 ```
 
