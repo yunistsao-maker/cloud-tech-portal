@@ -19,6 +19,7 @@ new PortalStack(app, "CloudTechPortal", {
 new GithubDeployStack(app, "CloudTechPortalGithubDeploy", {
   env,
   repo: String(ctx("githubRepo")),
+  subjectRepo: ctx("githubSubjectRepo") || undefined,
   environment: String(ctx("githubEnvironment")),
   existingOidcProviderArn: ctx("githubOidcProviderArn") || undefined,
   description: "cloud/pulse — GitHub Actions OIDC deploy role",

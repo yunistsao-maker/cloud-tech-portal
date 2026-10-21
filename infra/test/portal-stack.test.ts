@@ -40,6 +40,21 @@ describe("GithubDeployStack", () => {
     expect(res).not.toContain("*");
   });
 
+  it("matches immutable subjects when given the subject repo", () => {
+    const t = Template.fromStack(
+      new GithubDeployStack(new App(), "Gh", { env, repo: "owner/repo", subjectRepo: "owner@1/repo@2", environment: "production" }),
+    );
+    t.hasResourceProperties("AWS::IAM::Role", {
+      AssumeRolePolicyDocument: {
+        Statement: [
+          Match.objectLike({
+            Condition: { StringEquals: Match.objectLike({ "token.actions.githubusercontent.com:sub": "repo:owner@1/repo@2:environment:production" }) },
+          }),
+        ],
+      },
+    });
+  });
+
   it("reuses an existing OIDC provider when given one", () => {
     make("arn:aws:iam::111122223333:oidc-provider/token.actions.githubusercontent.com").resourceCountIs("AWS::IAM::OIDCProvider", 0);
   });

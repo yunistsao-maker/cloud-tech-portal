@@ -8,6 +8,12 @@ export interface GithubDeployStackProps extends StackProps {
   /** "owner/repo" allowed to deploy. */
   repo: string;
   /**
+   * The repo as it appears in the OIDC `sub`, when it differs from `repo`.
+   * Repos with immutable subjects use `owner@<id>/repo@<id>`; see
+   * `gh api repos/<owner>/<repo>/actions/oidc/customization/sub` → sub_claim_prefix.
+   */
+  subjectRepo?: string;
+  /**
    * GitHub environment the deploy job runs in. A job with an environment gets
    * an OIDC `sub` of `repo:<repo>:environment:<name>` (not the branch ref), so
    * the trust policy keys on it. Restrict which branches may use it in
@@ -43,7 +49,7 @@ export class GithubDeployStack extends Stack {
       assumedBy: new iam.WebIdentityPrincipal(provider.oidcProviderArn, {
         StringEquals: {
           "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-          "token.actions.githubusercontent.com:sub": `repo:${props.repo}:environment:${props.environment}`,
+          "token.actions.githubusercontent.com:sub": `repo:${props.subjectRepo ?? props.repo}:environment:${props.environment}`,
         },
       }),
     });

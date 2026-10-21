@@ -6,6 +6,7 @@
     "maxSummaries": 40,
     "runIngestOnDeploy": true,
     "githubRepo": "yunistsao-maker/cloud-tech-portal",
+    "githubSubjectRepo": "yunistsao-maker@253825534/cloud-tech-portal@1427218895",
     "githubEnvironment": "production",
     "githubOidcProviderArn": "",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
