@@ -22,6 +22,11 @@ export function ReportHeader({ report }: { report: Report }) {
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
         <span>{report.author}</span>
         <time dateTime={report.publishedAt}>{report.publishedAt}</time>
+        {report.updatedAt && report.updatedAt !== report.publishedAt && (
+          <span>
+            {t("updated", lang)} <time dateTime={report.updatedAt}>{report.updatedAt}</time>
+          </span>
+        )}
         {zhBody && lang === "en" && <span>{t("bodyInChinese", lang)}</span>}
         <a href={report.sourceUrl} target="_blank" rel="noreferrer" className="text-strong underline">
           {t("editableSource", lang)} ↗
@@ -73,6 +78,7 @@ export function ReportCard({ report }: { report: Report }) {
       <span className="leading-relaxed text-sub">{report.summary[lang]}</span>
       <span className="text-sm text-muted">
         {report.author} · {report.publishedAt}
+        {report.updatedAt && report.updatedAt !== report.publishedAt && ` · ${t("updated", lang)} ${report.updatedAt}`}
       </span>
     </Link>
   );
@@ -105,7 +111,7 @@ export function ReportsCard({ items }: { items: Report[] }) {
         <Link key={r.slug} href={reportHref(r.slug)} className="flex flex-col gap-1 text-sm leading-snug">
           <span className="font-medium text-strong">{r.title}</span>
           <span className="text-muted">
-            {r.author} · {r.publishedAt}
+            {r.author} · {r.updatedAt ?? r.publishedAt}
           </span>
         </Link>
       ))}

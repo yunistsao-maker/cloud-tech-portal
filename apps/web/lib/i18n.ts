@@ -50,6 +50,7 @@ const STRINGS = {
   coversCapabilities: { en: "Covers", zh: "涵蓋能力" },
   editableSource: { en: "Open the editable source doc", zh: "開啟可編輯的原始文件" },
   readReport: { en: "Read report", zh: "閱讀報告" },
+  updated: { en: "Updated", zh: "更新於" },
   bodyInChinese: { en: "Report body is in Traditional Chinese.", zh: "" },
 } satisfies Record<string, Record<Lang, string>>;
 

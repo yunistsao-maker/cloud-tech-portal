@@ -1,5 +1,5 @@
-import type { ComponentType } from "react";
-import type { Block, Inline } from "@/lib/report-schema";
+import type { ComponentType, ReactNode } from "react";
+import type { Block, Inline, ListBlock, ListItem } from "@/lib/report-schema";
 import { RoadmapFigure } from "./RoadmapFigure";
 
 /** Figures referenced by `figure` blocks, keyed by the source doc's embed node id. */
@@ -11,7 +11,9 @@ function Inlines({ parts }: { parts: Inline[] }) {
   return (
     <>
       {parts.map((p, i) => {
-        const text = p.bold ? <strong className="font-semibold text-strong">{p.text}</strong> : p.text;
+        let text: ReactNode = p.text;
+        if (p.code) text = <code className="rounded bg-raised px-1.5 py-0.5 font-mono text-[0.88em] text-strong">{text}</code>;
+        if (p.bold) text = <strong className="font-semibold text-strong">{text}</strong>;
         return p.href ? (
           <a key={i} href={p.href} target="_blank" rel="noreferrer" className="text-strong underline decoration-control underline-offset-2">
             {text}
@@ -33,6 +35,47 @@ function Paragraphs({ paras }: { paras: Inline[][] }) {
         </p>
       ))}
     </>
+  );
+}
+
+function ItemContent({ item }: { item: ListItem }) {
+  return (
+    <>
+      <Paragraphs paras={item.paras} />
+      {item.lists?.map((sub, k) => (
+        <div key={k} className="mt-2">
+          <ListView list={sub} nested />
+        </div>
+      ))}
+    </>
+  );
+}
+
+function ListView({ list, nested }: { list: ListBlock; nested?: boolean }) {
+  if (list.kind === "check") {
+    return (
+      <ul className="flex flex-col gap-2">
+        {list.items.map((item, j) => (
+          <li key={j} className="flex gap-3">
+            <span aria-hidden="true" className="mt-[0.45em] size-4 shrink-0 rounded border-2 border-control" />
+            <div>
+              <ItemContent item={item} />
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+  const Tag = list.kind === "ordered" ? "ol" : "ul";
+  const marker = list.kind === "ordered" ? "list-decimal" : nested ? "list-[circle]" : "list-disc";
+  return (
+    <Tag className={`flex flex-col gap-2 pl-6 ${marker} marker:text-muted`}>
+      {list.items.map((item, j) => (
+        <li key={j} className="pl-1">
+          <ItemContent item={item} />
+        </li>
+      ))}
+    </Tag>
   );
 }
 
@@ -61,32 +104,8 @@ export function ReportBody({ blocks }: { blocks: Block[] }) {
                 <Inlines parts={b.inlines} />
               </p>
             );
-          case "list": {
-            if (b.kind === "check") {
-              return (
-                <ul key={i} className="flex flex-col gap-2">
-                  {b.items.map((item, j) => (
-                    <li key={j} className="flex gap-3">
-                      <span aria-hidden="true" className="mt-[0.45em] size-4 shrink-0 rounded border-2 border-control" />
-                      <div>
-                        <Paragraphs paras={item} />
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              );
-            }
-            const List = b.kind === "ordered" ? "ol" : "ul";
-            return (
-              <List key={i} className={`flex flex-col gap-2 pl-6 ${b.kind === "ordered" ? "list-decimal" : "list-disc"} marker:text-muted`}>
-                {b.items.map((item, j) => (
-                  <li key={j} className="pl-1">
-                    <Paragraphs paras={item} />
-                  </li>
-                ))}
-              </List>
-            );
-          }
+          case "list":
+            return <ListView key={i} list={b} />;
           case "table":
             return (
               <div key={i} className="overflow-x-auto rounded-xl border border-border">

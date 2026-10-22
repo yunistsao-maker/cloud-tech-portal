@@ -126,7 +126,7 @@ A report is written in Claude Docs and imported as JSON:
 3. `cd apps/web && npx tsx scripts/import-doc.ts tab.xml meta.json > content/reports/<slug>.json`
 4. Add the import to `lib/reports.ts`. If the doc has embedded diagrams, register a component for each embed id in `components/reports/ReportBody.tsx` (tests fail on an unregistered figure).
 
-The page links back to the source doc, which stays the place to edit; re-run the import to refresh.
+The page links back to the source doc, which stays the place to edit; re-run the import to refresh (set `updatedAt` in the meta file so the page shows the revision date). The importer prints a `warning:` line for any element it cannot render, so a new kind of block in the doc is never dropped silently — add support for it before publishing.
 
 ## Known gaps (milestone 1)
 
