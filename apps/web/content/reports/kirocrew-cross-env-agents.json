@@ -1,0 +1,5674 @@
+{
+  "slug": "kirocrew-cross-env-agents",
+  "title": "Kiro Crew 與跨環境 Agent 協作 — Research Survey",
+  "summary": {
+    "en": "Kiro Crew, AWS's open-source always-on agent workspace, and how agents on different servers, containers and clouds communicate and collaborate: Kiro Crew architecture, hosting on Amazon Bedrock AgentCore (Runtime and the new Runtime Instances), the ACP / MCP / A2A protocol layers, a deep security analysis with incidents and a control checklist, competing products, Meta Muse, and adoption recommendations including Taiwan FSC guidance.",
+    "zh": "Kiro Crew 是 AWS 開源的常駐型 agent 工作區。本調查分析不同 server、container 與雲上的 agent 如何溝通與協作：Kiro Crew 架構、在 Amazon Bedrock AgentCore（Runtime 與新的 Runtime Instances）上託管、ACP／MCP／A2A 協定分層、含事件與控制清單的資安深入分析、同類產品比較、Meta Muse，以及納入金管會指引的導入建議。"
+  },
+  "author": "Eunice Tsao",
+  "publishedAt": "2026-10-22",
+  "lang": "zh-Hant-TW",
+  "categories": [
+    "ai-ml",
+    "security",
+    "devops"
+  ],
+  "capabilities": [
+    "agent-runtime",
+    "foundation-model-platform",
+    "ai-guardrails",
+    "identity-access",
+    "serverless-containers"
+  ],
+  "sourceUrl": "https://claude.ai/artifact/NPmZLKCZunvH3UqjhEbH1n",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "執行摘要-executive-summary",
+      "text": "執行摘要 Executive Summary"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "Kiro Crew 是 AWS 於 2026-08-04 開源的常駐型 agent 工作區，適合開發團隊試點，但它的跨主機協作是自有的通道代理、不支援 A2A。要讓不同 server、container、雲上的 agent 互相協作，生產級的答案是「AgentCore Runtime／Instances + A2A + Gateway／Policy」，資安則必須以 OS／microVM 隔離與短效 agent 身分為邊界。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "Kiro Crew",
+                "bold": true
+              },
+              {
+                "text": "：Python gateway 透過 ACP 驅動 kiro-cli（亦可換 Claude Code、Codex 等），提供記憶、lessons、skills、排程與 Slack／Teams 等管道；hub 可經 SSH、SSM、Fargate 管理遠端 crew。約 4.5k stars，CHANGELOG 最新 0.9.0，仍屬早期版本。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "AgentCore 託管",
+                "bold": true
+              },
+              {
+                "text": "：aws-samples 範例讓每位使用者在自己的 microVM 跑 Kiro Crew，受 8 小時上限約束，明言不適用生產。AgentCore Runtime instances（2026-08-06 GA）提供最長 14 天、可用 GPU 的受管 EC2，但同 instance 上的 agent 不互相隔離，且未進入台北 Region。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "協定",
+                "bold": true
+              },
+              {
+                "text": "：ACP（介面 ↔ agent）目前只有 stdio 是正式傳輸；MCP 2026-07-28 版改為無狀態、易於水平擴展；A2A v1.0（2026-03-12）是 agent ↔ agent 的標準，已進入 Agentic AI Foundation，但各平台支援程度不一。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "資安",
+                "bold": true
+              },
+              {
+                "text": "：OpenClaw 的 token 外洩 RCE、約 4.3 萬個暴露控制台、341 個惡意 skills、一封 email 即可投毒記憶的 MemGhost，都顯示常駐 agent 的風險是「主機入侵」等級。Kiro Crew 自身也已有兩則高風險安全公告（0.7.2 已修正）。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "競品",
+                "bold": true
+              },
+              {
+                "text": "：OpenClaw、Hermes Agent 是最接近的開源對手；Google、Microsoft、Anthropic、OpenAI 都已提供受管常駐 agent 平台，前兩者已 GA A2A 1.0。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "Meta Muse",
+                "bold": true
+              },
+              {
+                "text": "：Muse Spark Open（816B MoE、2026-10-15）已上 SageMaker JumpStart，主打工具使用與 subagent 協調，可作為自架 agent 的開放模型，授權對大型企業有限制。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "監理",
+                "bold": true
+              },
+              {
+                "text": "：金管會 2026-10-13 公告「金融業運用代理 AI 安全諮詢文件」，將 agent 視為數位員工、以 L1–L4 分級，是台灣金融客戶導入常駐 agent 的直接依據。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "背景-從單機-coding-agent-到跨環境常駐-agent",
+      "text": "背景：從單機 coding agent 到跨環境常駐 agent"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：2026 年 agent 從「開一次 session 的 IDE 助手」變成「常駐在 server 或 container、跨 session 記憶、彼此派工」的服務。問題重心也從模型能力，轉到 agent 之間如何連線、如何識別身分、如何約束權限。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "這波轉變有三個推力："
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "ordered",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "社群浪潮",
+                "bold": true
+              },
+              {
+                "text": "：OpenClaw（前身 Clawdbot／Moltbot）與 Nous Research 的 Hermes Agent 讓「自架、常駐、從通訊軟體指派」的個人 agent 普及，也暴露出大量外部可達的控制台與惡意 skills。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "雲端平台補上基礎設施",
+                "bold": true
+              },
+              {
+                "text": "：AgentCore Runtime instances（2026-08 GA）、Google Agent Runtime、Microsoft Foundry Agent Service 都在提供「可以跑很久、有身分、有政策」的 agent 執行環境。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "協定收斂",
+                "bold": true
+              },
+              {
+                "text": "：MCP（工具）與 A2A（agent 間）都進入 Linux Foundation 的 Agentic AI Foundation，ACP（介面到 agent）則由 Zed 與 JetBrains 推動。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "本調查聚焦的問題是：當 agent 分散在不同 server、container 甚至不同雲時，它們如何互相溝通、分工協作，以及如何安全地做到。Kiro Crew 是 AWS 在這個方向的開源代表。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "kiro-crew-架構與功能",
+      "text": "Kiro Crew 架構與功能"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：Kiro Crew 是常駐在自有主機的 agent 工作區，由一個 Python gateway 透過 ACP 驅動 kiro-cli，再加上記憶、lessons、排程與多種通訊管道。它能從一台 hub 管理多台主機上的 crew，但跨主機目前是經 SSH／SSM 通道代理的 HTTP，不是 A2A 協定。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "項目"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "內容"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "定位"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "「A persistent workspace for development work that self-improves and continues beyond one session」"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "起源"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "原為三位 Amazon 工程師的 side project「MeshClaw」；官方稱內部約 39,000 名 builder 使用、約 500 名貢獻者（廠商說法）"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "公開時間"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "0.1.2 首次公開（2026-07-30）；"
+                },
+                {
+                  "text": "Kiro blog",
+                  "href": "https://kiro.dev/blog/introducing-kiro-crew/"
+                },
+                {
+                  "text": " 正式發表於 2026-08-04"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "版本"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "CHANGELOG",
+                  "href": "https://github.com/kirodotdev/KiroCrew/blob/main/CHANGELOG.md"
+                },
+                {
+                  "text": " 最新為 0.9.0（2026-10-09）；GitHub Releases 頁面標示的 Latest 仍是 0.4.1，兩者不一致"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "授權"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Apache-2.0；「Kiro」「Kiro Crew」商標不在授權內"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "規模（2026-10-22）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "約 4.5k stars、851 forks、約 2k open issues、733 open PRs、11,624 commits"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "發布通道"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "stable、insider、nightly；Docker image "
+                },
+                {
+                  "text": "ghcr.io/kirodotdev/kirocrew",
+                  "code": true
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "三層架構",
+          "bold": true
+        },
+        {
+          "text": "（"
+        },
+        {
+          "text": "Architecture overview",
+          "href": "https://github.com/kirodotdev/KiroCrew/blob/main/docs/architecture/overview.md"
+        },
+        {
+          "text": "）"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "ordered",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "ACP harness（執行層）",
+                "bold": true
+              },
+              {
+                "text": "：預設且為必要基準的是 kiro-cli，負責 LLM 連線、工具執行、MCP 與 compaction，由 gateway 以 JSON-RPC 2.0 over stdio 驅動。可替換 harness 為 Preview 功能，官方文件列出 Claude Code、KAS、Codex、OpenCode、Pi、goose。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "Agent 設定",
+                "bold": true
+              },
+              {
+                "text": "：放在 "
+              },
+              {
+                "text": "~/.kiro/agents/",
+                "code": true
+              },
+              {
+                "text": "。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "Kiro Crew gateway",
+                "bold": true
+              },
+              {
+                "text": "：單一 asyncio 程序（Python／aiohttp），包含 session pool、PreToolUse 閘門、記憶（Markdown + SQLite FTS5 + 本機 llama.cpp embeddings）、lessons、cron、TaskRunner、subagent、heartbeat、內建 MCP server（"
+              },
+              {
+                "text": "kirocrew-core",
+                "code": true
+              },
+              {
+                "text": "、"
+              },
+              {
+                "text": "kirocrew-cron",
+                "code": true
+              },
+              {
+                "text": "）與 Security Event Log。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "使用介面",
+          "bold": true
+        },
+        {
+          "text": "：CLI、Web dashboard（port 5476）、Electron 桌面版，以及 Slack、Microsoft Teams、Discord、Telegram、Webex、WeCom、WeChat、WhatsApp。台灣企業常用的 LINE 不在清單內。"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "記憶與自我改進",
+          "bold": true
+        },
+        {
+          "text": "：資料放在 "
+        },
+        {
+          "text": "~/.kiro/crew/",
+          "code": true
+        },
+        {
+          "text": "，包含設定、管道 token（"
+        },
+        {
+          "text": ".env",
+          "code": true
+        },
+        {
+          "text": "）、security policy、記憶、"
+        },
+        {
+          "text": "skills/",
+          "code": true
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "sessions/",
+          "code": true
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "crons.json",
+          "code": true
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "instances.json",
+          "code": true
+        },
+        {
+          "text": "。偏好與專案記憶每 30 則訊息由 LLM 整併一次，每日歷史在閒置 3 小時後整併，並依 14／60／180 天逐級衰減。"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "常駐與自動化",
+          "bold": true
+        },
+        {
+          "text": "：session 閒置逾時 3,600 秒；單輪對話上限 4 小時（可設 300–86,400 秒）；工具核可等待 600 秒；context 用到 70% 自動 compaction。"
+        },
+        {
+          "text": "kirocrew run TASK.md",
+          "code": true
+        },
+        {
+          "text": " 以規格檔執行無人值守任務，沒有核可回呼，未事先以 hook 核可的工具呼叫一律拒絕（fail-closed）。"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "部署位置",
+          "bold": true
+        },
+        {
+          "text": "：macOS、Linux、Windows、Docker，以及遠端 EC2（SSH 或 SSM 通道）、Fargate（以 ECS task 執行，適合用完即丟的 worker，設定在 "
+        },
+        {
+          "text": "cloud.json",
+          "code": true
+        },
+        {
+          "text": "）、Lambda MicroVM（預設 1 小時，VM 結束資料即消失）。"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "跨主機協作（Remote Crew／Instances 模組）",
+          "bold": true
+        },
+        {
+          "text": "（"
+        },
+        {
+          "text": "Instances spec",
+          "href": "https://github.com/kirodotdev/KiroCrew/blob/main/docs/system-specs/modules/instances.md"
+        },
+        {
+          "text": "）"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "連線方式",
+                "bold": true
+              },
+              {
+                "text": "：選用功能（"
+              },
+              {
+                "text": "instances.enabled",
+                "code": true
+              },
+              {
+                "text": "）。hub gateway 經 SSH "
+              },
+              {
+                "text": "-L",
+                "code": true
+              },
+              {
+                "text": " 轉發或 AWS SSM port-forwarding 連到遠端 gateway；也可把遠端 crew 以 ECS task 跑在 AWS Fargate（經 SSM 轉發、無公開 listener，預設存活 6 小時、同時最多 10 個）。hub 以短效 HMAC token（上限約 20 小時、只存在記憶體）嵌入遠端 dashboard，轉發只綁 loopback。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "可做的事",
+                "bold": true
+              },
+              {
+                "text": "：把 session 複製到另一台、跨 instance 搜尋 session、串接 A→B→C（最多 2 層、每個上層最多 8 個 crew）。兩端版本必須相同；僅限 owner，來自 Slack 的請求一律 403，每次呼叫都寫入 SEL。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "傳輸",
+                "bold": true
+              },
+              {
+                "text": "：經通道代理的一般 HTTP，不是 A2A、MCP 或 message queue。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "同主機內",
+                "bold": true
+              },
+              {
+                "text": "：coordinator agent 用 MCP 工具（"
+              },
+              {
+                "text": "spawn_run",
+                "code": true
+              },
+              {
+                "text": "、"
+              },
+              {
+                "text": "task_run",
+                "code": true
+              },
+              {
+                "text": "、"
+              },
+              {
+                "text": "cron_add",
+                "code": true
+              },
+              {
+                "text": "）派工；agent 間訊息有交換次數上限，需人類訊息重置。文件中的「A2A」指內部 agent-to-agent，不是 A2A 協定。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "尚未實作（RFC 草稿）",
+                "bold": true
+              },
+              {
+                "text": "：本機 conductor 派工到遠端 crew（2026-10-06）、instance 間記憶共享（2026-10-16）、免 SSH／SSM 的 outbound 傳輸（2026-09-23）。以 AgentCore Identity／Gateway 做 agent 身分與 token 發放為「partial」，主線只有介面、尚未使用。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "治理與 roadmap",
+          "bold": true
+        },
+        {
+          "text": "：由三位維護者（Bolin Chen、Joe Guo、Zezhen Xu）決策，架構變更需走 RFC；部落格所稱的「steering committee」在 "
+        },
+        {
+          "text": "GOVERNANCE.md",
+          "href": "https://github.com/kirodotdev/KiroCrew/blob/main/GOVERNANCE.md"
+        },
+        {
+          "text": " 中就是這組維護者。部落格列出的 roadmap 沒有日期：Apps（DevFleets、Task Runner、Issue Radar）、App SDK、MCP 支援、相容其他開放標準平台的 skills。資安機制見「資安深入分析」。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "在-amazon-bedrock-agentcore-上託管-kiro-crew",
+      "text": "在 Amazon Bedrock AgentCore 上託管 Kiro Crew"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：",
+          "bold": true
+        },
+        {
+          "text": "aws-samples 範例",
+          "bold": true,
+          "href": "https://github.com/aws-samples/sample-host-kirocrew-on-amazon-bedrock-agentcore"
+        },
+        {
+          "text": " 讓每位使用者在自己的 AgentCore Runtime microVM 裡跑一份未修改的 Kiro Crew，工作區加密後存入 S3。它只用到 AgentCore Runtime，尚未使用 Gateway、Identity、Policy 或 Instances，且明言「Sample code, not for production use」。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "項目"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "內容"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "時間與版本"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "首次 commit 2026-09-04；最新 commit 2026-10-16，將內含 Kiro Crew 從 0.3.0 升到 0.7.2；共 58 commits、無 release"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "授權"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "MIT-0"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "IaC"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Terraform 1.9+，AgentCore 資源以內嵌的 CloudFormation stack 建立"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "租戶模型"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "每個 Cognito 使用者一個專屬 microVM；使用者自行連結 Kiro 帳號（Builder ID 或 SSO）"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "使用的 AgentCore 服務"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "僅 Runtime 與 RuntimeEndpoint（HTTP 協定、"
+                },
+                {
+                  "text": "NetworkMode = PUBLIC",
+                  "code": true
+                },
+                {
+                  "text": "）"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "其他 AWS 服務"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "CloudFront、S3、Lambda（control plane、persistence broker、auth gate、waker）、DynamoDB、KMS、ECR、API Gateway、EventBridge Scheduler、Cognito、CloudWatch"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "存取方式"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "瀏覽器經 CloudFront 與 Cognito 登入；註冊限制於允許的 email 網域（預設 "
+                },
+                {
+                  "text": "amazon.com",
+                  "code": true
+                },
+                {
+                  "text": "，必須修改）；未內建 Slack"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "請求路徑",
+          "bold": true
+        },
+        {
+          "text": "：瀏覽器端的 shell 攔截 dashboard 對 loopback 的 HTTP、SSE、WebSocket 呼叫，包成 envelope 經 AgentCore endpoint 送進 microVM；VM 內的 adapter 以 JSON Schema 與路由政策驗證後，重放到 "
+        },
+        {
+          "text": "127.0.0.1",
+          "code": true
+        },
+        {
+          "text": " 上的 gateway，"
+        },
+        {
+          "text": "/api/token",
+          "code": true
+        },
+        {
+          "text": " 與 "
+        },
+        {
+          "text": "/api/shutdown",
+          "code": true
+        },
+        {
+          "text": " 一律拒絕。"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "狀態保存",
+          "bold": true
+        },
+        {
+          "text": "：磁碟是暫時的。工作區切塊、以每個 sandbox 的 KMS data key 加密後寫入 S3，保留最新 2 代；在「Stop safely」、Kiro 登入登出、定期、閒置與 SIGTERM 時寫入。範例刋意不用 AgentCore 受管 session storage，理由是其配額與驗證行為「導致反覆事故」。"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "生命週期",
+          "bold": true
+        },
+        {
+          "text": "：閒置逾時預設 900 秒，最長存活 28,800 秒（8 小時，即 microVM 上限）。選用的排程喚醒以 EventBridge 每分鐘輪詢，實測還原 46–65 秒。設計文件記錄過一次喚醒失敗：容器未啟動卻被計費到最長存活，成本約為成功喚醒的 25 倍（約 $0.15 對 $0.006，2 GB）。"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "身分與權限",
+          "bold": true
+        },
+        {
+          "text": "：Cognito JWT 由 "
+        },
+        {
+          "text": "customJWTAuthorizer",
+          "code": true
+        },
+        {
+          "text": " 驗證，再發 30 分鐘的 KMS 簽章 binding token。執行角色本身不持有資料存取權限，S3、DynamoDB、KMS 只能經 broker Lambda 以 presigned URL 存取；但所有 sandbox 共用同一個執行角色。"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "範例自述的缺口",
+          "bold": true
+        },
+        {
+          "text": "（"
+        },
+        {
+          "text": "security.md",
+          "href": "https://github.com/aws-samples/sample-host-kirocrew-on-amazon-bedrock-agentcore/blob/main/docs/security.md"
+        },
+        {
+          "text": "）"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "登入為密碼流程（"
+              },
+              {
+                "text": "ADMIN_USER_PASSWORD_AUTH",
+                "code": true
+              },
+              {
+                "text": "），不是 PKCE，且拒絕 MFA challenge。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "microVM 可自由對外連線（public egress）。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "除 Kiro Crew 自身機制外，沒有逐工具授權；Gateway（Cedar policy）與 Identity 只列為未來強化方向。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "Kiro 與第三方 token 存在加密的 checkpoint 裡，且未強制 checkpoint 保存期限。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "AgentCore vended logs 可能包含 prompt 與檔案內容。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "agentcore-instances-常駐-agent-的-aws-受管-ec2-基礎設施",
+      "text": "AgentCore Instances：常駐 agent 的 AWS 受管 EC2 基礎設施"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：AgentCore Runtime instances 於 2026-08-06 GA，在客戶自己的帳號裡提供 AWS 受管的 EC2，session 最長 14 天、可用 GPU、一個 session 可放多個 agent。它補上 microVM 8 小時上限的缺口，但同一台 instance 上的 agent 彼此沒有隔離。台北 Region 不在支援清單，最近的是東京與新加坡。",
+          "bold": true
+        },
+        {
+          "text": " 來源："
+        },
+        {
+          "text": "AWS What's New",
+          "href": "https://aws.amazon.com/about-aws/whats-new/2026/08/aws-bedrock-agentcore-runtime-instances-generally-available/"
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "定價",
+          "href": "https://aws.amazon.com/bedrock/agentcore/pricing/"
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "配額",
+          "href": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/bedrock-agentcore-limits.html"
+        },
+        {
+          "text": "。"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "面向"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Runtime microVM"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Runtime Instances"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Session 上限"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "8 小時（可申請調整），閒置 15 分鐘"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "14 天；到期終止 instance 但保留 EBS，以同一 "
+                },
+                {
+                  "text": "runtimeSessionId",
+                  "code": true
+                },
+                {
+                  "text": " 再呼叫即在新 instance 上恢復"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "計算資源"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "每 session 2 vCPU／8 GB，映像 2 GB"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "自選 EC2 類型；GPU 家族 g4dn、g5、g6、g6e、gr6、g6f、gr6f、g7e，另有 inf2，驅動程式代為安裝"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Agent 與 session"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "1:1"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "1:N，每個 session 最多 20 個 agent，共用 GPU"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "網路"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "PUBLIC 或 VPC"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "僅 VPC"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "隔離單位"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "每個 session 一個 microVM，結束時清除記憶體"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "session；同 instance 上的 agent「must be mutually trusted」"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "計價"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "v2 平台 $0.1276／vCPU-小時、$0.0169／GB-小時，按秒計費"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "EC2 費用加管理費（定價範例為 On-Demand 的 12%，G 系列 7.8%）；Savings Plans、RI、ODCR 只適用運算部分；session 停止時 EBS 照樣計費"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "支援 Region"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "廣泛"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "us-east-1、us-east-2、us-west-2、孟買、新加坡、雪梨、東京、法蘭克福、愛爾蘭"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "運作方式",
+          "bold": true
+        },
+        {
+          "text": "（"
+        },
+        {
+          "text": "How it works",
+          "href": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-instances-how-it-works.html"
+        },
+        {
+          "text": "）：以可重複使用的「capacity provider」定義 OS（Linux arm64 或 x86_64）、instance 類型、VPC／subnet、EBS 與 IAM 角色。instance 由 AgentCore 管理，客戶不能自行啟動、修補或終止，預設也不顯示在 EC2 清單。Runtime 建立後無法切換運算類型。"
+        },
+        {
+          "text": "AWS News Blog",
+          "href": "https://aws.amazon.com/blogs/aws/runtime-instances-persistent-compute-for-production-ai-agents-on-amazon-bedrock-agentcore/"
+        },
+        {
+          "text": " 建議的模式是：輕量的 microVM 當 orchestrator，把長時間或需要 GPU 的工作派給 Instances 上的 worker。"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "資安重點",
+          "bold": true
+        },
+        {
+          "text": "（"
+        },
+        {
+          "text": "Security",
+          "href": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-instances-security.html"
+        },
+        {
+          "text": "）"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "同一 instance 上的 agent 不彼此隔離，任何在 instance 上執行的程式都能讀到執行角色的憑證。要隔離就拆成不同 session。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "三個角色：執行角色、instance profile（僅用於日誌）、infrastructure role（應最小權限，並以 IAM 條件限制 VPC、subnet、instance 類型）。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "資源都在客戶帳號，SCP、permission boundary、CloudTrail、VPC Flow Logs 皆適用；例外是 AgentCore 的 service-linked role。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "AgentCore 不檢查 "
+              },
+              {
+                "text": "runtimeSessionId",
+                "code": true
+              },
+              {
+                "text": " 是否屬於呼叫者，後端必須自行把 session 綁定到使用者。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "與 Kiro Crew 的關係",
+          "bold": true
+        },
+        {
+          "text": "：Kiro Crew 官方目前的遠端選項是自管 EC2、Fargate 與 Lambda MicroVM；aws-samples 範例則使用 microVM，受 8 小時上限約束。兩者都未採用 Instances。若要「跨多天、不中斷」的 crew，Instances 是最接近的受管選項，但需自行驗證，且每個使用者應分在不同 session。官方文件未說明 Instances 是否支援 MCP、A2A 協定端點，以及憑證如何送達 instance 上的 agent。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "協定層-acp-mcp-a2a-在跨-server-container-情境的角色",
+      "text": "協定層：ACP、MCP、A2A 在跨 server／container 情境的角色"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：三個協定各管一段：ACP 是介面到 agent、MCP 是 agent 到工具、A2A 是 agent 到 agent。真正為「不同主機、不同平台的 agent 互相協作」設計的是 A2A；ACP 目前只有 stdio 是正式傳輸，跨機器仍靠 SSH 通道。",
+          "bold": true
+        },
+        {
+          "text": " 名稱釐清：本文的 ACP 指 Zed、JetBrains 主導的 Agent Client Protocol；IBM 的 Agent Communication Protocol 已於 2025-08-25 宣布併入 A2A，repo 於 2025-08-27 封存（"
+        },
+        {
+          "text": "i-am-bee/acp",
+          "href": "https://github.com/i-am-bee/acp"
+        },
+        {
+          "text": "）。"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "通訊段"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "協定"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "成熟度（2026-10）"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "IDE／桌面 app ↔ coding agent"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "ACP"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "v1 穩定（stdio）；Rust、TypeScript SDK 1.0；HTTP／WebSocket 仍是 RFD，v2 為草案；尚未進入基金會"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Web UI ↔ agent"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AG-UI"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "廣泛整合（含 AgentCore），由 CopilotKit 主導"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Agent ↔ 工具／資料"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "MCP"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "最成熟；2026-07-28 版改為無狀態設計，由 AAIF 治理，有受管 gateway"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Agent ↔ agent（跨組織、跨平台、跨雲）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "A2A"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "v1.0 自 2026-03-12 穩定，2026-08-27 進入 AAIF；各平台支援程度不一"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "發現／註冊"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "A2A Agent Card + 平台 registry"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "A2A 未定義標準 registry API"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "金流"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AP2（A2A 擴充）、x402"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "早期（AP2 v0.2）"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "acp-agent-client-protocol",
+      "text": "ACP（Agent Client Protocol）"
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "用途",
+                "bold": true
+              },
+              {
+                "text": "：介面（client）與 coding agent 之間的標準，類似 LSP；JSON-RPC 2.0，流程為 "
+              },
+              {
+                "text": "initialize",
+                "code": true
+              },
+              {
+                "text": " → "
+              },
+              {
+                "text": "session/new",
+                "code": true
+              },
+              {
+                "text": " → "
+              },
+              {
+                "text": "session/prompt",
+                "code": true
+              },
+              {
+                "text": "，agent 用 "
+              },
+              {
+                "text": "session/update",
+                "code": true
+              },
+              {
+                "text": " 串流、用 "
+              },
+              {
+                "text": "session/request_permission",
+                "code": true
+              },
+              {
+                "text": " 請求核可（"
+              },
+              {
+                "text": "Protocol overview",
+                "href": "https://agentclientprotocol.com/protocol/overview"
+              },
+              {
+                "text": "）。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "傳輸",
+                "bold": true
+              },
+              {
+                "text": "：唯一正式定義的是 stdio（client 以子程序啟動 agent）。「Streamable HTTP & WebSocket」RFD 於 2026-07-02 轉為 Active，提議單一 "
+              },
+              {
+                "text": "/acp",
+                "code": true
+              },
+              {
+                "text": " 端點、"
+              },
+              {
+                "text": "Acp-Session-Id",
+                "code": true
+              },
+              {
+                "text": " header、相容 load balancer 的 sticky session，由 Goose 做參考實作（"
+              },
+              {
+                "text": "RFD",
+                "href": "https://agentclientprotocol.com/rfds/streamable-http-websocket-transport.md"
+              },
+              {
+                "text": "）。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "治理",
+                "bold": true
+              },
+              {
+                "text": "：Zed 與 JetBrains 共同治理的暫行模式，Apache-2.0，目標是移入獨立基金會，目前尚未加入任何基金會。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "生態",
+                "bold": true
+              },
+              {
+                "text": "：官網列出 44 個 agent，包括 Kiro CLI（"
+              },
+              {
+                "text": "kiro-cli acp",
+                "code": true
+              },
+              {
+                "text": "）、Gemini CLI、GitHub Copilot、Cursor、Goose、OpenHands、Factory Droid；Claude 與 Codex 透過 adapter 接入。Client 有 Zed、JetBrains、Neovim、Emacs、VS Code 擴充等。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "跨機器的現況",
+                "bold": true
+              },
+              {
+                "text": "：Kiro Crew 桌面 app 以 SSH 通道連到遠端 gateway，就是「stdio + SSH」的典型做法。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "mcp-model-context-protocol",
+      "text": "MCP（Model Context Protocol）"
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "最新版 2026-07-28",
+                "bold": true
+              },
+              {
+                "text": "（"
+              },
+              {
+                "text": "changelog",
+                "href": "https://modelcontextprotocol.io/specification/2026-07-28/changelog"
+              },
+              {
+                "text": "）：移除 "
+              },
+              {
+                "text": "initialize",
+                "code": true
+              },
+              {
+                "text": " 握手與 "
+              },
+              {
+                "text": "Mcp-Session-Id",
+                "code": true
+              },
+              {
+                "text": "，改為無狀態；跨呼叫狀態改用 server 發的 handle。這讓 MCP server 可以放在一般 load balancer 後面水平擴展。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "Streamable HTTP",
+                "bold": true
+              },
+              {
+                "text": "：請求帶 "
+              },
+              {
+                "text": "MCP-Protocol-Version",
+                "code": true
+              },
+              {
+                "text": "、"
+              },
+              {
+                "text": "Mcp-Method",
+                "code": true
+              },
+              {
+                "text": "、"
+              },
+              {
+                "text": "Mcp-Name",
+                "code": true
+              },
+              {
+                "text": " header，gateway 不必解析 body 就能路由與套用政策。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "Tasks 擴充",
+                "bold": true
+              },
+              {
+                "text": "：長時間工作回傳 "
+              },
+              {
+                "text": "taskId",
+                "code": true
+              },
+              {
+                "text": "，client 以 "
+              },
+              {
+                "text": "tasks/get",
+                "code": true
+              },
+              {
+                "text": " 輪詢、"
+              },
+              {
+                "text": "tasks/update",
+                "code": true
+              },
+              {
+                "text": " 補充輸入。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "授權",
+                "bold": true
+              },
+              {
+                "text": "：OAuth 2.1；RFC 9728 Protected Resource Metadata 與 RFC 8707 resource indicator 為 MUST，禁止 token passthrough（"
+              },
+              {
+                "text": "Authorization",
+                "href": "https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization"
+              },
+              {
+                "text": "）。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "治理",
+                "bold": true
+              },
+              {
+                "text": "：Linux Foundation 於 2025-12-09 成立 Agentic AI Foundation（AAIF），初始專案為 MCP、goose、AGENTS.md。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "AWS",
+                "bold": true
+              },
+              {
+                "text": "：AgentCore Gateway 把 Lambda、OpenAPI、Smithy 與既有 MCP server 聚合成單一 MCP server；HTTP passthrough target 也可前置 A2A agent（"
+              },
+              {
+                "text": "Gateway",
+                "href": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-target-http-passthrough.html"
+              },
+              {
+                "text": "）。Gateway 支援哪個 MCP 版本文件未註明。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "a2a-agent2agent",
+      "text": "A2A（Agent2Agent）"
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "版本與治理",
+                "bold": true
+              },
+              {
+                "text": "：v1.0 於 2026-03-12 發布為首個穩定版；2026-08-27 成為 AAIF Growth Stage 專案；技術指導委員會成員包含 AWS、Cisco、Google、IBM、Microsoft、Salesforce、SAP、ServiceNow（"
+              },
+              {
+                "text": "a2a-protocol.org",
+                "href": "https://a2a-protocol.org/latest/"
+              },
+              {
+                "text": "）。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "傳輸",
+                "bold": true
+              },
+              {
+                "text": "：JSON-RPC、gRPC、HTTP+JSON（REST）三種 binding，語意等價。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "發現",
+                "bold": true
+              },
+              {
+                "text": "：Agent Card 放在 "
+              },
+              {
+                "text": "/.well-known/agent-card.json",
+                "code": true
+              },
+              {
+                "text": "；v1.0 支援以 JWS 簽章 Agent Card，另有需驗證的 extended card。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "安全機制",
+                "bold": true
+              },
+              {
+                "text": "：API key、HTTP auth、OAuth 2.0（含 PKCE、client credentials、device code）、OIDC、mTLS；任務中可進入 "
+              },
+              {
+                "text": "AUTH_REQUIRED",
+                "code": true
+              },
+              {
+                "text": " 狀態要求授權。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "非同步",
+                "bold": true
+              },
+              {
+                "text": "：支援串流、訂閱任務與 webhook 推播通知；可用 "
+              },
+              {
+                "text": "tenant",
+                "code": true
+              },
+              {
+                "text": " 欄位讓單一端點承載多個 agent。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "平台支援",
+                "bold": true
+              },
+              {
+                "text": "："
+              }
+            ]
+          ],
+          "lists": [
+            {
+              "type": "list",
+              "kind": "bullet",
+              "items": [
+                {
+                  "paras": [
+                    [
+                      {
+                        "text": "AgentCore Runtime：2025-11-11 支援 A2A，容器在 port 9000 提供服務，驗證用 OAuth 或 SigV4；契約文件範例仍是 0.3.0，是否支援 v1.0 未確認（"
+                      },
+                      {
+                        "text": "contract",
+                        "href": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-a2a-protocol-contract.html"
+                      },
+                      {
+                        "text": "）。"
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "paras": [
+                    [
+                      {
+                        "text": "Microsoft Foundry：v1.0 GA，僅 JSON-RPC、無串流，需 Entra ID（"
+                      },
+                      {
+                        "text": "Learn",
+                        "href": "https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/enable-agent-to-agent-endpoint"
+                      },
+                      {
+                        "text": "）。"
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "paras": [
+                    [
+                      {
+                        "text": "Microsoft Agent Framework：.NET、Python、Go 皆可提供與呼叫 A2A，支援 SSE 串流。"
+                      }
+                    ]
+                  ]
+                },
+                {
+                  "paras": [
+                    [
+                      {
+                        "text": "Google Gemini Enterprise Agent Platform：支援 A2A 與 MCP，Agent Registry 統一登錄 A2A agent 與 MCP server。"
+                      }
+                    ]
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "Kiro Crew 目前未支援 A2A 協定；它的跨主機功能是自有的 HTTP 代理。若要讓 Kiro Crew 與其他平台的 agent 協作，需在外層包一個 A2A 端點，或透過 MCP 工具互通。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "跨環境協作架構模式與參考設計",
+      "text": "跨環境協作架構模式與參考設計"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：每一段連線用對的協定——人到 agent 用 ACP／AG-UI、agent 到工具用 MCP、agent 到 agent 用 A2A——並把驗證與政策集中在 Gateway。Kiro Crew 適合開發者自架區，跨團隊與跨雲的協作放在 AgentCore 受管區。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "figure",
+      "ref": "29b6e777-ead8",
+      "caption": "跨環境 agent 協作參考架構 · 自架工作區與 AgentCore 受管區"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "自架區的 Kiro Crew 以自有通道管理遠端 crew；受管區的 orchestrator 以 A2A 派工給 Instances 上的 worker 與其他雲的 agent，所有工具呼叫都經 Gateway 的政策檢查。跨組織的 A2A 連線應驗證簽章 Agent Card，並以 mTLS 或 OAuth 驗證雙方。"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "四種常見模式",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "ordered",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "A2A orchestrator–worker",
+                "bold": true
+              },
+              {
+                "text": "：一個主控 agent 透過 A2A 派工給分散在不同 runtime 的專家 agent。AWS 範例以 ADK、Strands、OpenAI Agents SDK 三個框架的 agent 分別跑在不同 AgentCore Runtime，以 Agent Card 互相發現（"
+              },
+              {
+                "text": "agentcore-samples",
+                "href": "https://github.com/awslabs/agentcore-samples/tree/main/02-use-cases/01-conversational-agents/A2A-multi-agent-incident-response"
+              },
+              {
+                "text": "）。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "Gateway + Registry 控制平面",
+                "bold": true
+              },
+              {
+                "text": "：AgentCore Gateway 同時前置 MCP 工具與 A2A passthrough，加上 AWS Agent Registry 統一登錄 agent、MCP server 與 skills；Google 對應 Agent Registry + Agent Gateway。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "事件驅動（ambient agents）",
+                "bold": true
+              },
+              {
+                "text": "：S3 事件或排程 → Lambda → SQS → AgentCore Runtime，DynamoDB 保存狀態，以 "
+              },
+              {
+                "text": "ask_human",
+                "code": true
+              },
+              {
+                "text": " 工具做人工核可；協定層則有 A2A 推播通知與 MCP Tasks 可用。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "共用記憶／狀態",
+                "bold": true
+              },
+              {
+                "text": "：MCP 改為無狀態後，跨呼叫狀態改放 handle 與外部儲存（AgentCore Memory、DynamoDB、Redis）；共用記憶必須標註來源，以防記憶投毒。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "資安深入分析-security-deep-dive",
+      "text": "資安深入分析 Security Deep Dive"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：常駐、跨環境的 agent 把「提示注入」放大成「主機入侵」：一個被偷的 gateway token、一封寫進記憶的 email、一個惡意 skill 就足以控制整台機器。可靠的邊界只有 OS／microVM 隔離、短效的 agent 身分、工具邊界的預設拒絕政策與對外連線白名單，核可提示與 prompt 規則只是輔助。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "威脅框架",
+      "text": "威脅框架"
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "框架"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "重點"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "OWASP Top 10 for Agentic Applications 2026",
+                  "href": "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/"
+                },
+                {
+                  "text": "（2025-12-09）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "ASI01 Goal Hijack、ASI02 Tool Misuse、ASI03 Identity & Privilege Abuse、ASI04 Supply Chain、ASI05 Unexpected Code Execution、ASI06 Memory & Context Poisoning、ASI07 Insecure Inter-Agent Communication、ASI08 Cascading Failures、ASI09 Human-Agent Trust Exploitation、ASI10 Rogue Agents（項目名稱引自整理文章，尚未對照官方 PDF）"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "AWS Agentic AI Security Scoping Matrix",
+                  "href": "https://aws.amazon.com/blogs/security/the-agentic-ai-security-scoping-matrix-a-framework-for-securing-autonomous-ai-systems"
+                },
+                {
+                  "text": "（2025-11-21）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "四個自主程度：No agency → Prescribed → Supervised → Full；常駐、事件觸發的 Kiro Crew 類 agent 屬 Scope 3–4"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "The lethal trifecta",
+                  "href": "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+                },
+                {
+                  "text": "（2025-06-16）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "私有資料 + 不可信輸入 + 對外通訊，三者不應集中在同一個 agent"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "CSA MAESTRO",
+                  "href": "https://cloudsecurityalliance.org/blog/2025/02/06/agentic-ai-threat-modeling-framework-maestro"
+                },
+                {
+                  "text": "（2025-02-06）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "七層多 agent 威脅模型，含部署基礎設施與 agent 生態系"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "NIST CAISI 紅隊競賽",
+                  "href": "https://www.nist.gov/blogs/caisi-research-blog/insights-ai-agent-security-large-scale-red-teaming-competition"
+                },
+                {
+                  "text": "（2026-03-23）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "25 萬次以上攻擊，13 個前沿模型全部至少被攻破一次，攻擊可跨模型轉移"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "IETF draft-klrc-aiagent-auth",
+                  "href": "https://datatracker.ietf.org/doc/html/draft-klrc-aiagent-auth"
+                },
+                {
+                  "text": "（2026-07-06）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "agent 視為 workload，各有 SPIFFE／WIMSE ID；靜態 API key 是 antipattern；機敏動作用 CIBA step-up，LLM 不得看到憑證"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "已知事件與漏洞",
+      "text": "已知事件與漏洞"
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "日期"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "事件"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "重點"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-10-20"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Kiro Crew GHSA-x4jf-p42g-q3hc",
+                  "href": "https://github.com/kirodotdev/kirocrew/security"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "WhatsApp 管道缺少授權，Critical（CVSS 9.9）；影響 0.4.0–0.7.1，0.7.2 修正；僅在非預設設定（啟用群組或 "
+                },
+                {
+                  "text": "dm_policy=open",
+                  "code": true
+                },
+                {
+                  "text": "）下觸發"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-09-28"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Kiro Crew GHSA-mh7w-q9jx-chg2",
+                  "href": "https://github.com/kirodotdev/kirocrew/security"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "會議 agent 經行事曆事件文字被提示注入，且可繞過防護；High，影響 ≤ 0.7.1"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-07-06"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "MemGhost",
+                  "href": "https://labs.cloudsecurityalliance.org/research/csa-research-note-memghost-ai-agent-memory-injection-2026072/"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "一封 email 就在 OpenClaw 的 "
+                },
+                {
+                  "text": "MEMORY.md",
+                  "code": true
+                },
+                {
+                  "text": " 寫入假記憶，成功率 87.5%；可轉移到 Hermes、Mem0"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-04-03"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "OpenClaw CVE-2026-41296",
+                  "href": "https://osv.dev/vulnerability/GHSA-9p3r-hh9g-5cmg"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "遠端檔案橋接 TOCTOU 逃出 sandbox，CVSS 4.0 9.4"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-03-23"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "OpenClaw CVE-2026-27646",
+                  "href": "https://www.wiz.io/vulnerability-database/cve/cve-2026-27646"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "在 sandbox session 以 "
+                },
+                {
+                  "text": "/acp spawn",
+                  "code": true
+                },
+                {
+                  "text": " 在主機端啟動 ACP runtime，逃出 sandbox"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-02-18"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Lakera 記憶投毒",
+                  "href": "https://www.lakera.ai/blog/memory-poisoning-instruction-drift-from-discord-chat-to-reverse-shell"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "非管理員在 Discord 反覆對話改寫記憶，最後讓 agent 執行 reverse shell：「persistent memory acts as policy」"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-02-09"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "OpenClaw 暴露面",
+                  "href": "https://securityscorecard.com/blog/beyond-the-hype-moltbots-real-risk-is-exposed-infrastructure-not-ai-superintelligence/"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "約 42,900 個 IP 對外暴露控制台，約 35% 可能可 RCE；預設綁定 "
+                },
+                {
+                  "text": "0.0.0.0",
+                  "code": true
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-02-02"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "ClawHavoc 惡意 skills",
+                  "href": "https://thehackernews.com/2026/02/researchers-find-341-malicious-clawhub.html"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "ClawHub 2,857 個 skill 中 341 個惡意，以假「Prerequisites」安裝 Atomic Stealer"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-02-01"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "OpenClaw CVE-2026-25253",
+                  "href": "https://github.com/advisories/GHSA-g8p2-7wf7-98mq"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Control UI 從網址讀取 "
+                },
+                {
+                  "text": "gatewayUrl",
+                  "code": true
+                },
+                {
+                  "text": " 並送出 token，攻擊者取得 token 後改 sandbox 政策達成 RCE；綁 loopback 也無法防範，CVSS 8.8"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2025-10-31"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Agent session smuggling",
+                  "href": "https://unit42.paloaltonetworks.com/agent-session-smuggling-in-agent2agent-systems/"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "惡意遠端 agent 在 A2A 有狀態 session 中夹帶指令，PoC 偷取系統提示並執行未授權的 "
+                },
+                {
+                  "text": "buy_stock",
+                  "code": true
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2025-10-03"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Claude Code CVE-2025-59536",
+                  "href": "https://nvd.nist.gov/vuln/detail/CVE-2025-59536"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "使用者接受信任對話框前，專案程式碼即可執行"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2025-09-29"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "postmark-mcp",
+                  "href": "https://thehackernews.com/2025/09/first-malicious-mcp-server-found.html"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "第一個在野惡意 MCP server，暗中把每封信 BCC 給攻擊者"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2025-08-26"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Nx s1ngularity",
+                  "href": "https://www.upwind.io/feed/ghsa-cxm3-wv7p-598c-nx-build-system-supply-chain-compromise"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "惡意套件利用本機 AI CLI 偵察並外洩 SSH key 與 token"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2025-08-04"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Cursor CVE-2025-54135",
+                  "href": "https://nvd.nist.gov/vuln/detail/CVE-2025-54135"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "提示注入寫入 "
+                },
+                {
+                  "text": ".cursor/mcp.json",
+                  "code": true
+                },
+                {
+                  "text": " 達成 RCE，NVD 9.8"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2025-07"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "mcp-remote CVE-2025-6514",
+                  "href": "https://jfrog.com/de/blog/2025-6514-critical-mcp-remote-rce-vulnerability/"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "惡意 server 的 OAuth endpoint 觸發 OS command injection，CVSS 9.6"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2025-05-26"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "GitHub MCP toxic agent flow",
+                  "href": "https://invariantlabs.ai/blog/mcp-github-vulnerability"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "公開 issue 誘使 agent 把私有 repo 資料寫進公開 PR"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2025-04-01"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "MCP tool poisoning",
+                  "href": "https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "工具描述內藏指令，讓 Cursor 外洩 SSH key"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "kiro-crew-自身的防護設計",
+      "text": "Kiro Crew 自身的防護設計"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "官方威脅模型將「prompt injection」視為主要威脅，並明言「The model is untrusted input」（"
+        },
+        {
+          "text": "security deep dive",
+          "href": "https://github.com/kirodotdev/KiroCrew/blob/main/docs/architecture/security-deep-dive.md"
+        },
+        {
+          "text": "）。由外而內的防護層："
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "ordered",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "Owner lock",
+                "bold": true
+              },
+              {
+                "text": "：管道發訊者白名單；未設 owner ID 時 Slack 預設拒絕。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "治理政策",
+                "bold": true
+              },
+              {
+                "text": "：有效權限 = POLICY ∩ PROFILE，取最嚴；"
+              },
+              {
+                "text": "security_policy.json",
+                "code": true
+              },
+              {
+                "text": " agent 無法讀寫。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "PreToolUse 閘門",
+                "bold": true
+              },
+              {
+                "text": "：Kiro Crew 自己的拒絕規則，README 稱內建 137 個 deny pattern。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "OS sandbox",
+                "bold": true
+              },
+              {
+                "text": "：Linux 用 user／mount namespace，macOS 用 Seatbelt；標準等級仍看得到 "
+              },
+              {
+                "text": "~/.aws",
+                "code": true
+              },
+              {
+                "text": "、"
+              },
+              {
+                "text": "~/.ssh",
+                "code": true
+              },
+              {
+                "text": "、"
+              },
+              {
+                "text": "~/.kube",
+                "code": true
+              },
+              {
+                "text": "，需設為 strict 才會遮蔽。Windows 沒有 Kiro Crew 自己的 OS sandbox，預設允許無 sandbox 執行。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "輸出去識別化",
+                "bold": true
+              },
+              {
+                "text": "與 "
+              },
+              {
+                "text": "Security Event Log",
+                "bold": true
+              },
+              {
+                "text": "（只能附加、HMAC-SHA256 雜湊鏈）。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "其他：dashboard 預設只綁 loopback，token 5 分鐘連結、最長 20 小時、綁定 IP；自動核可（YOLO）預設 6 小時、上限 24 小時且全程稽核。遙測預設開啟（每日一次匿名 heartbeat），可用 "
+        },
+        {
+          "text": "kirocrew telemetry disable",
+          "code": true
+        },
+        {
+          "text": " 關閉或以企業政策鎖定。"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "官方自述的缺口",
+          "bold": true
+        },
+        {
+          "text": "：預設沒有對外連線管制；指令比對不是 shell parser；沒有 SEL 稽核介面；不偵測 sandbox 逃逸；不阻擋寫入 "
+        },
+        {
+          "text": "~/.bashrc",
+          "code": true
+        },
+        {
+          "text": "；安裝的 App 以 gateway 程序的完整權限執行。安全回報處理：48 小時內確認、critical 目標 7 天修正，只修補最新版（"
+        },
+        {
+          "text": "SECURITY.md",
+          "href": "https://github.com/kirodotdev/KiroCrew/blob/main/SECURITY.md"
+        },
+        {
+          "text": "）。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "跨環境常駐-agent-的特有風險",
+      "text": "跨環境常駐 agent 的特有風險"
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "記憶與 lessons 投毒（ASI06）",
+                "bold": true
+              },
+              {
+                "text": "：常駐 agent 的記憶等同政策。MINJA 研究的純查詢記憶注入成功率 98.2%（"
+              },
+              {
+                "text": "arXiv 2503.03704",
+                "href": "https://arxiv.org/html/2503.03704v2"
+              },
+              {
+                "text": "）。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "自寫 skills 漂移",
+                "bold": true
+              },
+              {
+                "text": "：agent 自己產生的 skills 應視為未經審查的程式碼，目前尚無公開事件，但風險模式與記憶投毒相同。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "長效憑證與 gateway token",
+                "bold": true
+              },
+              {
+                "text": "：CVE-2026-25253 顯示一個 token 就能換到主機 RCE；AgentCore 執行角色憑證外洩也已有偵測規則（"
+              },
+              {
+                "text": "Elastic",
+                "href": "https://www.elastic.co/guide/en/security/8.19/aws-bedrock-agentcore-execution-role-used-outside-its-runtime.html"
+              },
+              {
+                "text": "）。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "橫向移動與 confused deputy",
+                "bold": true
+              },
+              {
+                "text": "：session smuggling 與 Agent Card 投毒都在 agent 之間傳遞信任；MCP 規格因此禁止 token passthrough。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "通訊管道與 webhook 注入",
+                "bold": true
+              },
+              {
+                "text": "：任何能在 Slack、Teams、Discord 對 agent 發言的人都是 prompt 來源；A2A 推播通知 webhook 也需防 SSRF。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "同主機多 agent 共用憑證",
+                "bold": true
+              },
+              {
+                "text": "：AgentCore Instances 上同一 session 的 agent 可讀到同一個執行角色憑證，必須彼此互信。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "Session 與使用者的綁定",
+                "bold": true
+              },
+              {
+                "text": "：AgentCore 不會把 session 對應到使用者，應用層必須自行綁定，否則可能串到別人的 session。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "控制措施與-aws-對照",
+      "text": "控制措施與 AWS 對照"
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "控制面"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "做法"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AWS 服務"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "隔離"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "每個 session 或租戶一個 sandbox，由 OS／microVM 當邊界"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AgentCore Runtime microVM；不同信任等級的 agent 分開 session"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "身分"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "每個 agent 独立 workload identity、短效憑證，不用靜態 key"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AgentCore Identity、逐 agent IAM 角色、STS session tag"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "工具邊界"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "預設拒絕、逐工具授權、輸入輸出檢查"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AgentCore Gateway + "
+                },
+                {
+                  "text": "Policy（Cedar，2026-03-03 GA）",
+                  "href": "https://aws.amazon.com/de/about-aws/whats-new/2026/03/policy-amazon-bedrock-agentcore-generally-available/"
+                },
+                {
+                  "text": " + "
+                },
+                {
+                  "text": "Guardrails（2026-06-17 GA）",
+                  "href": "https://aws.amazon.com/about-aws/whats-new/2026/06/amazon-bedrock-agentcore-policy-guardrails-generally-available/"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "網路"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "對外連線白名單，封鎖 IMDS 與內部位址"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "VPC、PrivateLink、Network Firewall、IMDSv2 hop limit"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "機密"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "LLM 不接觸憑證"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Secrets Manager、AgentCore Identity 憑證提供者"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "協定"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "MCP：OAuth 2.1 + PKCE + resource indicator；A2A：驗證簽章 Agent Card、mTLS 或 OAuth"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AgentCore Gateway inbound／outbound auth"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "供應鏈"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "skills、MCP server、擴充走內部白名單，工具描述固定並經 hash 檢查"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AWS Agent Registry、內部 artifact repo"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "記憶"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "記憶標註來源，外部內容觸發的寫入需核可，定期 diff 審查"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AgentCore Memory"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "可觀測"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "OpenTelemetry GenAI／MCP span、防竄改日誌、異常偵測"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "CloudTrail、GuardDuty、AgentCore Observability"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "人工核可"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "不可逆或金流動作用帶外確認，不只是對話中回「好」"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Step Functions、事件式核可流程"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "台灣金融業監理動態",
+      "text": "台灣金融業監理動態"
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "金管會「金融業運用 AI 指引」（2024-06-20）",
+                "bold": true
+              },
+              {
+                "text": "：六大原則（治理與問責、公平與以人為本、隱私與客戶權益、穩健與安全、透明與可解釋、永續發展），採風險基礎管理，尚未涵蓋 agentic AI（"
+              },
+              {
+                "text": "理律法律",
+                "href": "https://www.leeandli.com/TW/NewslettersDetail/7287.htm"
+              },
+              {
+                "text": "）。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "金管會「金融業運用代理 AI 安全諮詢文件」（2026-10-13 公告，預告 30 天）",
+                "bold": true
+              },
+              {
+                "text": "：將 agent 視為「數位員工」，以非人類身分及零信任管理；依資料敏感度、動作影響與能力邊界分為 L1–L4，採「就高不就低」；高風險或不可逆動作需保留人工授權；系統應可觀測、可阻斷、可復原（"
+              },
+              {
+                "text": "iThome",
+                "href": "https://www.ithome.com.tw/news/179681"
+              },
+              {
+                "text": "、"
+              },
+              {
+                "text": "中時",
+                "href": "https://wantrich.chinatimes.com/news/20261014900094-420501"
+              },
+              {
+                "text": "；尚未對照原始文件）。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "對 Kiro Crew 類常駐 agent 的意涵：可直接用 L1–L4 分級決定自主程度，L3–L4 動作必須有帶外人工核可與完整稽核紀錄。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "優先控制清單",
+      "text": "優先控制清單"
+    },
+    {
+      "type": "list",
+      "kind": "ordered",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "控制台不對外暴露：綁 loopback、token 或 mTLS 驗證，遠端只走 SSH／SSM 或私有網路。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "以 OS／microVM 隔離為邊界，每個 session 或租戶一個 sandbox；Kiro Crew 設為 strict，不在 Windows 上跑無 sandbox 版本。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "每個 agent 独立 workload identity、短效憑證，LLM 不接觸 secret。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "工具邊界預設拒絕：AgentCore Gateway + Policy（Cedar）+ Guardrails，每個 session 限定資源範圍（例如一個 repo）。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "對外連線白名單，封鎖 IMDS 與內部位址，切斷 lethal trifecta 的外洩一角。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "MCP：OAuth 2.1 + PKCE、resource indicator、不轉傳 token；修補 mcp-remote、MCP Inspector 等已知漏洞。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "A2A：驗證簽章 Agent Card、agent 間用 mTLS 或 OAuth，把遠端 agent 的輸出與 card 內容當不可信資料。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "skills、MCP server、擴充走內部白名單與簽章，工具描述固定並經 hash 檢查。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "記憶、lessons、自寫 skills 導入版控與定期審查，外部內容觸發的記憶寫入需核可。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "不可逆或金流動作用帶外人工核可（CIBA／step-up），對應金管會 L3–L4。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "通訊管道只接受白名單使用者與私訊，不在公開頻道接指令。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "關閉 workspace 設定自動執行，將 "
+              },
+              {
+                "text": ".mcp.json",
+                "code": true
+              },
+              {
+                "text": "、hooks、IDE settings 的變更視為特權操作。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "全程可觀測：OTel span、CloudTrail、GuardDuty，對 agent 角色的「新服務使用」設異常告警。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "持續紅隊測試（promptfoo、garak、PyRIT），異常時自動降低 agent 自主程度。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "同類產品比較-competitive-landscape",
+      "text": "同類產品比較 Competitive Landscape"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：Kiro Crew 最接近 OpenClaw 與 Hermes Agent（自架 gateway、通訊軟體、排程、本機記憶），但企業治理較完整，且能以 ACP 驅動 Claude Code、Codex 等其他 harness。它最大的缺口是沒有 A2A：Google、Microsoft、AgentCore、Strands、Hermes 都已支援。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "產品"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "廠商／時間"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "執行位置"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "常駐與記憶"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "跨環境協作"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "隔離與安全"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "計價"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Kiro Crew",
+                  "href": "https://kiro.dev/crew/"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AWS；開源 2026-08-04"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "自架：桌機、Docker、VPS／EC2；遠端 crew 經 SSH、SSM、Fargate"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "gateway 常駐；cron、webhook、heartbeat；知識圖譜記憶、lessons、skills"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "ACP（harness）、MCP（工具）、hub 管理遠端 crew；無 A2A"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "8 層防護、OS sandbox、簽章稽核日誌"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "開源免費，需 Kiro 方案"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "OpenClaw",
+                  "href": "https://github.com/openclaw/openclaw"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "OpenClaw Foundation；2025-11 首發，2026-01-30 更名"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "自有硬體、Docker"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "常駐 gateway、本機記憶"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "未確認"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "sandbox 選用且預設關閉；多個高風險 CVE"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "開源（MIT）"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Hermes Agent",
+                  "href": "https://github.com/NousResearch/hermes-agent"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Nous Research；2026-02"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "本機、Docker、SSH、Modal、Daytona、Vercel Sandbox"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "cron、自管記憶、FTS5、閒置休眠"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "MCP、ACP adapter、A2A（v0.20，2026-08）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "核可、容器隔離；官方稱唯一邊界是 OS 隔離"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "開源（MIT）"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Claude Managed Agents",
+                  "href": "https://platform.claude.com/docs/en/managed-agents/overview"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Anthropic；2026-04-08 beta"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Anthropic 沙箱或自架沙箱"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "有狀態、可跑數小時的 session；排程部署"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "MCP；多 agent 為 research preview"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "受管沙箱、網域白名單"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "token + $0.08／session-小時"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Claude Code 雲端",
+                  "href": "https://code.claude.com/docs/en/claude-code-on-the-web"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Anthropic"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Anthropic VM 或自架環境"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "關機後繼續執行；排程任務（research preview）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "MCP；agent teams（實驗性）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "隔離 VM、憑證不進沙箱"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "訂閱制"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "AgentCore Runtime／Instances",
+                  "href": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/agents-tools-runtime.html"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AWS；Instances 2026-08-06 GA"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "microVM（8 小時）或客戶帳號內 EC2（14 天）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "session 檔案系統、AgentCore Memory"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "MCP、A2A、HTTP、WebSocket、AG-UI"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "microVM 隔離、Identity、Policy"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "用量計價；EC2 + 管理費"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "OpenAI Frontier",
+                  "href": "https://openai.com/index/introducing-openai-frontier/"
+                },
+                {
+                  "text": "／Codex"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "OpenAI；2026-02-05／2026-04-16"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "OpenAI 託管、企業雲、本機"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Codex 自我排程、跨日持續工作；Frontier 記憶"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "「開放標準」（未詳述）、MCP"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "逐 agent 身分、雲端任務沙箱"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "未公開／ChatGPT 方案"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Gemini Enterprise Agent Platform",
+                  "href": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/release-notes"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Google；2026-04-22"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Agent Runtime"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "可跑數小時到數天；Memory Bank；排程與觸發式 agent"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "A2A 1.0（Agent Registry GA 2026-06-18）、ADK、MCP"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Agent Gateway、Agent Identity、VPC-SC"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "未公開；背景任務延遲檔 −50%"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Foundry hosted agents",
+                  "href": "https://devblogs.microsoft.com/foundry/introducing-the-new-hosted-agents-in-foundry-agent-service-secure-scalable-compute-built-for-agents"
+                },
+                {
+                  "text": " + Agent Framework"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Microsoft；2026-04-22 preview；AF 1.0 2026-04-02"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Azure hypervisor 沙箱、自帶 VNet"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "持久檔案系統、可縮到零"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "A2A 1.0 GA（僅 JSON-RPC）、MCP、AG-UI"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "hypervisor 隔離、Entra Agent ID"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "使用時計費"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "GitHub Agent HQ",
+                  "href": "https://github.blog/news-insights/product-news/pick-your-agent-use-claude-and-codex-on-agent-hq/"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "GitHub；2026-02-04"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "GitHub 雲端、VS Code"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "非同步雲端 session"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "多廠商 agent 在同一介面"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "GitHub 受管"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "premium requests"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Cursor 自架 cloud agents",
+                  "href": "https://thenewstack.io/cursor-self-hosted-coding-agents/"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Cursor；2026-03-31"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Cursor VM 或客戶 worker"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "非同步任務"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "專有"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "每任務一個 VM；自架時程式留在本地"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "未公開"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "星數、定價等為 2026-10-22 的快照；OpenClaw 與 Cursor 的協定支援、Hermes 實作的 A2A 版本尚未以一手資料確認。"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "定位判讀",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "開發者自有的常駐工作區",
+                "bold": true
+              },
+              {
+                "text": "：Kiro Crew、OpenClaw、Hermes。Kiro Crew 的治理上限、簽章稽核與 AWS 原生遠端傳輸（SSM、Fargate）最適合企業；OpenClaw 生態最大（約 39 萬 stars），但資安紀錄最差。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "受管的生產級多 agent 服務",
+                "bold": true
+              },
+              {
+                "text": "：AgentCore Runtime／Instances、Gemini Enterprise Agent Platform、Foundry hosted agents、Claude Managed Agents。這一組提供身分、政策與 A2A，是跨團隊、跨系統協作的落點。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "開發平台內的非同步 agent",
+                "bold": true
+              },
+              {
+                "text": "：GitHub Agent HQ、Cursor、Codex Cloud、Kiro autonomous agent，綁定在各自的開發流程。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "給 SA 的建議組合",
+                "bold": true
+              },
+              {
+                "text": "：開發團隊用 Kiro Crew 處理個人與小組的常駐工作；要跨系統協作、對外提供服務的 agent 則放在 AgentCore Runtime／Instances，以 Strands（已支援 A2A client 與 server）加 A2A 互通。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "meta-muse-能力分析",
+      "text": "Meta Muse 能力分析"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：Muse 是 Meta Superintelligence Labs（MSL）在 2026 年推出的模型與產品品牌，包含封閉模型 Muse Spark、開放權重的 Glimmer 與 Spark Open，以及消費者用的常駐個人 agent。對本主題最相關的是 Muse Spark Open：已上 SageMaker JumpStart，宣稱擅長工具使用與協調 subagent，可作為自架 agent 的開放模型選項。",
+          "bold": true
+        },
+        {
+          "text": " 注意別與 Microsoft Research 的 Muse（WHAM 遊戲世界模型，2025-02）混淆。"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "產品"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "時間"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "類型"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "重點能力"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "取得方式"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Muse Spark Open",
+                  "href": "https://aws.amazon.com/blogs/machine-learning/metas-muse-spark-open-now-available-in-amazon-sagemaker-jumpstart/"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2026-10-15"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "開放權重 MoE，816B 總參數／42B 啟用，1M context"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "輸入文字、影像、文件、音訊、影音；訓練來協調 subagent 並操作桌面、行動、瀏覽器環境；Meta 宣稱在 MCP-Atlas 等 agentic 基準領先，但 Terminal-Bench 2.1 得 76.4，落後 Kimi K3 的 85.0"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "SageMaker JumpStart（us-east-1、us-east-2；BF16 用 ml.p6-b300.48xlarge，NVFP4 用 ml.p5e.48xlarge）、GCP Model Garden、Azure Foundry、Hugging Face；未上 Bedrock"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Muse Spark 1.3",
+                  "href": "https://axios.com/2026/09/02/meta-debuts-muse-spark-13-as-personal-agent-work-continues"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2026-09-02"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "封閉模型"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "程式與 agentic 效能提升；1M context；平行工具呼叫、subagent、computer use、MCP"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Meta Model API（$1.25／$4.25 每百萬 token）、Muse Code、Vercel AI Gateway"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Muse personal agent",
+                  "href": "https://www.thenationalnews.com/future/technology/2026/09/08/meta-muse-ai-agent/"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2026-09-08"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "消費者常駐 agent"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "每位使用者一台雲端「Muse Secure VM」；Sentinel 監控即將執行的動作並可要求使用者核可；付款用一次性卡號"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "僅美國成人；Muse app 與 WhatsApp；免費、$20、$100／月"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Muse Glimmer",
+                  "href": "https://artificialanalysis.ai/articles/muse-glimmer"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2026-08"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "開放權重 30B dense，Apache 2.0"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "工具使用；AWS 定位為「always-on enterprise agents」；第三方測得幻覺率偏高（82%）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Hugging Face、SageMaker JumpStart"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Muse Spark",
+                  "href": "https://ai.meta.com/blog/introducing-muse-spark-msl/"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2026-04-08"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "封閉模型，MSL 首個模型"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "原生多模態推理；Contemplating 模式平行編排多個 agent；Meta 自述長時程 agent 與程式工作流仍有落差"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "meta.ai、Meta AI app"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "對本主題的意涵",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "模型層",
+                "bold": true
+              },
+              {
+                "text": "：Spark Open 是可自行部署、支援工具與 subagent 的大型開放模型，適合資料不能出境、需在自有 VPC 內跑 agent 的客戶。但它的「Muse Model License」限制：營收超過 $20M 的公司若要對外提供 model-as-a-service 需另簽協議、產品需標示「Built with Muse Spark Open」，且禁用於軍事與關鍵基礎設施（"
+              },
+              {
+                "text": "The New Stack",
+                "href": "https://thenewstack.io/meta-muse-spark-open/"
+              },
+              {
+                "text": "）。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "產品層",
+                "bold": true
+              },
+              {
+                "text": "：Muse personal agent 與 Kiro Crew 是同一個趨勢的兩端：每人一台隔離 VM、背景執行、動作監控。Meta 的 Sentinel（動作前監控與核可）與「一次性卡號」付款設計，可作為企業金流類 agent 控制的參考。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "互通性",
+                "bold": true
+              },
+              {
+                "text": "：消費者 agent 未提供 A2A 或 MCP 對外介面；模型 API 則支援 MCP 與 subagent。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "證據強度",
+                "bold": true
+              },
+              {
+                "text": "：基準數字多來自 Meta 或二手報導，尚無獨立重現；Muse Spark 1.1 的確切上線日、Spark 參數量均未公開。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "建議與導入路線-recommendations",
+      "text": "建議與導入路線 Recommendations"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：把 Kiro Crew 當成開發團隊的常駐工作區先試點，定位為 PoC；需要跨系統、對外提供服務的 agent 協作，則以 AgentCore Runtime／Instances 加 A2A、Gateway、Policy 建置。兩條路線都以「隔離、身分、工具邊界、對外連線」四項控制為前提。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "團隊"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "首要行動"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Cloud／平台團隊"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "在非生產帳號以 strict sandbox 試點 Kiro Crew：每日成本摘要、CI 失敗分析、依 TASK.md 升級套件；遠端 crew 只用 SSM 或 Fargate，不開 SSH 入站"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "CCoE"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "定義「常駐 agent 基線」：逐 agent IAM 角色、VPC 與對外連線白名單、禁止控制台對外暴露、CloudTrail 與 GuardDuty 告警；把 Kiro Crew 的 "
+                },
+                {
+                  "text": "security_policy.json",
+                  "code": true
+                },
+                {
+                  "text": " 與遙測設定納入企業政策"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "AICoE"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "建立 agent 平台：AgentCore Runtime／Instances、Gateway + Policy（Cedar）+ Guardrails、Agent Registry；制定 A2A 互通規範（簽章 Agent Card、mTLS／OAuth）與 skills／MCP server 白名單；依金管會 L1–L4 分級決定自主程度"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "導入步驟",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "ordered",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "盤點與分級（0–1 個月）",
+                "bold": true
+              },
+              {
+                "text": "：列出想常駐化的工作，依資料敏感度與動作影響分為 L1–L4，先只做 L1–L2（查詢、摘要、唯讀分析）。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "Kiro Crew PoC（1–3 個月）",
+                "bold": true
+              },
+              {
+                "text": "：設 strict sandbox、關閉遙測、owner lock；不啟用 WhatsApp 群組與 "
+              },
+              {
+                "text": "dm_policy=open",
+                "code": true
+              },
+              {
+                "text": "；版本鎖定在已修正已知漏洞的版本（≥ 0.7.2），定期審查 lessons 與 skills。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "受管平台化（3–9 個月）",
+                "bold": true
+              },
+              {
+                "text": "：生產用 agent 部署到 AgentCore Runtime；需要多天或 GPU 的 worker 放 Instances，且不同信任等級的 agent 分開 session；所有工具走 Gateway + Policy。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "跨平台協作（持續）",
+                "bold": true
+              },
+              {
+                "text": "：對外或跨雲的 agent 以 A2A v1.0 互通，先確認各平台支援的 A2A 版本與 binding（例如 Foundry 僅 JSON-RPC）；Kiro Crew 若要加入，需在外層包 A2A 端點或以 MCP 工具互通。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "待追蹤事項",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "check",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "Kiro Crew 是否支援 A2A，以及「遠端派工」「記憶共享」RFC 的進度"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "Kiro Crew 是否支援 LINE 與 Windows OS sandbox"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "AgentCore Runtime 的 A2A v1.0 支援、Gateway 支援的 MCP 版本"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "AgentCore Runtime instances 是否進入台北 Region"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "金管會「金融業運用代理 AI 安全諮詢文件」的定稿內容"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "ACP Streamable HTTP／WebSocket 傳輸何時轉為正式規格"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "id": "參考資料-sources",
+      "text": "參考資料 Sources"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "資料查證日期：2026-10-22。"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "Kiro Crew 與 AgentCore",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "kirodotdev/KiroCrew",
+                "href": "https://github.com/kirodotdev/KiroCrew"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Architecture overview",
+                "href": "https://github.com/kirodotdev/KiroCrew/blob/main/docs/architecture/overview.md"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Security deep dive",
+                "href": "https://github.com/kirodotdev/KiroCrew/blob/main/docs/architecture/security-deep-dive.md"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "CHANGELOG",
+                "href": "https://github.com/kirodotdev/KiroCrew/blob/main/CHANGELOG.md"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Security advisories",
+                "href": "https://github.com/kirodotdev/kirocrew/security"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "Kiro blog: Introducing Kiro Crew",
+                "href": "https://kiro.dev/blog/introducing-kiro-crew/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Kiro Crew 產品頁",
+                "href": "https://kiro.dev/crew/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Multi-instance 文件",
+                "href": "https://kiro.dev/docs/crew/features/multi-instance/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Running 24/7",
+                "href": "https://kiro.dev/docs/crew/running-24-7/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Kiro CLI ACP",
+                "href": "https://kiro.dev/docs/cli/acp/"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "aws-samples: sample-host-kirocrew-on-amazon-bedrock-agentcore",
+                "href": "https://github.com/aws-samples/sample-host-kirocrew-on-amazon-bedrock-agentcore"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "AgentCore Runtime instances GA",
+                "href": "https://aws.amazon.com/about-aws/whats-new/2026/08/aws-bedrock-agentcore-runtime-instances-generally-available/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "AWS News Blog",
+                "href": "https://aws.amazon.com/blogs/aws/runtime-instances-persistent-compute-for-production-ai-agents-on-amazon-bedrock-agentcore/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "How it works",
+                "href": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-instances-how-it-works.html"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Security",
+                "href": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-instances-security.html"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Pricing",
+                "href": "https://aws.amazon.com/bedrock/agentcore/pricing/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Quotas",
+                "href": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/bedrock-agentcore-limits.html"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "InfoQ: Kiro Crew",
+                "href": "https://infoq.com/news/2026/08/kiro-crew-coding-agents"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "DevOps.com",
+                "href": "https://devops.com/aws-adds-agentic-workspace-to-kiro-ai-coding-tool/"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "協定",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "Agent Client Protocol",
+                "href": "https://agentclientprotocol.com/overview/introduction"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Transports",
+                "href": "https://agentclientprotocol.com/protocol/transports"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Streamable HTTP & WebSocket RFD",
+                "href": "https://agentclientprotocol.com/rfds/streamable-http-websocket-transport.md"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Governance",
+                "href": "https://agentclientprotocol.com/community/governance.md"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "IBM ACP 併入 A2A",
+                "href": "https://github.com/orgs/i-am-bee/discussions/5"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "A2A specification",
+                "href": "https://a2a-protocol.org/latest/specification/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "A2A v1.0 發布",
+                "href": "https://a2a-protocol.org/latest/blog/2026/03/12/a2a-protocol-ships-v10-production-ready-standard-for-agent-to-agent-communication/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "A2A 加入 AAIF",
+                "href": "https://a2a-protocol.org/latest/blog/2026/08/27/a-new-chapter-for-a2a-joining-the-agentic-ai-foundation/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "AgentCore A2A contract",
+                "href": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/runtime-a2a-protocol-contract.html"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Foundry A2A",
+                "href": "https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/enable-agent-to-agent-endpoint"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "MCP 2026-07-28 changelog",
+                "href": "https://modelcontextprotocol.io/specification/2026-07-28/changelog"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "MCP Authorization",
+                "href": "https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Agentic AI Foundation",
+                "href": "https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "AgentCore Gateway passthrough",
+                "href": "https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/gateway-target-http-passthrough.html"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "AWS A2A 多 agent 範例",
+                "href": "https://github.com/awslabs/agentcore-samples/tree/main/02-use-cases/01-conversational-agents/A2A-multi-agent-incident-response"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Strands A2A",
+                "href": "https://strandsagents.com/latest/documentation/docs/user-guide/concepts/multi-agent/agent-to-agent/"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "資安",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "OWASP Top 10 for Agentic Applications 2026",
+                "href": "https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "AWS Agentic AI Security Scoping Matrix",
+                "href": "https://aws.amazon.com/blogs/security/the-agentic-ai-security-scoping-matrix-a-framework-for-securing-autonomous-ai-systems"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "The lethal trifecta",
+                "href": "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "NIST CAISI",
+                "href": "https://www.nist.gov/blogs/caisi-research-blog/insights-ai-agent-security-large-scale-red-teaming-competition"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "IETF AI agent auth draft",
+                "href": "https://datatracker.ietf.org/doc/html/draft-klrc-aiagent-auth"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "OpenClaw CVE-2026-25253",
+                "href": "https://github.com/advisories/GHSA-g8p2-7wf7-98mq"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "SecurityScorecard",
+                "href": "https://securityscorecard.com/blog/beyond-the-hype-moltbots-real-risk-is-exposed-infrastructure-not-ai-superintelligence/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "ClawHavoc",
+                "href": "https://thehackernews.com/2026/02/researchers-find-341-malicious-clawhub.html"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "MemGhost",
+                "href": "https://labs.cloudsecurityalliance.org/research/csa-research-note-memghost-ai-agent-memory-injection-2026072/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Agent session smuggling",
+                "href": "https://unit42.paloaltonetworks.com/agent-session-smuggling-in-agent2agent-systems/"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "AgentCore Policy GA",
+                "href": "https://aws.amazon.com/de/about-aws/whats-new/2026/03/policy-amazon-bedrock-agentcore-generally-available/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Policy + Guardrails GA",
+                "href": "https://aws.amazon.com/about-aws/whats-new/2026/06/amazon-bedrock-agentcore-policy-guardrails-generally-available/"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "金管會代理 AI 諮詢文件（iThome）",
+                "href": "https://www.ithome.com.tw/news/179681"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "金融業運用 AI 指引（理律）",
+                "href": "https://www.leeandli.com/TW/NewslettersDetail/7287.htm"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "同類產品與 Meta Muse",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "OpenClaw",
+                "href": "https://github.com/openclaw/openclaw"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Hermes Agent",
+                "href": "https://github.com/NousResearch/hermes-agent"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Claude Managed Agents",
+                "href": "https://platform.claude.com/docs/en/managed-agents/overview"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "OpenAI Frontier",
+                "href": "https://openai.com/index/introducing-openai-frontier/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Gemini Enterprise Agent Platform release notes",
+                "href": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/release-notes"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Foundry hosted agents",
+                "href": "https://devblogs.microsoft.com/foundry/introducing-the-new-hosted-agents-in-foundry-agent-service-secure-scalable-compute-built-for-agents"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "Introducing Muse Spark",
+                "href": "https://ai.meta.com/blog/introducing-muse-spark-msl/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Muse Spark Open on SageMaker JumpStart",
+                "href": "https://aws.amazon.com/blogs/machine-learning/metas-muse-spark-open-now-available-in-amazon-sagemaker-jumpstart/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "The New Stack: Muse Spark Open",
+                "href": "https://thenewstack.io/meta-muse-spark-open/"
+              },
+              {
+                "text": " · "
+              },
+              {
+                "text": "Muse Glimmer",
+                "href": "https://artificialanalysis.ai/articles/muse-glimmer"
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

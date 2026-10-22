@@ -1,10 +1,12 @@
 import type { ComponentType, ReactNode } from "react";
 import type { Block, Inline, ListBlock, ListItem } from "@/lib/report-schema";
+import { CrossEnvFigure } from "./CrossEnvFigure";
 import { RoadmapFigure } from "./RoadmapFigure";
 
 /** Figures referenced by `figure` blocks, keyed by the source doc's embed node id. */
 const FIGURES: Record<string, ComponentType> = {
   "0c77155c-215c": RoadmapFigure,
+  "29b6e777-ead8": CrossEnvFigure,
 };
 
 function Inlines({ parts }: { parts: Inline[] }) {

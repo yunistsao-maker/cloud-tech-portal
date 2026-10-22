@@ -1747,6 +1747,1048 @@
     },
     {
       "type": "heading",
+      "level": 3,
+      "id": "aidlc-workflows-實務-安裝-harness-與版本演進",
+      "text": "aidlc-workflows 實務：安裝、Harness 與版本演進"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "結論：aidlc-workflows 從 2026-04-24 的 0.1.0 到 2026-10-20 的 2.11.1，CHANGELOG 共記錄 282 個版本；現在以單一原生 ",
+          "bold": true
+        },
+        {
+          "text": "aidlc",
+          "bold": true,
+          "code": true
+        },
+        {
+          "text": " CLI 安裝、支援 7 種 harness。企業導入的重點是版本鎖定、安全預設與稽核證據。",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "安裝與啟動",
+          "bold": true
+        },
+        {
+          "text": "（"
+        },
+        {
+          "text": "README",
+          "href": "https://github.com/awslabs/aidlc-workflows"
+        },
+        {
+          "text": "）"
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "ordered",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "安裝原生 "
+              },
+              {
+                "text": "aidlc",
+                "code": true
+              },
+              {
+                "text": " CLI，不需 Bun 或 Node.js：macOS／Linux／WSL 執行 "
+              },
+              {
+                "text": "curl -fsSL https://github.com/awslabs/aidlc-workflows/releases/latest/download/install.sh | sh",
+                "code": true
+              },
+              {
+                "text": "；Windows 執行 "
+              },
+              {
+                "text": "irm https://github.com/awslabs/aidlc-workflows/releases/latest/download/install.ps1 | iex",
+                "code": true
+              },
+              {
+                "text": "，不要以系統管理員執行。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "在專案根目錄設定 harness 並檢查環境："
+              },
+              {
+                "text": "aidlc config --harness claude",
+                "code": true
+              },
+              {
+                "text": "，再執行 "
+              },
+              {
+                "text": "aidlc doctor",
+                "code": true
+              },
+              {
+                "text": "。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "在 harness 對話中輸入 "
+              },
+              {
+                "text": "/aidlc <意圖>",
+                "code": true
+              },
+              {
+                "text": " 開始；Codex CLI 用 "
+              },
+              {
+                "text": "$aidlc",
+                "code": true
+              },
+              {
+                "text": "，Kiro IDE 先在 agent picker 選 aidlc。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Harness"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "最低版本"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "設定指令"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "呼叫方式"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Claude Code"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "未標示"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "aidlc config --harness claude",
+                  "code": true
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "/aidlc",
+                  "code": true
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Kiro IDE（v3 引擎）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "IDE ≥ 1.1.70／CLI ≥ 2.24.1"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "aidlc config --harness kiro-ide",
+                  "code": true
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "/aidlc",
+                  "code": true
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Kiro CLI（V2）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "≥ 2.6"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "aidlc config --harness kiro",
+                  "code": true
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "/aidlc",
+                  "code": true
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Codex CLI"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "≥ 0.145.0"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "aidlc config --harness codex",
+                  "code": true
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "$aidlc",
+                  "code": true
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Cursor"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "未標示"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "aidlc config --harness cursor",
+                  "code": true
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "/aidlc",
+                  "code": true
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "opencode"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "≥ 1.17"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "aidlc config --harness opencode",
+                  "code": true
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "/aidlc",
+                  "code": true
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "GitHub Copilot"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "CLI ≥ 1.0.74／VS Code ≥ 1.130"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "aidlc config --harness copilot",
+                  "code": true
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "/aidlc",
+                  "code": true
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "Kiro 不需另外設定模型供應商；其他 harness 可用 "
+        },
+        {
+          "text": "aidlc config providers",
+          "code": true
+        },
+        {
+          "text": " 套用 Amazon Bedrock 設定。2.10.0 起同一專案可並存多個 harness。"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "Repo 結構",
+          "bold": true
+        },
+        {
+          "text": "："
+        },
+        {
+          "text": "core/",
+          "code": true
+        },
+        {
+          "text": " 是 harness 中立的方法論與引擎，"
+        },
+        {
+          "text": "core/tools/",
+          "code": true
+        },
+        {
+          "text": " 有 96 個 "
+        },
+        {
+          "text": "aidlc-*.ts",
+          "code": true
+        },
+        {
+          "text": " 工具；"
+        },
+        {
+          "text": "harness/<name>/",
+          "code": true
+        },
+        {
+          "text": " 放各工具的整合；"
+        },
+        {
+          "text": "plugins/<name>/",
+          "code": true
+        },
+        {
+          "text": " 放選用 plugin（如 "
+        },
+        {
+          "text": "test-pro",
+          "code": true
+        },
+        {
+          "text": "）。README 列出 121 種稽核事件。"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "日期"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "版本"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "重點"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-10-20"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2.11.1"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "install.sh",
+                  "code": true
+                },
+                {
+                  "text": " 新增 "
+                },
+                {
+                  "text": "--allow-root",
+                  "code": true
+                },
+                {
+                  "text": " 供容器與 CI 使用；專案 "
+                },
+                {
+                  "text": ".env",
+                  "code": true
+                },
+                {
+                  "text": " 不再傳入引擎；Deployment Execution 部署前先驗證 AWS 身分；plugin 改用共用的 "
+                },
+                {
+                  "text": "aidlc-plugins",
+                  "code": true
+                },
+                {
+                  "text": " 目錄"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-10-08"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2.11.0"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Guard Policy 與 collaborators 預設改為 off（"
+                },
+                {
+                  "text": "enterprise",
+                  "code": true
+                },
+                {
+                  "text": " 除外）；Plan Approval 改由引擎管理；新對話直接延續進行中的工作"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-09-24"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2.10.0"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AIDA PR 工作流程支援多模型審查與安全證據；同一專案可並存多個 harness"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-09-15"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2.9.0"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "aidlc attest resolve",
+                  "code": true
+                },
+                {
+                  "text": " 把 commit 對應到已審查的 Unit；intent 可封存；新增 preview 發布通道"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-09-01"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2.7.0"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "33 個 stage 定案；Classic 與 Express 成為一級 scope，Classic 為預設"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-07-17"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2.5.0"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "stage 加入 "
+                },
+                {
+                  "text": "pipeline",
+                  "code": true
+                },
+                {
+                  "text": " 與 "
+                },
+                {
+                  "text": "mob",
+                  "code": true
+                },
+                {
+                  "text": " 協作拓樸，support agent 成為獨立派送的協作者"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-07-14"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2.4.0"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "reviewer 改採對抗式審查契約：目標是推翻產物，而非確認"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-07-07"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2.3.0"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "plugin 機制：自訂 stage 並輸出各 harness 的原生 plugin"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-07-04"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2.2.0"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "composer agent 依任務自動組合 workflow"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-06-24"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2.1.0"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "改為 workspace 版面：spaces、多 intent、多 repo、space 層級 knowledge"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-06-18"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "2.0.0"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "加入 LLM reviewer 品質闘門與兩個 reviewer persona；新增 Kiro IDE harness"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "2026-04-24"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "0.1.0"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "首次發布"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "資料來源："
+        },
+        {
+          "text": "CHANGELOG",
+          "href": "https://github.com/awslabs/aidlc-workflows/blob/main/CHANGELOG.md"
+        },
+        {
+          "text": "。"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "企業導入要點",
+          "bold": true
+        }
+      ]
+    },
+    {
+      "type": "list",
+      "kind": "bullet",
+      "items": [
+        {
+          "paras": [
+            [
+              {
+                "text": "版本鎖定",
+                "bold": true
+              },
+              {
+                "text": "：迭代極快，正式環境用 "
+              },
+              {
+                "text": "install.sh --version <版本>",
+                "code": true
+              },
+              {
+                "text": " 或 "
+              },
+              {
+                "text": "aidlc update --version <版本>",
+                "code": true
+              },
+              {
+                "text": " 鎖定，必要時以 "
+              },
+              {
+                "text": "aidlc rollback",
+                "code": true
+              },
+              {
+                "text": " 回復；preview 通道只在試點使用。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "安全預設",
+                "bold": true
+              },
+              {
+                "text": "：2.11.0 起 Guard Policy 在 "
+              },
+              {
+                "text": "enterprise",
+                "code": true
+              },
+              {
+                "text": " 以外的所有內建 scope 預設為 off（先前 "
+              },
+              {
+                "text": "security-patch",
+                "code": true
+              },
+              {
+                "text": " 與 "
+              },
+              {
+                "text": "infra",
+                "code": true
+              },
+              {
+                "text": " 為 strict、其餘為 relaxed）。受監管工作應使用 "
+              },
+              {
+                "text": "enterprise",
+                "code": true
+              },
+              {
+                "text": " scope，或以團隊設定明確設為 strict。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "進入 CI／容器",
+                "bold": true
+              },
+              {
+                "text": "：2.11.1 起可在只有 root 的容器內安裝（需 "
+              },
+              {
+                "text": "--allow-root",
+                "code": true
+              },
+              {
+                "text": "），GitHub Copilot 可用 "
+              },
+              {
+                "text": "copilot -p",
+                "code": true
+              },
+              {
+                "text": " headless 執行，適合把 AI-DLC 放進 pipeline。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "稽核證據",
+                "bold": true
+              },
+              {
+                "text": "：121 種稽核事件加上 "
+              },
+              {
+                "text": "aidlc attest resolve",
+                "code": true
+              },
+              {
+                "text": " 的 commit 對應（verified、drifted、unattested 等），可作為金融業變更管理的佐證。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "組織標準做成 plugin",
+                "bold": true
+              },
+              {
+                "text": "：CCoE 可把 Landing Zone 檢查、測試標準做成 plugin，新增或擴充 stage，並用 "
+              },
+              {
+                "text": "aidlc plugin validate",
+                "code": true
+              },
+              {
+                "text": " 驗證。"
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
       "level": 2,
       "id": "工具版圖-tool-landscape",
       "text": "工具版圖 Tool Landscape"
