@@ -2,11 +2,12 @@
   "slug": "kirocrew-cross-env-agents",
   "title": "Kiro Crew 與跨環境 Agent 協作 — Research Survey",
   "summary": {
-    "en": "Kiro Crew, AWS's open-source always-on agent workspace, and how agents on different servers, containers and clouds communicate and collaborate: Kiro Crew architecture, hosting on Amazon Bedrock AgentCore (Runtime and the new Runtime Instances), the ACP / MCP / A2A protocol layers, a deep security analysis with incidents and a control checklist, competing products, Meta Muse, and adoption recommendations including Taiwan FSC guidance.",
-    "zh": "Kiro Crew 是 AWS 開源的常駐型 agent 工作區。本調查分析不同 server、container 與雲上的 agent 如何溝通與協作：Kiro Crew 架構、在 Amazon Bedrock AgentCore（Runtime 與新的 Runtime Instances）上託管、ACP／MCP／A2A 協定分層、含事件與控制清單的資安深入分析、同類產品比較、Meta Muse，以及納入金管會指引的導入建議。"
+    "en": "Kiro Crew is an open-source (Apache-2.0), always-on development workspace you run on your own machine — laptop, home server, Docker or any cloud VM — driving coding agents over ACP and managing remote crews from one hub. This survey covers its features and architecture, deployment options (with Amazon Bedrock AgentCore as one community-sample option), how agents across servers, containers and clouds communicate (ACP / MCP / A2A), a deep security analysis with incidents and a control checklist, competing products, Meta Muse, and adoption recommendations including Taiwan FSC guidance.",
+    "zh": "Kiro Crew 是開源（Apache-2.0）的常駐型開發工作區，跑在你自己的筆電、家用伺服器、Docker 或任何雲端 VM 上，以 ACP 驅動多種 coding agent，並從一個 hub 管理遠端 crew。本調查涵蓋其功能與架構、部署選項（Amazon Bedrock AgentCore 為社群範例提供的其中一種）、跨 server／container／雲的 agent 如何溝通協作（ACP／MCP／A2A）、含事件與控制清單的資安深入分析、同類產品比較、Meta Muse，以及納入金管會指引的導入建議。"
   },
   "author": "Eunice Tsao",
   "publishedAt": "2026-10-22",
+  "updatedAt": "2026-10-22",
   "lang": "zh-Hant-TW",
   "categories": [
     "ai-ml",
@@ -32,7 +33,7 @@
       "type": "paragraph",
       "inlines": [
         {
-          "text": "Kiro Crew 是 AWS 於 2026-08-04 開源的常駐型 agent 工作區，適合開發團隊試點，但它的跨主機協作是自有的通道代理、不支援 A2A。要讓不同 server、container、雲上的 agent 互相協作，生產級的答案是「AgentCore Runtime／Instances + A2A + Gateway／Policy」，資安則必須以 OS／microVM 隔離與短效 agent 身分為邊界。",
+          "text": "Kiro Crew 是一個開源（Apache-2.0）、常駐型的開發工作區：跑在你自己的筆電、家用伺服器或任何雲端主機上，以 ACP 驅動多種 coding agent，並可從一個 hub 管理多台主機上的 crew。它不綁定任何雲端服務，Amazon Bedrock AgentCore 只是眾多部署方式之一。跨主機協作目前靠自有通道代理、不支援 A2A；資安則必須以 OS 隔離與短效憑證為邊界。",
           "bold": true
         }
       ]
@@ -45,11 +46,11 @@
           "paras": [
             [
               {
-                "text": "Kiro Crew",
+                "text": "定位",
                 "bold": true
               },
               {
-                "text": "：Python gateway 透過 ACP 驅動 kiro-cli（亦可換 Claude Code、Codex 等），提供記憶、lessons、skills、排程與 Slack／Teams 等管道；hub 可經 SSH、SSM、Fargate 管理遠端 crew。約 4.5k stars，CHANGELOG 最新 0.9.0，仍屬早期版本。"
+                "text": "：官方稱為「persistent, open source development workspace」，延伸而非取代 Kiro IDE／CLI／Web 的單次 session；軟體免費，推論使用你的 Kiro 方案額度。內部由 side project 發展而來，官方稱半年內有 39,000+ builder 使用；GitHub 約 4.5k stars。"
               }
             ]
           ]
@@ -58,11 +59,24 @@
           "paras": [
             [
               {
-                "text": "AgentCore 託管",
+                "text": "能力",
                 "bold": true
               },
               {
-                "text": "：aws-samples 範例讓每位使用者在自己的 microVM 跑 Kiro Crew，受 8 小時上限約束，明言不適用生產。AgentCore Runtime instances（2026-08-06 GA）提供最長 14 天、可用 GPU 的受管 EC2，但同 instance 上的 agent 不互相隔離，且未進入台北 Region。"
+                "text": "：跨 session 的記憶、lessons 與 skills（Markdown、可檢視編輯）；cron、webhook、heartbeat 觸發；Task Runner、Workflows 多 agent 編排、Apps 與 App SDK；可換 harness（Kiro CLI、Claude Code、Codex、goose 等，Preview）；介面涵蓋桌面 app、dashboard、CLI 與 Slack、Teams、Discord、Telegram。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "部署",
+                "bold": true
+              },
+              {
+                "text": "：macOS、Linux、Windows 本機；systemd／launchd 服務、Docker、任何 Linux VPS 或雲端 VM；遠端 crew 可經 SSH、AWS SSM、Fargate 管理。AWS 社群範例展示了跑在 AgentCore Runtime 的做法，但不是官方部署路徑。"
               }
             ]
           ]
@@ -75,7 +89,7 @@
                 "bold": true
               },
               {
-                "text": "：ACP（介面 ↔ agent）目前只有 stdio 是正式傳輸；MCP 2026-07-28 版改為無狀態、易於水平擴展；A2A v1.0（2026-03-12）是 agent ↔ agent 的標準，已進入 Agentic AI Foundation，但各平台支援程度不一。"
+                "text": "：Kiro Crew 內部以 ACP 驅動 harness、以 MCP 接工具；ACP 目前只有 stdio 是正式傳輸；agent ↔ agent 的跨平台標準是 A2A v1.0（2026-03-12），Kiro Crew 尚未支援。"
               }
             ]
           ]
@@ -88,7 +102,7 @@
                 "bold": true
               },
               {
-                "text": "：OpenClaw 的 token 外洩 RCE、約 4.3 萬個暴露控制台、341 個惡意 skills、一封 email 即可投毒記憶的 MemGhost，都顯示常駐 agent 的風險是「主機入侵」等級。Kiro Crew 自身也已有兩則高風險安全公告（0.7.2 已修正）。"
+                "text": "：Kiro Crew 有 8 層防護與簽章稽核日誌，但預設無對外連線管制、Windows 無 OS sandbox，已有兩則高風險安全公告（0.7.2 已修正）。OpenClaw 的 token 外洩 RCE、約 4.3 萬個暴露控制台、MemGhost 記憶投毒顯示此類工具的風險是「主機入侵」等級。"
               }
             ]
           ]
@@ -101,7 +115,7 @@
                 "bold": true
               },
               {
-                "text": "：OpenClaw、Hermes Agent 是最接近的開源對手；Google、Microsoft、Anthropic、OpenAI 都已提供受管常駐 agent 平台，前兩者已 GA A2A 1.0。"
+                "text": "：最接近的是開源的 OpenClaw 與 Hermes Agent（Kiro Crew 宣稱可直接使用它們的 skills）；受管平台有 Claude Managed Agents、Gemini Enterprise Agent Platform、Foundry hosted agents、AgentCore。"
               }
             ]
           ]
@@ -114,7 +128,7 @@
                 "bold": true
               },
               {
-                "text": "：Muse Spark Open（816B MoE、2026-10-15）已上 SageMaker JumpStart，主打工具使用與 subagent 協調，可作為自架 agent 的開放模型，授權對大型企業有限制。"
+                "text": "：Muse Spark Open（816B MoE、2026-10-15）主打工具使用與 subagent 協調，可作為自架 agent 的開放模型，授權對大型企業有限制。"
               }
             ]
           ]
@@ -127,7 +141,7 @@
                 "bold": true
               },
               {
-                "text": "：金管會 2026-10-13 公告「金融業運用代理 AI 安全諮詢文件」，將 agent 視為數位員工、以 L1–L4 分級，是台灣金融客戶導入常駐 agent 的直接依據。"
+                "text": "：金管會 2026-10-13 公告「金融業運用代理 AI 安全諮詢文件」，將 agent 視為數位員工、以 L1–L4 分級，是台灣金融客戶導入的直接依據。"
               }
             ]
           ]
@@ -220,8 +234,25 @@
       "type": "paragraph",
       "inlines": [
         {
-          "text": "結論：Kiro Crew 是常駐在自有主機的 agent 工作區，由一個 Python gateway 透過 ACP 驅動 kiro-cli，再加上記憶、lessons、排程與多種通訊管道。它能從一台 hub 管理多台主機上的 crew，但跨主機目前是經 SSH／SSM 通道代理的 HTTP，不是 A2A 協定。",
+          "text": "結論：Kiro Crew 是「persistent, open source development workspace」：一個 Python gateway 常駐在你自己的機器上，透過 ACP 驅動 kiro-cli 或其他 coding agent，再加上記憶、lessons、skills、排程與多種通訊管道。它完全開源、可自行稽核與 fork，可跑在筆電、家用伺服器或任何雲端主機；跨主機由 hub 經 SSH／SSM／Fargate 通道管理，不是 A2A 協定。",
           "bold": true
+        },
+        {
+          "text": " 來源："
+        },
+        {
+          "text": "kiro.dev/crew",
+          "href": "https://kiro.dev/crew/"
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "GitHub",
+          "href": "https://github.com/kirodotdev/KiroCrew"
+        },
+        {
+          "text": "。"
         }
       ]
     },
@@ -394,6 +425,284 @@
               ]
             ]
           ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "產品功能",
+          "bold": true
+        },
+        {
+          "text": "（"
+        },
+        {
+          "text": "kiro.dev/crew",
+          "href": "https://kiro.dev/crew/"
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "Features",
+          "href": "https://kiro.dev/docs/crew/features/"
+        },
+        {
+          "text": "）"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "功能"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "說明"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "記憶、lessons、skills"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "跨 session 保留；被糾正的內容變成 lesson，重複流程變成命名 skill；皆為與 IDE／CLI steering 同格式的 Markdown，可檢視、編輯、刪除"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Knowledge"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "自行餵入文件、資料夾、URL 的參考庫；知識圖譜搭配向量與全文搜尋"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "排程與觸發"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "時區感知的 cron（含逾時、jitter、維護窗口跳過）、驗證過的 webhook、監看 PR／部署／pipeline 的 heartbeat"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "自主工作來源"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "掃描 issue backlog、偵測程式碼漂移（過期套件、失敗測試、過時文件）、CI／CD 失敗自動開 session"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Task Runner"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "給一份規格即可離開：規劃、執行、驗證、重試、checkpoint"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Workflows"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "以 Python 腳本編排多個 agent：fan-out、pipeline、judge-and-verify"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Apps 與 App SDK"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "以 TypeScript／Python 把 agent、skills、排程包成自訂 UI；App 可註冊 MCP 工具、訂閱 agent 事件"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Agent backends（Preview）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "可選 Kiro CLI、Claude Code、KAS、Codex、OpenCode、Pi、goose 作為 harness"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Browser、Computer Use"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "操作真實瀏覽器；以無障礙介面操作桌面 app（macOS、Windows，預設關閉）"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Snapshot & restore"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "把全部記憶與設定打包成 tarball，搬到新機器或用於復原"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Artifacts"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "版本化的產出與即時預覽，可一鍵部署到自己的 AWS 帳號（S3、CloudFront、Lambda、DynamoDB）"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "開放性",
+          "bold": true
+        },
+        {
+          "text": "：官方強調「no proprietary black boxes」，歡迎稽核、fork、擴充，包括與其他 AI 工具的整合；宣稱可直接使用為 OpenClaw、Hermes 等開放標準平台寫的 skills，並沿用既有的 "
+        },
+        {
+          "text": ".kiro",
+          "code": true
+        },
+        {
+          "text": " steering、skills 與自訂 agent。軟體免費，推論計入 Kiro 方案，無另外計費；不含模型呼叫的腳本不耗用額度。"
         }
       ]
     },
@@ -733,24 +1042,250 @@
     {
       "type": "heading",
       "level": 2,
-      "id": "在-amazon-bedrock-agentcore-上託管-kiro-crew",
-      "text": "在 Amazon Bedrock AgentCore 上託管 Kiro Crew"
+      "id": "部署選項-從本機到雲端",
+      "text": "部署選項：從本機到雲端"
     },
     {
       "type": "paragraph",
       "inlines": [
         {
-          "text": "結論：",
+          "text": "結論：Kiro Crew 的官方部署路徑是「你自己的機器」：筆電、家用伺服器、Docker 或任何 Linux VPS／雲端 VM。要常駐不中斷，官方建議裝成系統服務或放在遠端 Linux 主機；Amazon Bedrock AgentCore 是 AWS 社群範例提供的另一種託管方式，適合需要「每位使用者一個隔離環境」的情境。",
           "bold": true
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "rows": [
+        {
+          "header": true,
+          "cells": [
+            [
+              [
+                {
+                  "text": "部署方式"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "適合情境"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "說明"
+                }
+              ]
+            ]
+          ]
         },
         {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "本機桌面 app（macOS、Linux、Windows）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "個人日常使用"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Electron 包裝，不需安裝 Python 或 npm"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "系統服務 "
+                },
+                {
+                  "text": "kirocrew service install",
+                  "code": true
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "常駐不中斷（官方建議）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Linux systemd、macOS launchd；崩潰自動重啟、開機啟動、SSH 斷線不影響"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Docker "
+                },
+                {
+                  "text": "ghcr.io/kirodotdev/kirocrew:stable",
+                  "code": true
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "無介面伺服器、Slack／Discord bot"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "amd64／arm64 多架構，附 Compose 範例"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "遠端 Linux 主機（VPS、雲端 VM、閒置機器）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "筆電休眠時 Slack、cron、Task Runner 照常運作"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "約 10 GB RAM 起、16 GB 較順；Ubuntu 22.04+、Debian 12+、Fedora、Amazon Linux 2023；dashboard 經 SSH 通道存取"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Hub 管理的遠端 crew（SSH、AWS SSM、AWS Fargate）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "多台主機分工"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "見上節「跨主機協作」"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "header": false,
+          "cells": [
+            [
+              [
+                {
+                  "text": "Amazon Bedrock AgentCore Runtime（社群範例）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "多使用者、每人隔離的託管環境"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "aws-samples 範例，非官方部署路徑，見下"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "text": "來源："
+        },
+        {
+          "text": "Running 24/7",
+          "href": "https://kiro.dev/docs/crew/running-24-7/"
+        },
+        {
+          "text": "、"
+        },
+        {
+          "text": "Multi-instance",
+          "href": "https://kiro.dev/docs/crew/features/multi-instance/"
+        },
+        {
+          "text": "。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "id": "選項之一-amazon-bedrock-agentcore-aws-samples-社群範例",
+      "text": "選項之一：Amazon Bedrock AgentCore（aws-samples 社群範例）"
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
           "text": "aws-samples 範例",
-          "bold": true,
           "href": "https://github.com/aws-samples/sample-host-kirocrew-on-amazon-bedrock-agentcore"
         },
         {
-          "text": " 讓每位使用者在自己的 AgentCore Runtime microVM 裡跑一份未修改的 Kiro Crew，工作區加密後存入 S3。它只用到 AgentCore Runtime，尚未使用 Gateway、Identity、Policy 或 Instances，且明言「Sample code, not for production use」。",
-          "bold": true
+          "text": " 讓每位使用者在自己的 AgentCore Runtime microVM 裡跑一份未修改的 Kiro Crew，工作區加密後存入 S3。它只用到 AgentCore Runtime，沒有用 Gateway、Identity、Policy 或 Instances，且明言「Sample code, not for production use」。"
         }
       ]
     },
@@ -1080,19 +1615,22 @@
     },
     {
       "type": "heading",
-      "level": 2,
-      "id": "agentcore-instances-常駐-agent-的-aws-受管-ec2-基礎設施",
-      "text": "AgentCore Instances：常駐 agent 的 AWS 受管 EC2 基礎設施"
+      "level": 3,
+      "id": "延伸-agentcore-runtime-instances-與長時間執行",
+      "text": "延伸：AgentCore Runtime Instances 與長時間執行"
     },
     {
       "type": "paragraph",
       "inlines": [
         {
-          "text": "結論：AgentCore Runtime instances 於 2026-08-06 GA，在客戶自己的帳號裡提供 AWS 受管的 EC2，session 最長 14 天、可用 GPU、一個 session 可放多個 agent。它補上 microVM 8 小時上限的缺口，但同一台 instance 上的 agent 彼此沒有隔離。台北 Region 不在支援清單，最近的是東京與新加坡。",
-          "bold": true
+          "text": "上述範例使用的 microVM 每個 session 最長 8 小時。若要在 AgentCore 上跑「多天不中斷」的 crew，可參考 2026-08-06 GA 的 AgentCore Runtime instances：在客戶自己的帳號裡提供 AWS 受管的 EC2，session 最長 14 天、可用 GPU。目前 Kiro Crew 官方與範例都未採用，若只需要一台常駐主機，自管 EC2 加 "
         },
         {
-          "text": " 來源："
+          "text": "kirocrew service install",
+          "code": true
+        },
+        {
+          "text": " 更簡單。台北 Region 不在支援清單。來源："
         },
         {
           "text": "AWS What's New",
@@ -2163,7 +2701,7 @@
       "type": "paragraph",
       "inlines": [
         {
-          "text": "結論：每一段連線用對的協定——人到 agent 用 ACP／AG-UI、agent 到工具用 MCP、agent 到 agent 用 A2A——並把驗證與政策集中在 Gateway。Kiro Crew 適合開發者自架區，跨團隊與跨雲的協作放在 AgentCore 受管區。",
+          "text": "結論：Kiro Crew gateway 是協作的中心：往上連介面與通訊管道，往左以 ACP 驅動各種 coding agent，往右以 MCP 接工具，往下可部署在任何主機。要與其他平台的 agent 協作，目前需自建 A2A 端點。",
           "bold": true
         }
       ]
@@ -2171,13 +2709,13 @@
     {
       "type": "figure",
       "ref": "29b6e777-ead8",
-      "caption": "跨環境 agent 協作參考架構 · 自架工作區與 AgentCore 受管區"
+      "caption": "Kiro Crew 協作架構 · 介面、harness、工具與部署環境"
     },
     {
       "type": "paragraph",
       "inlines": [
         {
-          "text": "自架區的 Kiro Crew 以自有通道管理遠端 crew；受管區的 orchestrator 以 A2A 派工給 Instances 上的 worker 與其他雲的 agent，所有工具呼叫都經 Gateway 的政策檢查。跨組織的 A2A 連線應驗證簽章 Agent Card，並以 mTLS 或 OAuth 驗證雙方。"
+          "text": "同一個 gateway 可以是筆電上的桌面 app，也可以是雲端 VM 上的系統服務，再由 hub 管理其他主機上的 crew；AgentCore microVM 是社群範例提供的另一種託管方式。"
         }
       ]
     },
@@ -2198,51 +2736,18 @@
           "paras": [
             [
               {
-                "text": "A2A orchestrator–worker",
+                "text": "單一 gateway，多個 agent",
                 "bold": true
               },
               {
-                "text": "：一個主控 agent 透過 A2A 派工給分散在不同 runtime 的專家 agent。AWS 範例以 ADK、Strands、OpenAI Agents SDK 三個框架的 agent 分別跑在不同 AgentCore Runtime，以 Agent Card 互相發現（"
+                "text": "：coordinator 以 subagent（"
               },
               {
-                "text": "agentcore-samples",
-                "href": "https://github.com/awslabs/agentcore-samples/tree/main/02-use-cases/01-conversational-agents/A2A-multi-agent-incident-response"
-              },
-              {
-                "text": "）。"
-              }
-            ]
-          ]
-        },
-        {
-          "paras": [
-            [
-              {
-                "text": "Gateway + Registry 控制平面",
-                "bold": true
-              },
-              {
-                "text": "：AgentCore Gateway 同時前置 MCP 工具與 A2A passthrough，加上 AWS Agent Registry 統一登錄 agent、MCP server 與 skills；Google 對應 Agent Registry + Agent Gateway。"
-              }
-            ]
-          ]
-        },
-        {
-          "paras": [
-            [
-              {
-                "text": "事件驅動（ambient agents）",
-                "bold": true
-              },
-              {
-                "text": "：S3 事件或排程 → Lambda → SQS → AgentCore Runtime，DynamoDB 保存狀態，以 "
-              },
-              {
-                "text": "ask_human",
+                "text": "spawn_run",
                 "code": true
               },
               {
-                "text": " 工具做人工核可；協定層則有 A2A 推播通知與 MCP Tasks 可用。"
+                "text": "）、Task Runner 或 Workflows（fan-out、pipeline、judge-and-verify）在同一主機上平行派工；不同任務可指定不同 harness。"
               }
             ]
           ]
@@ -2251,11 +2756,44 @@
           "paras": [
             [
               {
-                "text": "共用記憶／狀態",
+                "text": "Hub + 遠端 crew",
                 "bold": true
               },
               {
-                "text": "：MCP 改為無狀態後，跨呼叫狀態改放 handle 與外部儲存（AgentCore Memory、DynamoDB、Redis）；共用記憶必須標註來源，以防記憶投毒。"
+                "text": "：一台 hub 經 SSH、AWS SSM 或 Fargate 管理多台主機上的 crew（最多 2 層、每層 8 個），例如一台跑在可存取生產資料的私有網段、一台專跑 CI 修復。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "事件驅動",
+                "bold": true
+              },
+              {
+                "text": "：webhook、heartbeat 與 CI／CD 失敗觸發 session，搭配 cron 做定期工作；不含模型呼叫的腳本不耗用額度。"
+              }
+            ]
+          ]
+        },
+        {
+          "paras": [
+            [
+              {
+                "text": "與其他平台互通",
+                "bold": true
+              },
+              {
+                "text": "：Kiro Crew 尚未支援 A2A。可在外層包一個 A2A 端點（例如以 Strands 的 "
+              },
+              {
+                "text": "A2AServer",
+                "code": true
+              },
+              {
+                "text": "），或把對方包成 MCP 工具；若對方在 AgentCore、Google Agent Platform 或 Foundry，對方已提供 A2A 端點。共用記憶必須標註來源，以防記憶投毒。"
               }
             ]
           ]
@@ -3298,7 +3836,14 @@
             [
               [
                 {
-                  "text": "AWS 服務"
+                  "text": "自架 Kiro Crew（任何環境）"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "部署在 AWS 時可加上"
                 }
               ]
             ]
@@ -3324,7 +3869,14 @@
             [
               [
                 {
-                  "text": "AgentCore Runtime microVM；不同信任等級的 agent 分開 session"
+                  "text": "OS sandbox 設 strict；不同信任等級的 crew 分開主機或容器"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "獨立 EC2／Fargate task，或 AgentCore Runtime microVM（社群範例）"
                 }
               ]
             ]
@@ -3343,14 +3895,21 @@
             [
               [
                 {
-                  "text": "每個 agent 独立 workload identity、短效憑證，不用靜態 key"
+                  "text": "每個 agent 獨立 workload identity、短效憑證，不用靜態 key"
                 }
               ]
             ],
             [
               [
                 {
-                  "text": "AgentCore Identity、逐 agent IAM 角色、STS session tag"
+                  "text": "owner lock 限定可下指令的人；遠端 crew 用 SSM 或短效憑證"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "逐 agent IAM 角色、STS session tag、AgentCore Identity"
                 }
               ]
             ]
@@ -3376,18 +3935,18 @@
             [
               [
                 {
-                  "text": "AgentCore Gateway + "
+                  "text": "security_policy.json",
+                  "code": true
                 },
                 {
-                  "text": "Policy（Cedar，2026-03-03 GA）",
-                  "href": "https://aws.amazon.com/de/about-aws/whats-new/2026/03/policy-amazon-bedrock-agentcore-generally-available/"
-                },
+                  "text": "、治理上限、MCP server 白名單"
+                }
+              ]
+            ],
+            [
+              [
                 {
-                  "text": " + "
-                },
-                {
-                  "text": "Guardrails（2026-06-17 GA）",
-                  "href": "https://aws.amazon.com/about-aws/whats-new/2026/06/amazon-bedrock-agentcore-policy-guardrails-generally-available/"
+                  "text": "AgentCore Gateway + Policy（Cedar）+ Guardrails"
                 }
               ]
             ]
@@ -3407,6 +3966,13 @@
               [
                 {
                   "text": "對外連線白名單，封鎖 IMDS 與內部位址"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "主機防火牆或出站代理白名單；dashboard 不對外暴露"
                 }
               ]
             ],
@@ -3439,6 +4005,13 @@
             [
               [
                 {
+                  "text": "系統金鑰庫或 Vault，由 MCP server 代為使用"
+                }
+              ]
+            ],
+            [
+              [
+                {
                   "text": "Secrets Manager、AgentCore Identity 憑證提供者"
                 }
               ]
@@ -3459,6 +4032,13 @@
               [
                 {
                   "text": "MCP：OAuth 2.1 + PKCE + resource indicator；A2A：驗證簽章 Agent Card、mTLS 或 OAuth"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "ACP 走 stdio；自建 A2A 端點時加簽章 Agent Card 與 OAuth"
                 }
               ]
             ],
@@ -3491,6 +4071,13 @@
             [
               [
                 {
+                  "text": "skills 與 MCP server 走內部 repo；版本鎖定 ≥ 0.7.2"
+                }
+              ]
+            ],
+            [
+              [
+                {
                   "text": "AWS Agent Registry、內部 artifact repo"
                 }
               ]
@@ -3517,7 +4104,14 @@
             [
               [
                 {
-                  "text": "AgentCore Memory"
+                  "text": "lessons、skills 為 Markdown，可放 git 做 diff 審查；以 Snapshot 備份"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "AgentCore Memory（改用受管記憶時）"
                 }
               ]
             ]
@@ -3537,6 +4131,13 @@
               [
                 {
                   "text": "OpenTelemetry GenAI／MCP span、防竄改日誌、異常偵測"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "Kiro Crew 稽核日誌；關閉遙測或導向自有 collector"
                 }
               ]
             ],
@@ -3563,6 +4164,13 @@
               [
                 {
                   "text": "不可逆或金流動作用帶外確認，不只是對話中回「好」"
+                }
+              ]
+            ],
+            [
+              [
+                {
+                  "text": "高風險動作經 Slack／Teams 帶外確認"
                 }
               ]
             ],
@@ -3686,7 +4294,14 @@
           "paras": [
             [
               {
-                "text": "工具邊界預設拒絕：AgentCore Gateway + Policy（Cedar）+ Guardrails，每個 session 限定資源範圍（例如一個 repo）。"
+                "text": "工具邊界預設拒絕：自架時用 Kiro Crew 的 "
+              },
+              {
+                "text": "security_policy.json",
+                "code": true
+              },
+              {
+                "text": " 與治理上限，部署在 AWS 時可再加 AgentCore Gateway + Policy（Cedar）+ Guardrails；每個 session 限定資源範圍（例如一個 repo）。"
               }
             ]
           ]
@@ -4500,11 +5115,11 @@
           "paras": [
             [
               {
-                "text": "開發者自有的常駐工作區",
+                "text": "開源、自架的常駐工作區",
                 "bold": true
               },
               {
-                "text": "：Kiro Crew、OpenClaw、Hermes。Kiro Crew 的治理上限、簽章稽核與 AWS 原生遠端傳輸（SSM、Fargate）最適合企業；OpenClaw 生態最大（約 39 萬 stars），但資安紀錄最差。"
+                "text": "：Kiro Crew、OpenClaw、Hermes。三者都能跑在自己的機器、不綁定雲端。Kiro Crew 的差異在治理上限與簽章稽核、以 ACP 可換 harness（能驅動 Claude Code、Codex）、內建 SSM／Fargate 遠端傳輸，以及宣稱相容 OpenClaw／Hermes skills；OpenClaw 生態最大（約 39 萬 stars），但資安紀錄最差。"
               }
             ]
           ]
@@ -4513,11 +5128,11 @@
           "paras": [
             [
               {
-                "text": "受管的生產級多 agent 服務",
+                "text": "受管的常駐 agent 平台",
                 "bold": true
               },
               {
-                "text": "：AgentCore Runtime／Instances、Gemini Enterprise Agent Platform、Foundry hosted agents、Claude Managed Agents。這一組提供身分、政策與 A2A，是跨團隊、跨系統協作的落點。"
+                "text": "：Claude Managed Agents、Gemini Enterprise Agent Platform、Foundry hosted agents、AgentCore Runtime／Instances。它們提供身分、政策與 A2A，適合對外提供服務的 agent，但要用各自的開發模型。"
               }
             ]
           ]
@@ -4539,11 +5154,11 @@
           "paras": [
             [
               {
-                "text": "給 SA 的建議組合",
+                "text": "Kiro Crew 的主要缺口",
                 "bold": true
               },
               {
-                "text": "：開發團隊用 Kiro Crew 處理個人與小組的常駐工作；要跨系統協作、對外提供服務的 agent 則放在 AgentCore Runtime／Instances，以 Strands（已支援 A2A client 與 server）加 A2A 互通。"
+                "text": "：尚未支援 A2A（Google、Microsoft、AgentCore、Strands、Hermes 皆已支援），且推論需經 Kiro 方案。"
               }
             ]
           ]
@@ -4902,7 +5517,7 @@
       "type": "paragraph",
       "inlines": [
         {
-          "text": "結論：把 Kiro Crew 當成開發團隊的常駐工作區先試點，定位為 PoC；需要跨系統、對外提供服務的 agent 協作，則以 AgentCore Runtime／Instances 加 A2A、Gateway、Policy 建置。兩條路線都以「隔離、身分、工具邊界、對外連線」四項控制為前提。",
+          "text": "結論：先把 Kiro Crew 當成開發團隊的常駐工作區試點，定位為 PoC；部署在哪裡依需求選：個人用本機，團隊常駐用自管 VM 或 Docker，需要多使用者隔離再評估 AgentCore 範例。不論哪種方式，都以「隔離、身分、工具邊界、對外連線」四項控制為前提。",
           "bold": true
         }
       ]
@@ -4942,7 +5557,14 @@
             [
               [
                 {
-                  "text": "在非生產帳號以 strict sandbox 試點 Kiro Crew：每日成本摘要、CI 失敗分析、依 TASK.md 升級套件；遠端 crew 只用 SSM 或 Fargate，不開 SSH 入站"
+                  "text": "在非生產環境以 strict sandbox 試點 Kiro Crew：每日成本摘要、CI 失敗分析、依 TASK.md 升級套件；常駐版用 "
+                },
+                {
+                  "text": "kirocrew service install",
+                  "code": true
+                },
+                {
+                  "text": " 或 Docker，遠端 crew 優先用 SSM 或 Fargate，不開 SSH 入站"
                 }
               ]
             ]
@@ -4961,14 +5583,14 @@
             [
               [
                 {
-                  "text": "定義「常駐 agent 基線」：逐 agent IAM 角色、VPC 與對外連線白名單、禁止控制台對外暴露、CloudTrail 與 GuardDuty 告警；把 Kiro Crew 的 "
+                  "text": "定義「常駐 agent 基線」：逐 agent IAM 角色、VPC 與對外連線白名單、禁止控制台對外暴露、日誌與告警；把 Kiro Crew 的 "
                 },
                 {
                   "text": "security_policy.json",
                   "code": true
                 },
                 {
-                  "text": " 與遙測設定納入企業政策"
+                  "text": "、治理上限與遙測設定納入企業政策"
                 }
               ]
             ]
@@ -4987,7 +5609,7 @@
             [
               [
                 {
-                  "text": "建立 agent 平台：AgentCore Runtime／Instances、Gateway + Policy（Cedar）+ Guardrails、Agent Registry；制定 A2A 互通規範（簽章 Agent Card、mTLS／OAuth）與 skills／MCP server 白名單；依金管會 L1–L4 分級決定自主程度"
+                  "text": "制定 skills／MCP server 白名單與 lessons、skills 的審查流程；依金管會 L1–L4 分級決定自主程度；需要對外提供服務或跨平台協作的 agent，再評估受管平台（如 AgentCore）與 A2A 互通規範"
                 }
               ]
             ]
@@ -5025,18 +5647,18 @@
           "paras": [
             [
               {
-                "text": "Kiro Crew PoC（1–3 個月）",
+                "text": "本機 PoC（1–2 個月）",
                 "bold": true
               },
               {
-                "text": "：設 strict sandbox、關閉遙測、owner lock；不啟用 WhatsApp 群組與 "
+                "text": "：選幾位開發者在自己的機器跑 Kiro Crew，設 strict sandbox、關閉遙測、owner lock；不啟用 WhatsApp 群組與 "
               },
               {
                 "text": "dm_policy=open",
                 "code": true
               },
               {
-                "text": "；版本鎖定在已修正已知漏洞的版本（≥ 0.7.2），定期審查 lessons 與 skills。"
+                "text": "；版本鎖定在 ≥ 0.7.2。"
               }
             ]
           ]
@@ -5045,11 +5667,11 @@
           "paras": [
             [
               {
-                "text": "受管平台化（3–9 個月）",
+                "text": "團隊常駐（2–4 個月）",
                 "bold": true
               },
               {
-                "text": "：生產用 agent 部署到 AgentCore Runtime；需要多天或 GPU 的 worker 放 Instances，且不同信任等級的 agent 分開 session；所有工具走 Gateway + Policy。"
+                "text": "：搬到自管 Linux VM 或 Docker，接 Slack／Teams，用 hub 管理不同網段的 crew；定期審查 lessons 與 skills，並用 Snapshot 備份。"
               }
             ]
           ]
@@ -5058,11 +5680,11 @@
           "paras": [
             [
               {
-                "text": "跨平台協作（持續）",
+                "text": "擴大與互通（依需求）",
                 "bold": true
               },
               {
-                "text": "：對外或跨雲的 agent 以 A2A v1.0 互通，先確認各平台支援的 A2A 版本與 binding（例如 Foundry 僅 JSON-RPC）；Kiro Crew 若要加入，需在外層包 A2A 端點或以 MCP 工具互通。"
+                "text": "：需要多使用者隔離時評估 AgentCore 範例或其他託管方式；需要與其他平台的 agent 協作時，在外層包 A2A 端點或以 MCP 互通，並追蹤 Kiro Crew 是否原生支援 A2A。"
               }
             ]
           ]
