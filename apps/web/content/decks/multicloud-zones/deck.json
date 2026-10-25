@@ -1,0 +1,1621 @@
+{
+ "topics": [
+  {
+   "num": "01",
+   "slug": "01-trust-model",
+   "title": "信任模型與隔離層次",
+   "short": "信任模型",
+   "lede": "Zone 是信任邊界加上控制點的邏輯分類，不是一個 zone 對應一個 VPC。",
+   "zones": [
+    "ext",
+    "dmz",
+    "int",
+    "mgmt"
+   ],
+   "caption": "左：四個 zone 的信任等級。右：雲上的三層隔離，切換雲平台可以看各雲的名稱。",
+   "svg": "<svg class=\"dg\" aria-label=\"信任模型與隔離層次\" viewBox=\"0 0 960 550\" role=\"img\" preserveAspectRatio=\"xMidYMid meet\"><title>信任等級與隔離層次</title><defs><marker id=\"mcz01-ah\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk \" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz01-ah-in\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk in\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz01-ah-out\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk out\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz01-ah-mg\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk mg\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz01-ah-int\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk int\" d=\"M1 1L9 5L1 9z\"/></marker></defs><text x=\"40\" y=\"40\" class=\"tl\" text-anchor=\"start\" dominant-baseline=\"central\">信任等級（由低到高）</text><g class=\"z-mgmt\"><rect x=\"76\" y=\"76\" width=\"324\" height=\"96\" rx=\"10\" class=\"nd\"/><text x=\"96\" y=\"102\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">PRIVILEGED</text><text x=\"96\" y=\"123\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">Mgmt zone</text><text x=\"96\" y=\"145\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">能改變其他 zone 的設定</text></g><g class=\"z-int\"><rect x=\"76\" y=\"190\" width=\"324\" height=\"96\" rx=\"10\" class=\"nd\"/><text x=\"96\" y=\"216\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">TRUSTED</text><text x=\"96\" y=\"237\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">Internal zone</text><text x=\"96\" y=\"259\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">跑 workload，無 internet 直連</text></g><g class=\"z-dmz\"><rect x=\"76\" y=\"304\" width=\"324\" height=\"96\" rx=\"10\" class=\"nd\"/><text x=\"96\" y=\"330\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">SEMI-TRUSTED</text><text x=\"96\" y=\"351\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">DMZ / Perimeter</text><text x=\"96\" y=\"373\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">唯一的對外入口與出口</text></g><g class=\"z-ext\"><rect x=\"76\" y=\"418\" width=\"324\" height=\"96\" rx=\"10\" class=\"nd\"/><text x=\"96\" y=\"444\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">UNTRUSTED</text><text x=\"96\" y=\"465\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">External zone</text><text x=\"96\" y=\"487\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">Internet、合作夥伴、SaaS</text></g><path d=\"M46 512 V84\" class=\"ln \" marker-end=\"url(#mcz01-ah)\"/><text x=\"46\" y=\"66\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">高</text><text x=\"46\" y=\"530\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">低</text><text x=\"460\" y=\"40\" class=\"tl\" text-anchor=\"start\" dominant-baseline=\"central\">隔離層次（由外到內）</text><rect x=\"460\" y=\"76\" width=\"460\" height=\"442\" rx=\"16\" class=\"nb\"/><text x=\"484\" y=\"104\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">帳號層</text><text x=\"552\" y=\"104\" class=\"tm c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">AWS account</text><text x=\"552\" y=\"104\" class=\"tm c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">Azure subscription</text><text x=\"552\" y=\"104\" class=\"tm c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">GCP project</text><text x=\"484\" y=\"130\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">IAM、帳單、配額、guardrail 的硬邊界</text><rect x=\"484\" y=\"152\" width=\"412\" height=\"342\" rx=\"14\" class=\"nk\"/><text x=\"508\" y=\"180\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">網路層</text><text x=\"576\" y=\"180\" class=\"tm c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">VPC</text><text x=\"576\" y=\"180\" class=\"tm c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">VNet</text><text x=\"576\" y=\"180\" class=\"tm c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">VPC / Shared VPC</text><text x=\"508\" y=\"206\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">路由、endpoint、檢查點</text><rect x=\"508\" y=\"228\" width=\"364\" height=\"242\" rx=\"12\" class=\"nb\"/><text x=\"532\" y=\"256\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">資源層</text><text x=\"600\" y=\"256\" class=\"tm c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">Subnet + Security Group</text><text x=\"600\" y=\"256\" class=\"tm c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">Subnet + NSG / ASG</text><text x=\"600\" y=\"256\" class=\"tm c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">Subnet + firewall policy</text><text x=\"532\" y=\"282\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">port、來源、身分</text><g class=\"z-int\"><rect x=\"532\" y=\"308\" width=\"128\" height=\"64\" rx=\"10\" class=\"nd\"/><text x=\"596\" y=\"331\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">App tier</text><text x=\"596\" y=\"350.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">SG: app</text><text x=\"596\" y=\"350.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">ASG: app</text><text x=\"596\" y=\"350.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">tag: app</text></g><g class=\"z-int\"><rect x=\"744\" y=\"308\" width=\"104\" height=\"64\" rx=\"10\" class=\"nd\"/><text x=\"796\" y=\"331\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Data tier</text><text x=\"796\" y=\"350.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">SG: db</text><text x=\"796\" y=\"350.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">ASG: db</text><text x=\"796\" y=\"350.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">tag: db</text></g><path d=\"M662 340 H740\" class=\"ln int\" marker-end=\"url(#mcz01-ah-int)\"/><g class=\"pill\"><rect x=\"677.6\" y=\"329\" width=\"46.8\" height=\"22\" rx=\"11\"/><text x=\"701\" y=\"340\" class=\"\" text-anchor=\"middle\" dominant-baseline=\"central\">5432</text></g><text x=\"532\" y=\"406\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">同一個 subnet 裡也能用規則互相隔離</text><text x=\"532\" y=\"432\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">越外層的邊界越硬，越內層越細</text></svg>",
+   "services": {
+    "aws": [
+     {
+      "name": "AWS Organizations · OU",
+      "note": "用 OU 對應 zone 類別，掛不同 guardrail"
+     },
+     {
+      "name": "AWS account",
+      "note": "zone 的硬邊界：IAM、帳單、配額"
+     },
+     {
+      "name": "Amazon VPC",
+      "note": "網路邊界：路由、endpoint、檢查點"
+     },
+     {
+      "name": "Security Group / NACL",
+      "note": "資源層：port 與來源的細粒度控制"
+     },
+     {
+      "name": "SCP / RCP",
+      "note": "限制帳號內 principal 與資源存取"
+     }
+    ],
+    "azure": [
+     {
+      "name": "Management group",
+      "note": "對應 zone 類別，繼承 policy 與 RBAC"
+     },
+     {
+      "name": "Subscription",
+      "note": "zone 的硬邊界：RBAC、帳單、配額"
+     },
+     {
+      "name": "Virtual Network",
+      "note": "網路邊界：路由、endpoint"
+     },
+     {
+      "name": "NSG / ASG",
+      "note": "資源層：port 與來源，ASG 依角色分組"
+     },
+     {
+      "name": "Azure Policy",
+      "note": "deny / audit 規則，掛在 MG 上"
+     }
+    ],
+    "gcp": [
+     {
+      "name": "Folder",
+      "note": "對應 zone 類別，繼承 IAM 與 Org Policy"
+     },
+     {
+      "name": "Project",
+      "note": "zone 的硬邊界：IAM、帳單、配額"
+     },
+     {
+      "name": "VPC / Shared VPC",
+      "note": "網路邊界；Shared VPC 讓網路集中管理"
+     },
+     {
+      "name": "Firewall policy · tags",
+      "note": "資源層：hierarchical 與 network firewall policy"
+     },
+     {
+      "name": "Org Policy",
+      "note": "限制外部 IP、peering 等資源設定"
+     }
+    ]
+   },
+   "summary": [
+    "Zone 是信任邊界加上控制點的邏輯分類，不等於一個 VPC。",
+    "隔離從帳號層開始：帳號是 IAM、帳單、guardrail 的硬邊界。",
+    "網路層管路由與檢查點，資源層用 SG / NSG 管 port 與來源。",
+    "四個 zone 在每朵雲用同一套分類，各自用原生元件實作。"
+   ],
+   "deepLede": "地端用網段劃 zone，雲上要先用帳號劃，再用網路和資源規則補細節。",
+   "deepHtml": "<h2 id=\"why\">為什麼不是一個 zone 一個 VPC</h2>\n<p>地端的 zone 靠網段和防火牆劃出來，所以很自然會想到「一個 zone 開一個 VPC」。但在雲上，網路只是其中一層邊界。最硬的邊界是帳號：IAM、帳單、配額和 guardrail 都以帳號為單位。</p>\n<p>所以雲上的 zone 是由帳號、網路、資源三層組合出來的邏輯分類。一個 zone 可以有很多帳號，一個帳號也可以有多個 VPC，兩者不是一對一。</p>\n<h2 id=\"layers\">三層隔離各自管什麼</h2>\n<div class=\"tablewrap\"><table class=\"wide\"><thead><tr><th>層次</th><th>AWS</th><th>Azure</th><th>GCP</th><th>管什麼</th></tr></thead><tbody>\n<tr><th>帳號層</th><td>Account（OU）</td><td>Subscription（MG）</td><td>Project（Folder）</td><td>IAM、帳單、配額、guardrail</td></tr>\n<tr><th>網路層</th><td>VPC</td><td>VNet</td><td>VPC / Shared VPC</td><td>路由、endpoint、檢查點</td></tr>\n<tr><th>資源層</th><td>Security Group、NACL</td><td>NSG、ASG</td><td>Firewall policy、tags</td><td>port、來源、身分</td></tr>\n</tbody></table></div>\n<h2 id=\"trust\">四個 zone 的信任等級</h2>\n<ul class=\"pts\">\n<li><b>External（Untrusted）：</b>不屬於你管理的範圍，包含 Internet 使用者、合作夥伴、SaaS、行動裝置。</li>\n<li><b>DMZ（Semi-trusted）：</b>直接面對不受信任的流量，是所有對外流量的唯一入口與出口。</li>\n<li><b>Internal（Trusted）：</b>跑 workload 的地方，沒有 internet 直連，對外一律經 DMZ。</li>\n<li><b>Mgmt（Privileged）：</b>能改變其他 zone 的設定。這一區被攻破，等於全部被攻破。</li>\n</ul>\n<h2 id=\"identity\">身分也是邊界</h2>\n<p>雲上大部分的管理動作走 control plane API，不經過你的 VPC。拿到一組有權限的 credential，就能繞過所有網路控制。所以設計 zone 時一定要同時規劃 IAM：哪些角色能在哪個 zone 做什麼。</p>\n<div class=\"callout\"><b>設計原則</b><p>先寫一份與雲無關的 zone 規範，再分別對應到 AWS、Azure、GCP 的原生元件。分類一致，實作各自原生。</p></div>",
+   "sections": [
+    {
+     "id": "why",
+     "title": "為什麼不是一個 zone 一個 VPC"
+    },
+    {
+     "id": "layers",
+     "title": "三層隔離各自管什麼"
+    },
+    {
+     "id": "trust",
+     "title": "四個 zone 的信任等級"
+    },
+    {
+     "id": "identity",
+     "title": "身分也是邊界"
+    }
+   ]
+  },
+  {
+   "num": "02",
+   "slug": "02-reference-architecture",
+   "title": "參考架構總覽",
+   "short": "參考架構",
+   "lede": "每朵雲各自一套相同結構的 landing zone，彼此之間與地端走私有互連。",
+   "zones": [
+    "ext",
+    "dmz",
+    "int",
+    "mgmt",
+    "peer"
+   ],
+   "caption": "箭頭方向代表「由誰發起連線」。Mgmt 主動連進 Internal，反方向只允許 log 與 agent 回傳。",
+   "svg": "<svg class=\"dg\" aria-label=\"參考架構總覽\" viewBox=\"0 0 960 600\" role=\"img\" preserveAspectRatio=\"xMidYMid meet\"><title>多雲 zone 參考架構</title><defs><marker id=\"mcz02-ah\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk \" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz02-ah-in\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk in\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz02-ah-out\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk out\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz02-ah-mg\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk mg\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz02-ah-int\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk int\" d=\"M1 1L9 5L1 9z\"/></marker></defs><g class=\"z-ext\"><rect x=\"40\" y=\"30\" width=\"880\" height=\"84\" rx=\"10\" class=\"nd\"/><text x=\"60\" y=\"50\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">UNTRUSTED</text><text x=\"60\" y=\"71\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">External zone</text><text x=\"60\" y=\"93\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">Internet 使用者、合作夥伴、SaaS、行動裝置</text></g><text x=\"900\" y=\"72\" class=\"tm c-aws\" text-anchor=\"end\" dominant-baseline=\"central\">CloudFront · AWS WAF · Shield</text><text x=\"900\" y=\"72\" class=\"tm c-azure\" text-anchor=\"end\" dominant-baseline=\"central\">Front Door · WAF · DDoS Protection</text><text x=\"900\" y=\"72\" class=\"tm c-gcp\" text-anchor=\"end\" dominant-baseline=\"central\">Cloud Armor · Global LB · Cloud CDN</text><rect x=\"40\" y=\"150\" width=\"600\" height=\"430\" rx=\"18\" class=\"ct\"/><text x=\"60\" y=\"176\" class=\"tt-s\" text-anchor=\"start\" dominant-baseline=\"central\">單一雲的 landing zone</text><text x=\"256\" y=\"176\" class=\"tm c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">AWS Organization</text><text x=\"256\" y=\"176\" class=\"tm c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">Azure tenant</text><text x=\"256\" y=\"176\" class=\"tm c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">GCP Organization</text><path d=\"M460 114 V194\" class=\"ln in\" marker-end=\"url(#mcz02-ah-in)\"/><g class=\"pill\"><rect x=\"387.4\" y=\"121\" width=\"145.2\" height=\"22\" rx=\"11\"/><text x=\"460\" y=\"132\" class=\"\" text-anchor=\"middle\" dominant-baseline=\"central\">HTTPS 443 · 經 WAF</text></g><g class=\"z-dmz\"><rect x=\"64\" y=\"196\" width=\"552\" height=\"118\" rx=\"10\" class=\"nd\"/><text x=\"84\" y=\"224\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">SEMI-TRUSTED</text><text x=\"84\" y=\"245\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">DMZ / Perimeter hub</text><text x=\"84\" y=\"267\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">ingress、egress、inspection 集中在這裡</text><text x=\"84\" y=\"286\" class=\"tm c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">Inspection VPC · Network Firewall · ALB · NAT GW</text><text x=\"84\" y=\"286\" class=\"tm c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">Hub VNet / vWAN hub · Azure Firewall · App Gateway</text><text x=\"84\" y=\"286\" class=\"tm c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">Hub VPC · Cloud NGFW · Secure Web Proxy · Cloud NAT</text></g><path d=\"M184 314 V376\" class=\"ln in\" marker-end=\"url(#mcz02-ah-in)\"/><g class=\"pill\"><rect x=\"110.2\" y=\"334\" width=\"147.6\" height=\"22\" rx=\"11\"/><text x=\"184\" y=\"345\" class=\"\" text-anchor=\"middle\" dominant-baseline=\"central\">指定 port · 經 NGFW</text></g><g class=\"z-int\"><rect x=\"64\" y=\"378\" width=\"240\" height=\"176\" rx=\"10\" class=\"nd\"/><text x=\"84\" y=\"416\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">TRUSTED</text><text x=\"84\" y=\"437\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">Internal zone</text><text x=\"84\" y=\"459\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">workload spokes</text><text x=\"84\" y=\"479\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">prod / non-prod 分段</text><text x=\"84\" y=\"498\" class=\"tm c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">Workload accounts</text><text x=\"84\" y=\"498\" class=\"tm c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">Spoke subscriptions</text><text x=\"84\" y=\"498\" class=\"tm c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">Service projects</text><text x=\"84\" y=\"516\" class=\"tm c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">VPC endpoints</text><text x=\"84\" y=\"516\" class=\"tm c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">Private Endpoint</text><text x=\"84\" y=\"516\" class=\"tm c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">PSC endpoints</text></g><g class=\"z-mgmt\"><rect x=\"376\" y=\"378\" width=\"240\" height=\"176\" rx=\"10\" class=\"nd\"/><text x=\"396\" y=\"416\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">PRIVILEGED</text><text x=\"396\" y=\"437\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">Mgmt zone</text><text x=\"396\" y=\"459\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">管理存取、log、資安</text><text x=\"396\" y=\"479\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">CI/CD、監控</text><text x=\"396\" y=\"498\" class=\"tm c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">Log Archive · Audit</text><text x=\"396\" y=\"498\" class=\"tm c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">Management MG</text><text x=\"396\" y=\"498\" class=\"tm c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">Common folder</text><text x=\"396\" y=\"516\" class=\"tm c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">SSM Session Manager</text><text x=\"396\" y=\"516\" class=\"tm c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">Azure Bastion</text><text x=\"396\" y=\"516\" class=\"tm c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">IAP</text></g><path d=\"M374 466 H306\" class=\"ln mg\" marker-end=\"url(#mcz02-ah-mg)\"/><g class=\"pill\"><rect x=\"319\" y=\"455\" width=\"42\" height=\"22\" rx=\"11\"/><text x=\"340\" y=\"466\" class=\"\" text-anchor=\"middle\" dominant-baseline=\"central\">管理</text></g><g class=\"z-peer\"><rect x=\"680\" y=\"196\" width=\"240\" height=\"150\" rx=\"10\" class=\"nd\"/><text x=\"700\" y=\"240\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">PEER</text><text x=\"700\" y=\"261\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">其他雲</text><text x=\"700\" y=\"283\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">相同 zone 結構</text><text x=\"700\" y=\"302\" class=\"tm c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">Interconnect – multicloud</text><text x=\"700\" y=\"302\" class=\"tm c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">colo / 對方雲服務</text><text x=\"700\" y=\"302\" class=\"tm c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">Cross-Cloud Interconnect</text></g><g class=\"z-peer\"><rect x=\"680\" y=\"378\" width=\"240\" height=\"176\" rx=\"10\" class=\"nd\"/><text x=\"700\" y=\"426\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">PEER</text><text x=\"700\" y=\"447\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">地端資料中心</text><text x=\"700\" y=\"469\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">既有 DC、分支、OT</text><text x=\"700\" y=\"488\" class=\"tm c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">Direct Connect</text><text x=\"700\" y=\"488\" class=\"tm c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">ExpressRoute</text><text x=\"700\" y=\"488\" class=\"tm c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">Cloud Interconnect</text><text x=\"700\" y=\"506\" class=\"tm c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">Site-to-Site VPN</text><text x=\"700\" y=\"506\" class=\"tm c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">VPN Gateway</text><text x=\"700\" y=\"506\" class=\"tm c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">HA VPN</text></g><path d=\"M644 271 H676\" class=\"ln \" marker-end=\"url(#mcz02-ah)\" marker-start=\"url(#mcz02-ah)\"/><path d=\"M644 466 H676\" class=\"ln \" marker-end=\"url(#mcz02-ah)\" marker-start=\"url(#mcz02-ah)\"/></svg>",
+   "services": {
+    "aws": [
+     {
+      "name": "CloudFront + AWS WAF",
+      "note": "External 邊緣：CDN、L7 防護"
+     },
+     {
+      "name": "Transit Gateway / Cloud WAN",
+      "note": "Hub：連接所有 VPC 與地端"
+     },
+     {
+      "name": "AWS Network Firewall",
+      "note": "DMZ 的集中檢查點"
+     },
+     {
+      "name": "VPC endpoints",
+      "note": "Internal 私有存取 AWS 服務"
+     },
+     {
+      "name": "AWS Control Tower",
+      "note": "Mgmt：Log Archive、Audit 帳號與基線"
+     },
+     {
+      "name": "Direct Connect / Interconnect",
+      "note": "與地端、其他雲的私有連線"
+     }
+    ],
+    "azure": [
+     {
+      "name": "Front Door + WAF",
+      "note": "External 邊緣：全球入口、L7 防護"
+     },
+     {
+      "name": "Virtual WAN / hub VNet",
+      "note": "Hub：連接所有 VNet 與地端"
+     },
+     {
+      "name": "Azure Firewall",
+      "note": "DMZ 的集中檢查點"
+     },
+     {
+      "name": "Private Endpoint",
+      "note": "Internal 私有存取 PaaS"
+     },
+     {
+      "name": "Azure Landing Zone 平台 MG",
+      "note": "Mgmt：Management、Identity"
+     },
+     {
+      "name": "ExpressRoute",
+      "note": "與地端的私有連線"
+     }
+    ],
+    "gcp": [
+     {
+      "name": "Cloud Armor + Global LB",
+      "note": "External 邊緣：全球入口、L7 防護"
+     },
+     {
+      "name": "NCC / Shared VPC",
+      "note": "Hub：集中網路與連線"
+     },
+     {
+      "name": "Cloud NGFW",
+      "note": "DMZ 與 VPC 內的防火牆檢查"
+     },
+     {
+      "name": "Private Service Connect",
+      "note": "Internal 私有存取 Google API 與服務"
+     },
+     {
+      "name": "Common folder",
+      "note": "Mgmt：logging、security project"
+     },
+     {
+      "name": "Cloud / Cross-Cloud Interconnect",
+      "note": "與地端、其他雲的私有連線"
+     }
+    ]
+   },
+   "summary": [
+    "每朵雲一套相同結構的 landing zone，雲之間走私有互連。",
+    "所有對外流量只從 DMZ 進出，Internal 沒有 internet 直連。",
+    "Mgmt 主動連進 Internal，反方向只允許 log 與 agent 回傳。",
+    "地端和其他雲都是 peer，進來一樣要經過 hub 檢查。"
+   ],
+   "deepLede": "四個 zone 各自的定位與邊界，以及 External zone 的設計重點。",
+   "deepHtml": "<h2 id=\"overview\">整體結構</h2>\n<p>每朵雲各自建一套相同結構的 landing zone：DMZ 在 hub，Internal 和 Mgmt 是 spoke。雲之間、雲和地端之間走私有互連，進來的流量一樣要經過 hub 檢查。</p>\n<h2 id=\"external\">External zone</h2>\n<p>不屬於你管理的範圍。設計重點是要在哪裡擋、用什麼擋。</p>\n<ul class=\"pts\">\n<li><b>Edge 二選一。</b>用各雲原生 edge，或用第三方全球 edge（Cloudflare、Akamai）統一三朵雲的 WAF 與 DDoS 策略。多雲環境下，後者的 policy 一致性比較好。</li>\n<li><b>全域流量導向。</b>用 DNS 層的 health check 做跨雲 failover，要注意 TTL 和 session 狀態能不能跟著切。</li>\n<li><b>B2B 夥伴。</b>用 PrivateLink、Private Service Connect 暴露「服務」，避免用 site-to-site VPN 讓對方看到整個網段。做不到時，用 API Gateway 加 mTLS。</li>\n<li><b>網域與憑證。</b>公開網域的 DNS 權威與公開憑證集中管理，不要三朵雲各自發證、各自管 zone file。</li>\n</ul>\n<div class=\"callout\"><b>取捨</b><p>原生 edge 整合度高、成本低，但要維護三套規則。第三方 edge 一套規則管到底，但多一個供應商，也多一段路徑。</p></div>\n<h2 id=\"dmz\">DMZ</h2>\n<p>所有對外流量的唯一入口與出口，負責 ingress、egress、inspection。細節見 <a href=\"/reports/multicloud-zones/05-dmz-traffic/\">05 DMZ 流量路徑</a>。</p>\n<h2 id=\"internal\">Internal</h2>\n<p>跑 workload 的 spoke，依 app × 環境切帳號，沒有 internet 直連，PaaS 一律走私有路徑。細節見 <a href=\"/reports/multicloud-zones/06-internal-private-access/\">06 Internal 與 PaaS 私有化</a>。</p>\n<h2 id=\"mgmt\">Mgmt</h2>\n<p>管理整個環境的特權區：log、資安工具、網路、共用服務。細節見 <a href=\"/reports/multicloud-zones/07-mgmt-plane/\">07 Mgmt 管理面</a>。</p>\n<h2 id=\"direction\">連線方向</h2>\n<ul class=\"pts\">\n<li>External 只能到 DMZ，不能直達 Internal 或 Mgmt。</li>\n<li>Internal 對外一律經 DMZ 的 egress 路徑。</li>\n<li>Mgmt 單向發起管理；Internal 到 Mgmt 只允許 log 與 agent 回傳。</li>\n<li>地端與其他雲進來的流量，經 hub 檢查後才到指定服務。</li>\n</ul>\n<p>完整的 zone 對 zone 規則見 <a href=\"/reports/multicloud-zones/08-traffic-matrix/\">08 Zone 流量矩陣</a>。</p>",
+   "sections": [
+    {
+     "id": "overview",
+     "title": "整體結構"
+    },
+    {
+     "id": "external",
+     "title": "External zone"
+    },
+    {
+     "id": "dmz",
+     "title": "DMZ"
+    },
+    {
+     "id": "internal",
+     "title": "Internal"
+    },
+    {
+     "id": "mgmt",
+     "title": "Mgmt"
+    },
+    {
+     "id": "direction",
+     "title": "連線方向"
+    }
+   ]
+  },
+  {
+   "num": "03",
+   "slug": "03-account-structure",
+   "title": "帳號結構與 Guardrail",
+   "short": "帳號結構",
+   "lede": "先用帳號切 zone，再用 hub 接網路。順序和地端相反。",
+   "zones": [
+    "dmz",
+    "int",
+    "mgmt"
+   ],
+   "caption": "左：把地端 zone 一對一搬上雲。右：zone 對應到 OU，每個 OU 有自己的 guardrail，網路統一接到 hub。",
+   "svg": "<svg class=\"dg\" aria-label=\"帳號結構與 Guardrail\" viewBox=\"0 0 960 550\" role=\"img\" preserveAspectRatio=\"xMidYMid meet\"><title>帳號結構：錯誤做法與建議做法</title><defs><marker id=\"mcz03-ah\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk \" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz03-ah-in\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk in\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz03-ah-out\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk out\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz03-ah-mg\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk mg\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz03-ah-int\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk int\" d=\"M1 1L9 5L1 9z\"/></marker></defs><text x=\"40\" y=\"40\" class=\"tl bad-t\" text-anchor=\"start\" dominant-baseline=\"central\">ANTI-PATTERN</text><text x=\"40\" y=\"66\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">地端搬遷式</text><rect x=\"40\" y=\"96\" width=\"300\" height=\"330\" rx=\"16\" class=\"ct\"/><text x=\"60\" y=\"120\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">單一帳號</text><g class=\"z-ext\"><rect x=\"66\" y=\"150\" width=\"104\" height=\"64\" rx=\"10\" class=\"nd\"/><text x=\"118\" y=\"173\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">External</text><text x=\"118\" y=\"192.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">VPC</text></g><g class=\"z-dmz\"><rect x=\"210\" y=\"150\" width=\"104\" height=\"64\" rx=\"10\" class=\"nd\"/><text x=\"262\" y=\"173\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">DMZ</text><text x=\"262\" y=\"192.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">VPC</text></g><g class=\"z-int\"><rect x=\"66\" y=\"300\" width=\"104\" height=\"64\" rx=\"10\" class=\"nd\"/><text x=\"118\" y=\"323\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Internal</text><text x=\"118\" y=\"342.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">VPC</text></g><g class=\"z-mgmt\"><rect x=\"210\" y=\"300\" width=\"104\" height=\"64\" rx=\"10\" class=\"nd\"/><text x=\"262\" y=\"323\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Mgmt</text><text x=\"262\" y=\"342.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">VPC</text></g><path d=\"M170 182 H210\" class=\"ln bad\"/><path d=\"M170 332 H210\" class=\"ln bad\"/><path d=\"M118 214 V300\" class=\"ln bad\"/><path d=\"M262 214 V300\" class=\"ln bad\"/><path d=\"M170 214 L210 300\" class=\"ln bad\"/><path d=\"M210 214 L170 300\" class=\"ln bad\"/><g class=\"pill\"><rect x=\"141.4\" y=\"246\" width=\"97.2\" height=\"22\" rx=\"11\"/><text x=\"190\" y=\"257\" class=\"\" text-anchor=\"middle\" dominant-baseline=\"central\">peering × 6</text></g><text x=\"40\" y=\"456\" class=\"ts bad-t\" text-anchor=\"start\" dominant-baseline=\"central\">✕ 權限與 blast radius 沒分開</text><text x=\"40\" y=\"482\" class=\"ts bad-t\" text-anchor=\"start\" dominant-baseline=\"central\">✕ Guardrail 無法分 zone 套用</text><text x=\"40\" y=\"508\" class=\"ts bad-t\" text-anchor=\"start\" dominant-baseline=\"central\">✕ peering 不可遞移，無法集中檢查</text><text x=\"380\" y=\"40\" class=\"tl ok-t\" text-anchor=\"start\" dominant-baseline=\"central\">RECOMMENDED</text><text x=\"380\" y=\"66\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">Zone 對應 OU，網路走 hub</text><rect x=\"380\" y=\"96\" width=\"540\" height=\"436\" rx=\"16\" class=\"ct\"/><text x=\"400\" y=\"120\" class=\"tm c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">AWS Organization</text><text x=\"400\" y=\"120\" class=\"tm c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">Azure tenant root</text><text x=\"400\" y=\"120\" class=\"tm c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">GCP Organization</text><g class=\"z-mgmt\"><rect x=\"396\" y=\"136\" width=\"161\" height=\"274\" rx=\"12\" class=\"nd\"/><text x=\"476.5\" y=\"162\" class=\"tt-s c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Security OU</text><text x=\"476.5\" y=\"162\" class=\"tt-s c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Management MG</text><text x=\"476.5\" y=\"162\" class=\"tt-s c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">common folder</text><text x=\"476.5\" y=\"186\" class=\"ts tz\" text-anchor=\"middle\" dominant-baseline=\"central\">Mgmt zone</text><g><rect x=\"408\" y=\"204\" width=\"137\" height=\"54\" rx=\"10\" class=\"nb\"/><text x=\"476.5\" y=\"222\" class=\"tt-s c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Log Archive</text><text x=\"476.5\" y=\"222\" class=\"tt-s c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Management</text><text x=\"476.5\" y=\"222\" class=\"tt-s c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Logging</text><text x=\"476.5\" y=\"241.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">集中 log</text><text x=\"476.5\" y=\"241.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Log Analytics</text><text x=\"476.5\" y=\"241.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">log sinks</text></g><g><rect x=\"408\" y=\"268\" width=\"137\" height=\"54\" rx=\"10\" class=\"nb\"/><text x=\"476.5\" y=\"286\" class=\"tt-s c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Audit</text><text x=\"476.5\" y=\"286\" class=\"tt-s c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Identity</text><text x=\"476.5\" y=\"286\" class=\"tt-s c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Security</text><text x=\"476.5\" y=\"305.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">資安工具</text><text x=\"476.5\" y=\"305.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">AD DS、DNS</text><text x=\"476.5\" y=\"305.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">SCC、KMS</text></g><text x=\"476.5\" y=\"346\" class=\"tl tz\" text-anchor=\"middle\" dominant-baseline=\"central\">GUARDRAIL</text><text x=\"476.5\" y=\"370\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">log 不可刪改</text><text x=\"476.5\" y=\"392\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">停用稽核一律 deny</text></g><g class=\"z-dmz\"><rect x=\"569\" y=\"136\" width=\"161\" height=\"274\" rx=\"12\" class=\"nd\"/><text x=\"649.5\" y=\"162\" class=\"tt-s c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Infrastructure OU</text><text x=\"649.5\" y=\"162\" class=\"tt-s c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Connectivity MG</text><text x=\"649.5\" y=\"162\" class=\"tt-s c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">network folder</text><text x=\"649.5\" y=\"186\" class=\"ts tz\" text-anchor=\"middle\" dominant-baseline=\"central\">DMZ + Mgmt</text><g><rect x=\"581\" y=\"204\" width=\"137\" height=\"54\" rx=\"10\" class=\"nb\"/><text x=\"649.5\" y=\"222\" class=\"tt-s c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Network</text><text x=\"649.5\" y=\"222\" class=\"tt-s c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Connectivity</text><text x=\"649.5\" y=\"222\" class=\"tt-s c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Net hub</text><text x=\"649.5\" y=\"241.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">TGW、DMZ VPC</text><text x=\"649.5\" y=\"241.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">hub、Firewall</text><text x=\"649.5\" y=\"241.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">host project</text></g><g><rect x=\"581\" y=\"268\" width=\"137\" height=\"54\" rx=\"10\" class=\"nb\"/><text x=\"649.5\" y=\"286\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Shared Svc</text><text x=\"649.5\" y=\"305.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">CI/CD、監控</text></g><text x=\"649.5\" y=\"346\" class=\"tl tz\" text-anchor=\"middle\" dominant-baseline=\"central\">GUARDRAIL</text><text x=\"649.5\" y=\"370\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">只准網路團隊</text><text x=\"649.5\" y=\"392\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">改路由與防火牆</text></g><g class=\"z-int\"><rect x=\"742\" y=\"136\" width=\"161\" height=\"274\" rx=\"12\" class=\"nd\"/><text x=\"822.5\" y=\"162\" class=\"tt-s c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Workloads OU</text><text x=\"822.5\" y=\"162\" class=\"tt-s c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Landing zones MG</text><text x=\"822.5\" y=\"162\" class=\"tt-s c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">env folders</text><text x=\"822.5\" y=\"186\" class=\"ts tz\" text-anchor=\"middle\" dominant-baseline=\"central\">Internal zone</text><g><rect x=\"754\" y=\"204\" width=\"137\" height=\"54\" rx=\"10\" class=\"nb\"/><text x=\"822.5\" y=\"222\" class=\"tt-s c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Prod</text><text x=\"822.5\" y=\"222\" class=\"tt-s c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Corp</text><text x=\"822.5\" y=\"222\" class=\"tt-s c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Prod</text><text x=\"822.5\" y=\"241.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">app accounts</text><text x=\"822.5\" y=\"241.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">內部 app</text><text x=\"822.5\" y=\"241.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">service projects</text></g><g><rect x=\"754\" y=\"268\" width=\"137\" height=\"54\" rx=\"10\" class=\"nb\"/><text x=\"822.5\" y=\"286\" class=\"tt-s c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Non-prod</text><text x=\"822.5\" y=\"286\" class=\"tt-s c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Online</text><text x=\"822.5\" y=\"286\" class=\"tt-s c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Non-prod</text><text x=\"822.5\" y=\"305.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">dev、test</text><text x=\"822.5\" y=\"305.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">對外 app</text><text x=\"822.5\" y=\"305.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">service projects</text></g><text x=\"822.5\" y=\"346\" class=\"tl tz\" text-anchor=\"middle\" dominant-baseline=\"central\">GUARDRAIL</text><text x=\"822.5\" y=\"370\" class=\"ts c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">禁 IGW、公網 IP</text><text x=\"822.5\" y=\"370\" class=\"ts c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">禁公網 IP</text><text x=\"822.5\" y=\"370\" class=\"ts c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">禁外部 IP</text><text x=\"822.5\" y=\"392\" class=\"ts c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">禁自建 peering</text><text x=\"822.5\" y=\"392\" class=\"ts c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">禁 public endpoint</text><text x=\"822.5\" y=\"392\" class=\"ts c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">限制 VPC peering</text></g><path d=\"M649.5 410 V446\" class=\"ln \"/><path d=\"M822.5 410 V446\" class=\"ln \"/><g><rect x=\"396\" y=\"446\" width=\"507\" height=\"66\" rx=\"10\" class=\"nb\"/><text x=\"649.5\" y=\"469\" class=\"tt-s c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Transit Gateway（RAM 共享）</text><text x=\"649.5\" y=\"469\" class=\"tt-s c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Virtual WAN hub / hub VNet</text><text x=\"649.5\" y=\"469\" class=\"tt-s c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">NCC hub + Shared VPC</text><text x=\"649.5\" y=\"489.5\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">所有 VPC 掛到 hub，route table 分 prod / non-prod / shared</text></g></svg>",
+   "services": {
+    "aws": [
+     {
+      "name": "AWS Organizations",
+      "note": "OU 階層，zone 類別的容器"
+     },
+     {
+      "name": "AWS Control Tower",
+      "note": "建立 landing zone 與基線 controls"
+     },
+     {
+      "name": "SCP",
+      "note": "限制帳號內 principal 能做什麼"
+     },
+     {
+      "name": "RCP",
+      "note": "限制誰能存取帳號內的資源"
+     },
+     {
+      "name": "AWS RAM",
+      "note": "把 TGW 或 subnet 共享給 workload 帳號"
+     },
+     {
+      "name": "IAM Identity Center",
+      "note": "每個 zone 的角色與 permission set"
+     }
+    ],
+    "azure": [
+     {
+      "name": "Management groups",
+      "note": "Platform 與 Landing zones 階層"
+     },
+     {
+      "name": "Azure Policy",
+      "note": "deny / audit / deployIfNotExists"
+     },
+     {
+      "name": "Subscription vending",
+      "note": "用範本快速開出合規的訂閱"
+     },
+     {
+      "name": "Entra PIM",
+      "note": "特權角色即時啟用與審核"
+     },
+     {
+      "name": "Azure Virtual Network Manager",
+      "note": "集中管理連線與安全規則"
+     }
+    ],
+    "gcp": [
+     {
+      "name": "Resource Manager · Folder",
+      "note": "zone 類別的容器"
+     },
+     {
+      "name": "Org Policy",
+      "note": "限制外部 IP、peering 等設定"
+     },
+     {
+      "name": "Shared VPC",
+      "note": "host project 集中網路，service project 部署"
+     },
+     {
+      "name": "IAM deny policies",
+      "note": "明確拒絕高風險權限"
+     },
+     {
+      "name": "Cloud Identity",
+      "note": "與企業 IdP federation"
+     }
+    ]
+   },
+   "summary": [
+    "先用帳號切 zone，再接網路；順序和地端相反。",
+    "一個 zone 可以有很多帳號，guardrail 掛在 OU / MG / Folder 上。",
+    "Internal 類禁止公網出口與自建 peering；Mgmt 類保護 log 不被刪改。",
+    "網路改由 hub 的 route table 分段，不用 VPC 之間網狀 peering。"
+   ],
+   "deepLede": "為什麼「每個 zone 一個 VPC 再全部 peering」行不通，以及正確的四層設計。",
+   "deepHtml": "<h2 id=\"anti\">錯在哪裡</h2>\n<p>地端搬遷式的做法是在一個帳號裡開 External、DMZ、Internal、Mgmt 四個 VPC，再全部互相 peering。問題有三個：</p>\n<ul class=\"pts\">\n<li><b>權限和 blast radius 沒分開。</b>四個 zone 在同一個帳號，有 admin 權限的人可以改所有 zone 的 SG 和路由。DMZ 上被入侵的 IAM role 也可能動到 Internal。</li>\n<li><b>Guardrail 沒辦法分 zone 套。</b>SCP 只能套在帳號或 OU 上，同一個帳號裡做不到「Internal 禁止 IGW，DMZ 允許」。</li>\n<li><b>Peering 不能遞移。</b>網狀 peering 沒辦法讓流量集中經過一個 inspection 點。VPC 一多，連線數呈 N(N-1)/2 成長，路由管不動。</li>\n</ul>\n<p>Peering 本身沒有錯，Azure 的 hub-spoke 就是用 peering 做的。錯的是「同一個帳號 + 網狀 peering + 沒有 hub」這個組合。</p>\n<h2 id=\"ou\">帳號結構：zone 對應到 OU</h2>\n<div class=\"tablewrap\"><table class=\"wide\"><thead><tr><th>Zone</th><th>AWS OU / 帳號</th><th>放什麼</th></tr></thead><tbody>\n<tr><th>Mgmt</th><td>Security OU：Log Archive、Audit</td><td>集中 log、資安工具</td></tr>\n<tr><th>DMZ</th><td>Infrastructure OU：Network 帳號</td><td>TGW、ingress / egress / inspection VPC</td></tr>\n<tr><th>Mgmt</th><td>Infrastructure OU：Shared Services</td><td>AD、CI/CD runner、監控</td></tr>\n<tr><th>Internal</th><td>Workloads OU 下分 Prod / Non-prod</td><td>每個 app × 環境一個帳號</td></tr>\n<tr><th>External</th><td>不需要帳號</td><td>Edge 服務由 Firewall Manager 統一管</td></tr>\n</tbody></table></div>\n<h2 id=\"guardrail\">Guardrail：每個 OU 掛不同政策</h2>\n<ul class=\"pts\">\n<li><b>Workloads OU：</b>deny <code>ec2:CreateInternetGateway</code>、<code>ec2:AttachInternetGateway</code>、<code>ec2:CreateVpcPeeringConnection</code>，並禁止 subnet 自動配發 public IP。App 團隊沒辦法自己開對外通道。</li>\n<li><b>Infrastructure OU：</b>TGW、route table、firewall policy 只有網路團隊的 role 能改。</li>\n<li><b>Security OU：</b>deny <code>cloudtrail:StopLogging</code>、<code>cloudtrail:DeleteTrail</code>、刪除 log bucket 物件、關閉 GuardDuty 或 Config。</li>\n</ul>\n<h2 id=\"network\">網路：hub-and-spoke</h2>\n<ul class=\"pts\">\n<li>Network 帳號擁有 TGW，用 RAM 共享給各 workload 帳號，每個 VPC 都 attach 到 TGW。</li>\n<li>Zone 之間的隔離改用 TGW route table：prod、non-prod、shared 分表，預設路由指向 inspection VPC。細節見 <a href=\"/reports/multicloud-zones/04-hub-spoke-routing/\">04 Hub-and-spoke 路由分段</a>。</li>\n<li>控管要求高的客戶可以用 VPC sharing：VPC 由 Network 帳號擁有，app 帳號只能在共享的 subnet 裡部署，改不了路由。</li>\n</ul>\n<h2 id=\"identity\">身分：每個 zone 的角色分開</h2>\n<ul class=\"pts\">\n<li>App 團隊：只有自己 workload 帳號的權限，動不了網路。</li>\n<li>網路團隊：管 Network 帳號，其他帳號的網路設定唯讀。</li>\n<li>資安團隊：所有帳號唯讀，Audit 帳號完整權限。</li>\n<li>Break-glass 帳號獨立保管，使用時觸發告警。</li>\n</ul>\n<h2 id=\"other-clouds\">Azure 與 GCP 的對應</h2>\n<div class=\"tablewrap\"><table class=\"wide\"><thead><tr><th>用途</th><th>Azure Landing Zone</th><th>GCP</th></tr></thead><tbody>\n<tr><th>Mgmt</th><td>Platform：Management、Identity</td><td>common folder：logging、security project</td></tr>\n<tr><th>DMZ / hub</th><td>Platform：Connectivity（hub VNet 或 Virtual WAN）</td><td>network folder：每個環境一個 Shared VPC host project</td></tr>\n<tr><th>Internal</th><td>Landing zones：Corp（內部）、Online（對外 app）</td><td>prod / non-prod folder 的 service project</td></tr>\n<tr><th>Guardrail</th><td>Azure Policy：禁公網 IP、禁 PaaS public endpoint</td><td>Org Policy：<code>compute.vmExternalIpAccess</code>、<code>compute.restrictVpcPeering</code>、<code>compute.skipDefaultNetworkCreation</code></td></tr>\n</tbody></table></div>\n<p>客戶已經是錯誤架構時的轉移步驟，見 <a href=\"/reports/multicloud-zones/12-migration-path/\">12 遷移路徑</a>。</p>",
+   "sections": [
+    {
+     "id": "anti",
+     "title": "錯在哪裡"
+    },
+    {
+     "id": "ou",
+     "title": "帳號結構：zone 對應到 OU"
+    },
+    {
+     "id": "guardrail",
+     "title": "Guardrail：每個 OU 掛不同政策"
+    },
+    {
+     "id": "network",
+     "title": "網路：hub-and-spoke"
+    },
+    {
+     "id": "identity",
+     "title": "身分：每個 zone 的角色分開"
+    },
+    {
+     "id": "other-clouds",
+     "title": "Azure 與 GCP 的對應"
+    }
+   ]
+  },
+  {
+   "num": "04",
+   "slug": "04-hub-spoke-routing",
+   "title": "Hub-and-spoke 路由分段",
+   "short": "路由分段",
+   "lede": "Zone 之間的隔離由 hub 的 route table 決定，不靠 VPC 之間的 peering。",
+   "zones": [
+    "dmz",
+    "int",
+    "mgmt"
+   ],
+   "caption": "① 所有 spoke 的預設路由指向 inspection。② prod 與 non-prod 都能到 shared services。③ prod 與 non-prod 彼此不 propagate。",
+   "svg": "<svg class=\"dg\" aria-label=\"Hub-and-spoke 路由分段\" viewBox=\"0 0 960 640\" role=\"img\" preserveAspectRatio=\"xMidYMid meet\"><title>Hub-and-spoke 與 route table 分段</title><defs><marker id=\"mcz04-ah\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk \" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz04-ah-in\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk in\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz04-ah-out\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk out\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz04-ah-mg\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk mg\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz04-ah-int\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk int\" d=\"M1 1L9 5L1 9z\"/></marker></defs><rect x=\"360\" y=\"210\" width=\"240\" height=\"180\" rx=\"14\" class=\"nb\"/><text x=\"480\" y=\"236\" class=\"tt-s c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Transit Gateway</text><text x=\"480\" y=\"236\" class=\"tt-s c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Virtual WAN hub</text><text x=\"480\" y=\"236\" class=\"tt-s c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">NCC hub</text><text x=\"480\" y=\"258\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">route domains</text><rect x=\"390\" y=\"276\" width=\"180\" height=\"26\" rx=\"6\" class=\"nk\"/><text x=\"480\" y=\"289\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">prod</text><rect x=\"390\" y=\"308\" width=\"180\" height=\"26\" rx=\"6\" class=\"nk\"/><text x=\"480\" y=\"321\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">non-prod</text><rect x=\"390\" y=\"340\" width=\"180\" height=\"26\" rx=\"6\" class=\"nk\"/><text x=\"480\" y=\"353\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">shared</text><g class=\"z-int\"><rect x=\"60\" y=\"70\" width=\"200\" height=\"68\" rx=\"10\" class=\"nd\"/><text x=\"160\" y=\"95\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Prod VPC A</text><text x=\"160\" y=\"114.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">VPC · prod</text><text x=\"160\" y=\"114.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">VNet · prod</text><text x=\"160\" y=\"114.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">VPC spoke · prod</text></g><g class=\"z-int\"><rect x=\"60\" y=\"160\" width=\"200\" height=\"68\" rx=\"10\" class=\"nd\"/><text x=\"160\" y=\"185\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Prod VPC B</text><text x=\"160\" y=\"204.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">VPC · prod</text><text x=\"160\" y=\"204.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">VNet · prod</text><text x=\"160\" y=\"204.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">VPC spoke · prod</text></g><g class=\"z-int\"><rect x=\"60\" y=\"372\" width=\"200\" height=\"68\" rx=\"10\" class=\"nd\"/><text x=\"160\" y=\"397\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Non-prod VPC A</text><text x=\"160\" y=\"416.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">VPC · non-prod</text><text x=\"160\" y=\"416.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">VNet · non-prod</text><text x=\"160\" y=\"416.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">VPC spoke · non-prod</text></g><g class=\"z-int\"><rect x=\"60\" y=\"462\" width=\"200\" height=\"68\" rx=\"10\" class=\"nd\"/><text x=\"160\" y=\"487\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Non-prod VPC B</text><text x=\"160\" y=\"506.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">VPC · non-prod</text><text x=\"160\" y=\"506.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">VNet · non-prod</text><text x=\"160\" y=\"506.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">VPC spoke · non-prod</text></g><g class=\"z-dmz\"><rect x=\"700\" y=\"70\" width=\"220\" height=\"68\" rx=\"10\" class=\"nd\"/><text x=\"810\" y=\"95\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Inspection VPC</text><text x=\"810\" y=\"114.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Network Firewall</text><text x=\"810\" y=\"114.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Azure Firewall</text><text x=\"810\" y=\"114.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">NVA + ILB next hop</text></g><g class=\"z-dmz\"><rect x=\"700\" y=\"160\" width=\"220\" height=\"68\" rx=\"10\" class=\"nd\"/><text x=\"810\" y=\"185\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Egress VPC</text><text x=\"810\" y=\"204.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">NAT GW → Internet</text><text x=\"810\" y=\"204.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Firewall → Internet</text><text x=\"810\" y=\"204.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Cloud NAT → Internet</text></g><g class=\"z-mgmt\"><rect x=\"700\" y=\"372\" width=\"220\" height=\"68\" rx=\"10\" class=\"nd\"/><text x=\"810\" y=\"397\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Shared services</text><text x=\"810\" y=\"416.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">AD、CI/CD、監控</text></g><g><rect x=\"700\" y=\"462\" width=\"220\" height=\"68\" rx=\"10\" class=\"nb\"/><text x=\"810\" y=\"487\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">地端 DC</text><text x=\"810\" y=\"506.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">DX Gateway</text><text x=\"810\" y=\"506.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">ExpressRoute GW</text><text x=\"810\" y=\"506.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Cloud Interconnect</text></g><path d=\"M260 104 L360 236\" class=\"ln int\"/><path d=\"M260 194 L360 262\" class=\"ln int\"/><path d=\"M260 406 L360 338\" class=\"ln int\"/><path d=\"M260 496 L360 364\" class=\"ln int\"/><path d=\"M700 104 L600 236\" class=\"ln out\"/><path d=\"M700 194 L600 262\" class=\"ln out\"/><path d=\"M700 406 L600 338\" class=\"ln mg\"/><path d=\"M700 496 L600 364\" class=\"ln \"/><path d=\"M160 228 V372\" class=\"ln bad\"/><g class=\"xm\"><circle cx=\"160\" cy=\"300\" r=\"11\"/><path d=\"M156 296L164 304M164 296L156 304\"/></g><g class=\"bdg\"><circle cx=\"128\" cy=\"300\" r=\"11\"/><text x=\"128\" y=\"300.5\" text-anchor=\"middle\" dominant-baseline=\"central\">3</text></g><text x=\"180\" y=\"300\" class=\"ts bad-t\" text-anchor=\"start\" dominant-baseline=\"central\">不互通</text><g class=\"bdg\"><circle cx=\"650\" cy=\"170\" r=\"11\"/><text x=\"650\" y=\"170.5\" text-anchor=\"middle\" dominant-baseline=\"central\">1</text></g><g class=\"bdg\"><circle cx=\"650\" cy=\"372\" r=\"11\"/><text x=\"650\" y=\"372.5\" text-anchor=\"middle\" dominant-baseline=\"central\">2</text></g><text x=\"40\" y=\"572\" class=\"tl\" text-anchor=\"start\" dominant-baseline=\"central\">RT-PROD</text><text x=\"40\" y=\"596\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">propagate：shared、on-prem</text><text x=\"40\" y=\"618\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">0.0.0.0/0 → inspection</text><text x=\"340\" y=\"572\" class=\"tl\" text-anchor=\"start\" dominant-baseline=\"central\">RT-NON-PROD</text><text x=\"340\" y=\"596\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">propagate：shared</text><text x=\"340\" y=\"618\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">0.0.0.0/0 → inspection</text><text x=\"640\" y=\"572\" class=\"tl\" text-anchor=\"start\" dominant-baseline=\"central\">RT-SHARED</text><text x=\"640\" y=\"596\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">propagate：prod、non-prod</text><text x=\"640\" y=\"618\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">以及 on-prem</text></svg>",
+   "services": {
+    "aws": [
+     {
+      "name": "Transit Gateway",
+      "note": "route table、association、propagation"
+     },
+     {
+      "name": "AWS Cloud WAN",
+      "note": "用 policy 定義 segment，跨 region"
+     },
+     {
+      "name": "AWS RAM",
+      "note": "把 TGW 或 subnet 共享給其他帳號"
+     },
+     {
+      "name": "VPC sharing",
+      "note": "Network 帳號擁有 VPC，app 帳號只部署"
+     },
+     {
+      "name": "TGW appliance mode",
+      "note": "讓 stateful 檢查的路由對稱"
+     },
+     {
+      "name": "Direct Connect Gateway",
+      "note": "地端線路接到 TGW"
+     }
+    ],
+    "azure": [
+     {
+      "name": "Virtual WAN",
+      "note": "secured hub、routing intent"
+     },
+     {
+      "name": "Hub VNet + peering",
+      "note": "傳統 hub-spoke，自己管 UDR"
+     },
+     {
+      "name": "User-defined routes",
+      "note": "0.0.0.0/0 指向 Azure Firewall"
+     },
+     {
+      "name": "Azure Virtual Network Manager",
+      "note": "集中定義連線拓撲與安全規則"
+     },
+     {
+      "name": "ExpressRoute Gateway",
+      "note": "地端線路接到 hub"
+     }
+    ],
+    "gcp": [
+     {
+      "name": "Network Connectivity Center",
+      "note": "VPC spoke 透過 hub 互通"
+     },
+     {
+      "name": "Shared VPC",
+      "note": "每個環境一個 host project"
+     },
+     {
+      "name": "Internal LB next hop",
+      "note": "把流量導到 NVA 做檢查"
+     },
+     {
+      "name": "VPC peering",
+      "note": "hub-spoke 可用，但不可遞移"
+     },
+     {
+      "name": "Cloud Router",
+      "note": "動態路由與 BGP"
+     }
+    ]
+   },
+   "summary": [
+    "Network 帳號擁有 hub，用 RAM 共享；spoke 只 attach 到 hub。",
+    "① 所有 spoke 的預設路由指向 inspection VPC。",
+    "② ③ 用 route table 分段：prod、non-prod 互不 propagate，都能到 shared。",
+    "Stateful 防火牆跨 AZ 時要開 appliance mode，確保路由對稱。"
+   ],
+   "deepLede": "Association、propagation 怎麼組出 zone 分段，以及路由對稱、VPC sharing、成本的取捨。",
+   "deepHtml": "<h2 id=\"model\">Association 與 propagation</h2>\n<p>TGW 的每個 attachment 會 associate 到一張 route table，決定它的流量查哪張表；同時把自己的 CIDR propagate 到一張或多張表，決定誰找得到它。Zone 分段就是控制「誰 propagate 到哪張表」。</p>\n<h2 id=\"tables\">範例 route table</h2>\n<div class=\"tablewrap\"><table class=\"wide\"><thead><tr><th>Route table</th><th>Associate</th><th>Propagate 進來</th><th>靜態路由</th></tr></thead><tbody>\n<tr><th>RT-prod</th><td>prod VPC</td><td>shared、on-prem</td><td class=\"mono\">0.0.0.0/0 → inspection</td></tr>\n<tr><th>RT-non-prod</th><td>non-prod VPC</td><td>shared</td><td class=\"mono\">0.0.0.0/0 → inspection</td></tr>\n<tr><th>RT-shared</th><td>shared services VPC</td><td>prod、non-prod、on-prem</td><td>—</td></tr>\n<tr><th>RT-inspection</th><td>inspection VPC</td><td>所有 spoke</td><td class=\"mono\">0.0.0.0/0 → egress</td></tr>\n</tbody></table></div>\n<p>這張表讓 prod 到 shared 直接互通、不經檢查。若要求所有 east-west 都要檢查，就不做 propagate，spoke 的表只留 <code>0.0.0.0/0 → inspection</code>，由 firewall policy 決定放行哪些流量。</p>\n<h2 id=\"symmetric\">路由對稱</h2>\n<p>Inspection VPC 跨多個 AZ 時，去程和回程可能被送到不同 AZ 的防火牆，stateful 檢查就會丟封包。TGW attachment 開啟 appliance mode，讓同一條連線固定走同一個 AZ。Azure 要讓去回都經過同一組 Azure Firewall 的 UDR；GCP 用 internal passthrough LB 當 next hop 時要開 symmetric hashing。</p>\n<h2 id=\"vpc-sharing\">各自擁有 VPC 還是 VPC sharing</h2>\n<div class=\"tablewrap\"><table class=\"wide\"><thead><tr><th></th><th>App 帳號擁有 VPC</th><th>VPC sharing</th></tr></thead><tbody>\n<tr><th>誰建 VPC</th><td>App 團隊（或 vending 範本）</td><td>網路團隊在 Network 帳號</td></tr>\n<tr><th>App 能改路由嗎</th><td>可以，靠 SCP 擋危險動作</td><td>不行，只能在 subnet 裡部署</td></tr>\n<tr><th>IP 使用</th><td>每個帳號一段，容易浪費</td><td>集中分配，比較省</td></tr>\n<tr><th>適合</th><td>團隊自主性高的組織</td><td>控管要求高，例如金融業</td></tr>\n</tbody></table></div>\n<h2 id=\"cloudwan\">Transit Gateway 還是 Cloud WAN</h2>\n<p>TGW 是區域性的，跨 region 要做 TGW peering，路由自己管。Cloud WAN 用一份 policy 定義 segment，跨 region 自動處理，適合多 region、segment 多的企業。只有一兩個 region 時，TGW 就夠了。</p>\n<h2 id=\"other\">Azure 與 GCP</h2>\n<ul class=\"pts\">\n<li><b>Azure：</b>hub VNet 加 peering 是最常見的做法，spoke 的 UDR 把 <code>0.0.0.0/0</code> 指向 Azure Firewall。Virtual WAN 的 routing intent 可以自動把 private 與 internet 流量送到 secured hub。</li>\n<li><b>GCP：</b>每個環境一個 Shared VPC host project，跨環境用 NCC 的 VPC spoke 互通。用 VPC peering 做 hub-spoke 時要記得 peering 不可遞移，spoke 之間無法經 hub 轉送。</li>\n</ul>\n<h2 id=\"cost\">成本注意</h2>\n<ul class=\"pts\">\n<li>TGW 依 attachment 數和處理流量計費，所有流量都繞 inspection 會讓費用明顯增加。</li>\n<li>跨 AZ 的資料傳輸也要算進去；inspection 盡量在每個 AZ 都有端點。</li>\n<li>先決定哪些 east-west 流量真的需要檢查，再決定路由。</li>\n</ul>",
+   "sections": [
+    {
+     "id": "model",
+     "title": "Association 與 propagation"
+    },
+    {
+     "id": "tables",
+     "title": "範例 route table"
+    },
+    {
+     "id": "symmetric",
+     "title": "路由對稱"
+    },
+    {
+     "id": "vpc-sharing",
+     "title": "各自擁有 VPC 還是 VPC sharing"
+    },
+    {
+     "id": "cloudwan",
+     "title": "Transit Gateway 還是 Cloud WAN"
+    },
+    {
+     "id": "other",
+     "title": "Azure 與 GCP"
+    },
+    {
+     "id": "cost",
+     "title": "成本注意"
+    }
+   ]
+  },
+  {
+   "num": "05",
+   "slug": "05-dmz-traffic",
+   "title": "DMZ 流量路徑",
+   "short": "DMZ 流量",
+   "lede": "DMZ 做三件事：ingress、egress、inspection。所有對外流量只從這裡進出。",
+   "zones": [
+    "ext",
+    "dmz",
+    "int"
+   ],
+   "caption": "藍色是 ingress（外部進來），橙色是 egress（內部出去）。Inspection 由兩條路徑共用。",
+   "svg": "<svg class=\"dg\" aria-label=\"DMZ 流量路徑\" viewBox=\"0 0 960 590\" role=\"img\" preserveAspectRatio=\"xMidYMid meet\"><title>DMZ ingress 與 egress 流量路徑</title><defs><marker id=\"mcz05-ah\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk \" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz05-ah-in\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk in\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz05-ah-out\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk out\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz05-ah-mg\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk mg\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz05-ah-int\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk int\" d=\"M1 1L9 5L1 9z\"/></marker></defs><g class=\"z-ext\"><rect x=\"40\" y=\"64\" width=\"270\" height=\"366\" rx=\"12\" class=\"band\"/><text x=\"56\" y=\"86\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">EXTERNAL</text></g><g class=\"z-dmz\"><rect x=\"320\" y=\"64\" width=\"390\" height=\"366\" rx=\"12\" class=\"band\"/><text x=\"336\" y=\"86\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">DMZ</text></g><g class=\"z-int\"><rect x=\"720\" y=\"64\" width=\"200\" height=\"366\" rx=\"12\" class=\"band\"/><text x=\"736\" y=\"86\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">INTERNAL</text></g><g><rect x=\"52\" y=\"116\" width=\"90\" height=\"68\" rx=\"10\" class=\"nb\"/><text x=\"97\" y=\"141\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">使用者</text><text x=\"97\" y=\"160.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">Internet</text></g><g><rect x=\"172\" y=\"116\" width=\"128\" height=\"68\" rx=\"10\" class=\"nb\"/><text x=\"236\" y=\"141\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Edge + WAF</text><text x=\"236\" y=\"160.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">CloudFront</text><text x=\"236\" y=\"160.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Front Door</text><text x=\"236\" y=\"160.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Cloud Armor</text></g><g class=\"z-dmz\"><rect x=\"336\" y=\"116\" width=\"150\" height=\"68\" rx=\"10\" class=\"nd\"/><text x=\"411\" y=\"141\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Ingress LB</text><text x=\"411\" y=\"160.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">ALB</text><text x=\"411\" y=\"160.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">App Gateway</text><text x=\"411\" y=\"160.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">External LB</text></g><g class=\"z-dmz\"><rect x=\"530\" y=\"116\" width=\"150\" height=\"294\" rx=\"10\" class=\"nd\"/><text x=\"605\" y=\"234\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Inspection</text><text x=\"605\" y=\"253.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Network Firewall</text><text x=\"605\" y=\"253.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Azure Firewall</text><text x=\"605\" y=\"253.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Cloud NGFW / NVA</text><text x=\"605\" y=\"272.5\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">ingress 與</text><text x=\"605\" y=\"292.5\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">egress 共用</text></g><g class=\"z-int\"><rect x=\"736\" y=\"116\" width=\"168\" height=\"68\" rx=\"10\" class=\"nd\"/><text x=\"820\" y=\"141\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">App</text><text x=\"820\" y=\"160.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Workload VPC</text><text x=\"820\" y=\"160.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Spoke VNet</text><text x=\"820\" y=\"160.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Service project</text></g><g><rect x=\"52\" y=\"342\" width=\"248\" height=\"68\" rx=\"10\" class=\"nb\"/><text x=\"176\" y=\"367\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Internet</text><text x=\"176\" y=\"386.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">只到 allowlist 目的地</text></g><g class=\"z-dmz\"><rect x=\"336\" y=\"342\" width=\"150\" height=\"68\" rx=\"10\" class=\"nd\"/><text x=\"411\" y=\"367\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">NAT / Proxy</text><text x=\"411\" y=\"386.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">NAT GW + FQDN</text><text x=\"411\" y=\"386.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Firewall FQDN</text><text x=\"411\" y=\"386.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Secure Web Proxy</text></g><g class=\"z-int\"><rect x=\"736\" y=\"342\" width=\"168\" height=\"68\" rx=\"10\" class=\"nd\"/><text x=\"820\" y=\"367\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">App</text><text x=\"820\" y=\"386.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">預設路由 → hub</text></g><path d=\"M142 150 H170\" class=\"ln in\" marker-end=\"url(#mcz05-ah-in)\"/><path d=\"M300 150 H334\" class=\"ln in\" marker-end=\"url(#mcz05-ah-in)\"/><path d=\"M486 150 H528\" class=\"ln in\" marker-end=\"url(#mcz05-ah-in)\"/><path d=\"M680 150 H734\" class=\"ln in\" marker-end=\"url(#mcz05-ah-in)\"/><path d=\"M736 376 H682\" class=\"ln out\" marker-end=\"url(#mcz05-ah-out)\"/><path d=\"M530 376 H488\" class=\"ln out\" marker-end=\"url(#mcz05-ah-out)\"/><path d=\"M336 376 H302\" class=\"ln out\" marker-end=\"url(#mcz05-ah-out)\"/><g class=\"bdg\"><circle cx=\"292\" cy=\"116\" r=\"11\"/><text x=\"292\" y=\"116.5\" text-anchor=\"middle\" dominant-baseline=\"central\">1</text></g><g class=\"bdg\"><circle cx=\"478\" cy=\"116\" r=\"11\"/><text x=\"478\" y=\"116.5\" text-anchor=\"middle\" dominant-baseline=\"central\">2</text></g><g class=\"bdg\"><circle cx=\"672\" cy=\"116\" r=\"11\"/><text x=\"672\" y=\"116.5\" text-anchor=\"middle\" dominant-baseline=\"central\">3</text></g><g class=\"bdg\"><circle cx=\"896\" cy=\"116\" r=\"11\"/><text x=\"896\" y=\"116.5\" text-anchor=\"middle\" dominant-baseline=\"central\">4</text></g><g class=\"bdg\"><circle cx=\"896\" cy=\"342\" r=\"11\"/><text x=\"896\" y=\"342.5\" text-anchor=\"middle\" dominant-baseline=\"central\">5</text></g><g class=\"bdg\"><circle cx=\"672\" cy=\"410\" r=\"11\"/><text x=\"672\" y=\"410.5\" text-anchor=\"middle\" dominant-baseline=\"central\">6</text></g><g class=\"bdg\"><circle cx=\"478\" cy=\"342\" r=\"11\"/><text x=\"478\" y=\"342.5\" text-anchor=\"middle\" dominant-baseline=\"central\">7</text></g><text x=\"40\" y=\"462\" class=\"tl in-t\" text-anchor=\"start\" dominant-baseline=\"central\">INGRESS</text><text x=\"490\" y=\"462\" class=\"tl out-t\" text-anchor=\"start\" dominant-baseline=\"central\">EGRESS</text><text x=\"40\" y=\"490\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">① Edge 擋 DDoS 與 L7 攻擊</text><text x=\"40\" y=\"514\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">② LB 終結 TLS，對外只開 443</text><text x=\"40\" y=\"538\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">③ NGFW 檢查後才進 Internal</text><text x=\"40\" y=\"562\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">④ App 只接受來自 LB 的流量</text><text x=\"490\" y=\"490\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">⑤ Spoke 預設路由指向 hub</text><text x=\"490\" y=\"514\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">⑥ NGFW 依來源 zone 與目的地檢查</text><text x=\"490\" y=\"538\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">⑦ FQDN allowlist 後經 NAT 出去</text><text x=\"490\" y=\"562\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">回應流量走同一條路，路由要對稱</text></svg>",
+   "services": {
+    "aws": [
+     {
+      "name": "CloudFront + AWS WAF + Shield",
+      "note": "邊緣防護：DDoS、L7 規則"
+     },
+     {
+      "name": "Application Load Balancer",
+      "note": "Ingress VPC 的 TLS 終結"
+     },
+     {
+      "name": "AWS Network Firewall",
+      "note": "託管的 stateful 檢查、FQDN 過濾"
+     },
+     {
+      "name": "Gateway Load Balancer",
+      "note": "串接第三方 NGFW 的透明插入點"
+     },
+     {
+      "name": "NAT Gateway",
+      "note": "Egress VPC 的出口"
+     },
+     {
+      "name": "AWS Firewall Manager",
+      "note": "跨帳號統一 WAF 與防火牆規則"
+     }
+    ],
+    "azure": [
+     {
+      "name": "Front Door + WAF",
+      "note": "全球入口與 L7 防護"
+     },
+     {
+      "name": "Application Gateway (WAF v2)",
+      "note": "區域入口的 TLS 終結與 WAF"
+     },
+     {
+      "name": "Azure Firewall Premium",
+      "note": "TLS inspection、IDPS、FQDN 規則"
+     },
+     {
+      "name": "NAT Gateway",
+      "note": "固定的出站 IP"
+     },
+     {
+      "name": "Azure Firewall Manager",
+      "note": "集中管理 firewall policy"
+     },
+     {
+      "name": "DDoS Protection",
+      "note": "L3/L4 防護"
+     }
+    ],
+    "gcp": [
+     {
+      "name": "Cloud Armor",
+      "note": "邊緣 WAF 與 DDoS 防護"
+     },
+     {
+      "name": "External Application LB",
+      "note": "全球入口與 TLS 終結"
+     },
+     {
+      "name": "Cloud NGFW Enterprise",
+      "note": "分散式防火牆加 IPS"
+     },
+     {
+      "name": "Secure Web Proxy",
+      "note": "出站 FQDN / URL 過濾"
+     },
+     {
+      "name": "Cloud NAT",
+      "note": "託管的出站 NAT"
+     },
+     {
+      "name": "NVA + internal LB",
+      "note": "串接第三方 NGFW"
+     }
+    ]
+   },
+   "summary": [
+    "DMZ 做三件事：ingress、egress、inspection。",
+    "Ingress 經 edge、LB、NGFW 才進 Internal，只開指定 port。",
+    "Egress 一律經 hub 檢查，FQDN allowlist 後才出 internet。",
+    "常見折衷：egress 與 inspection 集中，ingress 分散但受管控。"
+   ],
+   "deepLede": "集中與分散 ingress、NGFW 選型、egress 控制與路由對稱的取捨。",
+   "deepHtml": "<h2 id=\"functions\">三種功能</h2>\n<div class=\"tablewrap\"><table class=\"wide\"><thead><tr><th>功能</th><th>做什麼</th><th>AWS</th><th>Azure</th><th>GCP</th></tr></thead><tbody>\n<tr><th>Ingress</th><td>外部進來的流量入口</td><td>CloudFront、ALB</td><td>Front Door、App Gateway</td><td>Global LB、Cloud Armor</td></tr>\n<tr><th>Egress</th><td>內部出去的流量出口</td><td>NAT GW、Network Firewall</td><td>Azure Firewall、NAT GW</td><td>Cloud NAT、Secure Web Proxy</td></tr>\n<tr><th>Inspection</th><td>集中檢查與記錄</td><td>Network Firewall、GWLB</td><td>Azure Firewall</td><td>Cloud NGFW、NVA</td></tr>\n</tbody></table></div>\n<p>三種功能可以放在同一個 hub VPC，也可以拆成 ingress VPC、egress VPC、inspection VPC 三個。拆開的好處是權責與規則比較清楚。</p>\n<h2 id=\"ingress\">集中還是分散 ingress</h2>\n<div class=\"tablewrap\"><table class=\"wide\"><thead><tr><th></th><th>集中式</th><th>分散式</th></tr></thead><tbody>\n<tr><th>做法</th><td>所有對外服務經 ingress VPC 進來</td><td>每個 spoke 有自己的 LB 與 WAF</td></tr>\n<tr><th>控制一致性</th><td>高，一個地方管</td><td>要靠 Firewall Manager / Azure Policy 強制</td></tr>\n<tr><th>延遲與成本</th><td>多一跳，流量經 hub 計費</td><td>路徑短</td></tr>\n<tr><th>團隊自主</th><td>低，上線要排網路團隊</td><td>高</td></tr>\n</tbody></table></div>\n<div class=\"callout\"><b>常見折衷</b><p>Egress 與 inspection 集中，ingress 分散但受管控：WAF 規則由 platform team 統一發布，app 團隊只能選用。</p></div>\n<h2 id=\"ngfw\">NGFW 選型</h2>\n<div class=\"tablewrap\"><table class=\"wide\"><thead><tr><th>選項</th><th>優點</th><th>限制</th></tr></thead><tbody>\n<tr><th>各雲原生</th><td>託管、自動擴展、成本低</td><td>三套 rule 語法與功能差異</td></tr>\n<tr><th>第三方同一家</th><td>三雲 rule 一致，沿用地端維運經驗</td><td>授權與維運成本高，HA 自己設計</td></tr>\n</tbody></table></div>\n<p>不少台灣金融客戶的內控要求內外層防火牆異質（不同廠牌）。這種情況常見的組合是外層用原生 firewall，內層用第三方 NGFW，或反過來。</p>\n<h2 id=\"egress\">Egress 控制</h2>\n<ul class=\"pts\">\n<li>用 FQDN allowlist 管出站目的地，預設拒絕。</li>\n<li>TLS inspection 的範圍要先和法遵、隱私單位確認，金融與醫療相關流量常需要排除。</li>\n<li>給 SaaS、AI API 的出站例外要具體列出 FQDN，不要整個網域放行。</li>\n</ul>\n<h2 id=\"symmetry\">路由對稱</h2>\n<p>Stateful 防火牆要求去回走同一台。AWS 用 TGW appliance mode，Azure 用 UDR 設計，GCP 用 internal LB next hop 加 symmetric hashing。細節見 <a href=\"/reports/multicloud-zones/04-hub-spoke-routing/deep-dive/#symmetric\">04 路由分段</a>。</p>\n<h2 id=\"rules\">DMZ 的使用規則</h2>\n<ul class=\"pts\">\n<li>DMZ 裡不放持有敏感資料的 workload。</li>\n<li>DMZ 到 Internal 只開指定 port，而且要經過檢查。</li>\n<li>網路設備的管理介面不對外，只從 Mgmt zone 存取。</li>\n</ul>",
+   "sections": [
+    {
+     "id": "functions",
+     "title": "三種功能"
+    },
+    {
+     "id": "ingress",
+     "title": "集中還是分散 ingress"
+    },
+    {
+     "id": "ngfw",
+     "title": "NGFW 選型"
+    },
+    {
+     "id": "egress",
+     "title": "Egress 控制"
+    },
+    {
+     "id": "symmetry",
+     "title": "路由對稱"
+    },
+    {
+     "id": "rules",
+     "title": "DMZ 的使用規則"
+    }
+   ]
+  },
+  {
+   "num": "06",
+   "slug": "06-internal-private-access",
+   "title": "Internal 與 PaaS 私有化",
+   "short": "Internal",
+   "lede": "Internal 沒有 internet 直連，存取 PaaS 一律走 private endpoint，DNS 集中在 hub。",
+   "zones": [
+    "int",
+    "dmz"
+   ],
+   "caption": "PaaS 透過 endpoint 以私有 IP 出現在 spoke 裡，hub 的 private DNS zone 讓所有 spoke 解析到同一個私有 IP。",
+   "svg": "<svg class=\"dg\" aria-label=\"Internal 與 PaaS 私有化\" viewBox=\"0 0 960 590\" role=\"img\" preserveAspectRatio=\"xMidYMid meet\"><title>Internal spoke 與 PaaS 私有存取</title><defs><marker id=\"mcz06-ah\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk \" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz06-ah-in\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk in\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz06-ah-out\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk out\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz06-ah-mg\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk mg\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz06-ah-int\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk int\" d=\"M1 1L9 5L1 9z\"/></marker></defs><rect x=\"40\" y=\"70\" width=\"250\" height=\"440\" rx=\"14\" class=\"ct\"/><text x=\"56\" y=\"94\" class=\"tt-s\" text-anchor=\"start\" dominant-baseline=\"central\">Hub · Network 帳號</text><g class=\"z-dmz\"><rect x=\"60\" y=\"120\" width=\"210\" height=\"80\" rx=\"10\" class=\"nd\"/><text x=\"165\" y=\"151\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Private DNS zone</text><text x=\"165\" y=\"170.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Route 53 PHZ</text><text x=\"165\" y=\"170.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">privatelink.* zone</text><text x=\"165\" y=\"170.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Cloud DNS private</text></g><g class=\"z-dmz\"><rect x=\"60\" y=\"240\" width=\"210\" height=\"80\" rx=\"10\" class=\"nd\"/><text x=\"165\" y=\"271\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">DNS resolver</text><text x=\"165\" y=\"290.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Route 53 Resolver</text><text x=\"165\" y=\"290.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">DNS Private Resolver</text><text x=\"165\" y=\"290.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Cloud DNS</text></g><g class=\"z-dmz\"><rect x=\"60\" y=\"380\" width=\"210\" height=\"80\" rx=\"10\" class=\"nd\"/><text x=\"165\" y=\"411\" class=\"tt-s c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Transit Gateway</text><text x=\"165\" y=\"411\" class=\"tt-s c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">hub VNet</text><text x=\"165\" y=\"411\" class=\"tt-s c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">NCC hub</text><text x=\"165\" y=\"430.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">prod / non-prod 分表</text></g><path d=\"M165 240 V202\" class=\"ln dash\"/><g class=\"z-int\"><rect x=\"330\" y=\"70\" width=\"330\" height=\"210\" rx=\"14\" class=\"band\"/></g><text x=\"346\" y=\"94\" class=\"tt-s\" text-anchor=\"start\" dominant-baseline=\"central\">Prod spoke</text><text x=\"452\" y=\"94\" class=\"tm c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">workload account</text><text x=\"452\" y=\"94\" class=\"tm c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">spoke subscription</text><text x=\"452\" y=\"94\" class=\"tm c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">service project</text><g class=\"z-int\"><rect x=\"350\" y=\"126\" width=\"110\" height=\"74\" rx=\"10\" class=\"nd\"/><text x=\"405\" y=\"154\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">App</text><text x=\"405\" y=\"173.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">subnet: app</text></g><g class=\"z-int\"><rect x=\"492\" y=\"126\" width=\"158\" height=\"74\" rx=\"10\" class=\"nd\"/><text x=\"571\" y=\"145\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Endpoint</text><text x=\"571\" y=\"164.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Interface endpoint</text><text x=\"571\" y=\"164.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Private Endpoint</text><text x=\"571\" y=\"164.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">PSC endpoint</text><text x=\"571\" y=\"182.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">10.65.4.12</text></g><text x=\"346\" y=\"240\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">PaaS 以私有 IP 出現在你的 VPC 裡</text><g class=\"z-int\"><rect x=\"330\" y=\"320\" width=\"330\" height=\"190\" rx=\"14\" class=\"band\"/></g><text x=\"346\" y=\"344\" class=\"tt-s\" text-anchor=\"start\" dominant-baseline=\"central\">Non-prod spoke</text><g class=\"z-int\"><rect x=\"350\" y=\"372\" width=\"110\" height=\"70\" rx=\"10\" class=\"nd\"/><text x=\"405\" y=\"398\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">App</text><text x=\"405\" y=\"417.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">subnet: app</text></g><g class=\"z-int\"><rect x=\"492\" y=\"372\" width=\"158\" height=\"70\" rx=\"10\" class=\"nd\"/><text x=\"571\" y=\"398\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Endpoint</text><text x=\"571\" y=\"417.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Interface endpoint</text><text x=\"571\" y=\"417.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Private Endpoint</text><text x=\"571\" y=\"417.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">PSC endpoint</text></g><path d=\"M560 280 V320\" class=\"ln bad\"/><g class=\"xm\"><circle cx=\"560\" cy=\"300\" r=\"11\"/><path d=\"M556 296L564 304M564 296L556 304\"/></g><text x=\"580\" y=\"300\" class=\"ts bad-t\" text-anchor=\"start\" dominant-baseline=\"central\">路由隔離</text><rect x=\"700\" y=\"70\" width=\"220\" height=\"440\" rx=\"14\" class=\"nk\"/><text x=\"716\" y=\"94\" class=\"tt-s\" text-anchor=\"start\" dominant-baseline=\"central\">Provider 網路</text><g><rect x=\"718\" y=\"126\" width=\"184\" height=\"100\" rx=\"10\" class=\"nb\"/><text x=\"810\" y=\"157\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">PaaS 服務</text><text x=\"810\" y=\"176.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">S3 · RDS · Bedrock</text><text x=\"810\" y=\"176.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Storage · SQL DB</text><text x=\"810\" y=\"176.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">GCS · Cloud SQL</text><text x=\"810\" y=\"195.5\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">只接受指定 endpoint</text></g><g><rect x=\"718\" y=\"330\" width=\"184\" height=\"80\" rx=\"10\" class=\"nb dash\"/><text x=\"810\" y=\"360\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Public endpoint</text><text x=\"810\" y=\"380.5\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">已關閉</text></g><text x=\"810\" y=\"486\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">Internet</text><path d=\"M810 472 V412\" class=\"ln bad\"/><g class=\"xm\"><circle cx=\"810\" cy=\"442\" r=\"11\"/><path d=\"M806 438L814 446M814 438L806 446\"/></g><path d=\"M350 150 H274\" class=\"ln mg dash\" marker-end=\"url(#mcz06-ah-mg)\"/><path d=\"M460 163 H490\" class=\"ln in\" marker-end=\"url(#mcz06-ah-in)\"/><path d=\"M650 163 H716\" class=\"ln in\" marker-end=\"url(#mcz06-ah-in)\"/><path d=\"M330 250 L272 400\" class=\"ln int\"/><path d=\"M330 440 L272 420\" class=\"ln int\"/><g class=\"bdg\"><circle cx=\"311\" cy=\"136\" r=\"11\"/><text x=\"311\" y=\"136.5\" text-anchor=\"middle\" dominant-baseline=\"central\">1</text></g><g class=\"bdg\"><circle cx=\"475\" cy=\"146\" r=\"11\"/><text x=\"475\" y=\"146.5\" text-anchor=\"middle\" dominant-baseline=\"central\">2</text></g><g class=\"bdg\"><circle cx=\"683\" cy=\"148\" r=\"11\"/><text x=\"683\" y=\"148.5\" text-anchor=\"middle\" dominant-baseline=\"central\">3</text></g><g class=\"bdg\"><circle cx=\"894\" cy=\"330\" r=\"11\"/><text x=\"894\" y=\"330.5\" text-anchor=\"middle\" dominant-baseline=\"central\">4</text></g><text x=\"40\" y=\"540\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">① App 查 DNS，hub 的 private zone 回私有 IP</text><text x=\"40\" y=\"566\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">② 流量送到同 VPC 的 endpoint</text><text x=\"500\" y=\"540\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">③ 經私有路徑到 PaaS，不出 internet</text><text x=\"500\" y=\"566\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">④ PaaS 關閉 public access</text></svg>",
+   "services": {
+    "aws": [
+     {
+      "name": "Interface VPC endpoints",
+      "note": "PrivateLink 私有存取 AWS 服務"
+     },
+     {
+      "name": "Gateway endpoints",
+      "note": "S3、DynamoDB 的免費私有路徑"
+     },
+     {
+      "name": "Route 53 Resolver + PHZ",
+      "note": "集中的私有 DNS"
+     },
+     {
+      "name": "VPC endpoint policy",
+      "note": "限定可存取的資源"
+     },
+     {
+      "name": "VPC Lattice",
+      "note": "跨 VPC、跨帳號的服務對服務連線"
+     },
+     {
+      "name": "TGW route tables",
+      "note": "prod / non-prod 分段"
+     }
+    ],
+    "azure": [
+     {
+      "name": "Private Endpoint",
+      "note": "PaaS 以私有 IP 進到 VNet"
+     },
+     {
+      "name": "Private DNS zones",
+      "note": "privatelink.* 名稱解析"
+     },
+     {
+      "name": "DNS Private Resolver",
+      "note": "hub 的 inbound / outbound 解析"
+     },
+     {
+      "name": "NSG / ASG",
+      "note": "subnet 與角色層級規則"
+     },
+     {
+      "name": "Azure Policy",
+      "note": "deny public network access"
+     }
+    ],
+    "gcp": [
+     {
+      "name": "Private Service Connect",
+      "note": "私有存取 Google API 與 producer 服務"
+     },
+     {
+      "name": "Private Google Access",
+      "note": "無外部 IP 的 VM 存取 Google API"
+     },
+     {
+      "name": "Cloud DNS private zones",
+      "note": "集中的私有 DNS"
+     },
+     {
+      "name": "Network firewall policies",
+      "note": "VPC 內的規則"
+     },
+     {
+      "name": "Org Policy",
+      "note": "禁止外部 IP"
+     }
+    ]
+   },
+   "summary": [
+    "Spoke 依 app × 環境切帳號；prod 與 non-prod 路由隔離。",
+    "PaaS 一律走 private endpoint，並關閉 public access。",
+    "Private DNS zone 集中在 hub，所有 spoke 解析到私有 IP。",
+    "跨雲服務呼叫走應用層（API、PrivateLink 類），不追求三層全通。"
+   ],
+   "deepLede": "Spoke 切分、擋 public 的 policy、east-west 分段，以及 PaaS 私有化的完整步驟。",
+   "deepHtml": "<h2 id=\"spokes\">Spoke 切分</h2>\n<p>依 app × 環境（prod、non-prod）切 spoke account、subscription、project。帳號就是 blast radius 的邊界，也是成本歸屬的單位。</p>\n<h2 id=\"public\">用 policy 擋 public</h2>\n<div class=\"tablewrap\"><table class=\"wide\"><thead><tr><th>雲</th><th>做法</th></tr></thead><tbody>\n<tr><th>AWS</th><td>SCP deny <code>ec2:CreateInternetGateway</code>、<code>ec2:AttachInternetGateway</code>；禁止 subnet 自動配發 public IP</td></tr>\n<tr><th>Azure</th><td>Azure Policy 禁止 NIC 掛 public IP、禁止 PaaS public network access</td></tr>\n<tr><th>GCP</th><td>Org Policy <code>compute.vmExternalIpAccess</code>、<code>compute.skipDefaultNetworkCreation</code></td></tr>\n</tbody></table></div>\n<h2 id=\"eastwest\">East-west 分段</h2>\n<p>至少 prod 和 non-prod 要隔離。spoke 之間的流量是不是都要經過 inspection，成本差很多。</p>\n<div class=\"callout\"><b>取捨</b><p>分得越細，blast radius 越小，但路由表、firewall rule、endpoint 數量也一起增加。建議以「環境 × 資料等級」為主軸分段，不要每個 app 一個 segment。</p></div>\n<h2 id=\"paas\">PaaS 私有化的四個步驟</h2>\n<ol class=\"steps\">\n<li>在 spoke 建立 endpoint（AWS interface endpoint、Azure Private Endpoint、GCP PSC endpoint）。</li>\n<li>把 private DNS zone 放在 hub，關聯到所有 spoke，讓同一個服務名稱解析到私有 IP。</li>\n<li>關閉 PaaS 的 public network access。</li>\n<li>在 resource policy 限定來源 endpoint，例如 S3 bucket policy 的 <code>aws:SourceVpce</code>。</li>\n</ol>\n<h2 id=\"dns\">多個 hub 的 DNS 衝突</h2>\n<p>Azure 的 <code>privatelink.blob.core.windows.net</code> 這類 zone，同一個名稱在整個環境只能有一份權威。如果每個 region 或每個 hub 各建一份，記錄會互相蓋掉，解析結果取決於查詢從哪裡來。把 private zone 集中在一個 hub，其他 hub 用 forwarding 或 link 共用。</p>\n<h2 id=\"cross-cloud\">跨雲服務呼叫</h2>\n<ul class=\"pts\">\n<li>優先用 API Gateway、PrivateLink 類服務或 service mesh 暴露「服務」，不要讓兩朵雲的網段三層全通。</li>\n<li>跨雲流量進來一樣經過 hub 檢查。</li>\n<li>跨雲 egress 費用與延遲要算進架構決策。</li>\n</ul>\n<h2 id=\"restricted\">Restricted 子區</h2>\n<p>敏感資料可以再切出 restricted 子區，例如 PCI DSS 的持卡人資料環境，有自己的帳號、segment 和更嚴格的 guardrail。見 <a href=\"/reports/multicloud-zones/13-industry/\">13 產業補充</a>。</p>",
+   "sections": [
+    {
+     "id": "spokes",
+     "title": "Spoke 切分"
+    },
+    {
+     "id": "public",
+     "title": "用 policy 擋 public"
+    },
+    {
+     "id": "eastwest",
+     "title": "East-west 分段"
+    },
+    {
+     "id": "paas",
+     "title": "PaaS 私有化的四個步驟"
+    },
+    {
+     "id": "dns",
+     "title": "多個 hub 的 DNS 衝突"
+    },
+    {
+     "id": "cross-cloud",
+     "title": "跨雲服務呼叫"
+    },
+    {
+     "id": "restricted",
+     "title": "Restricted 子區"
+    }
+   ]
+  },
+  {
+   "num": "07",
+   "slug": "07-mgmt-plane",
+   "title": "Mgmt 管理面",
+   "short": "Mgmt 管理面",
+   "lede": "管理動作大多走 control plane API，Mgmt zone 有一半是身分設計。",
+   "zones": [
+    "mgmt",
+    "int"
+   ],
+   "caption": "上：所有管理存取經 IdP，再分成 API 與 session 兩條路。下：三朵雲的 log 各自進不可竄改的 archive，再匯入同一個 SIEM。",
+   "svg": "<svg class=\"dg\" aria-label=\"Mgmt 管理面\" viewBox=\"0 0 960 540\" role=\"img\" preserveAspectRatio=\"xMidYMid meet\"><title>Mgmt：管理存取與集中 log</title><defs><marker id=\"mcz07-ah\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk \" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz07-ah-in\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk in\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz07-ah-out\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk out\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz07-ah-mg\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk mg\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz07-ah-int\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk int\" d=\"M1 1L9 5L1 9z\"/></marker></defs><text x=\"40\" y=\"44\" class=\"tl\" text-anchor=\"start\" dominant-baseline=\"central\">管理存取</text><g><rect x=\"40\" y=\"76\" width=\"150\" height=\"68\" rx=\"10\" class=\"nb\"/><text x=\"115\" y=\"101\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">管理員</text><text x=\"115\" y=\"120.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">SSO + MFA</text></g><g><rect x=\"40\" y=\"186\" width=\"150\" height=\"68\" rx=\"10\" class=\"nb dash\"/><text x=\"115\" y=\"210\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Break-glass</text><text x=\"115\" y=\"230.5\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">使用即告警</text></g><g class=\"z-mgmt\"><rect x=\"240\" y=\"76\" width=\"160\" height=\"68\" rx=\"10\" class=\"nd\"/><text x=\"320\" y=\"101\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">IdP</text><text x=\"320\" y=\"120.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Identity Center</text><text x=\"320\" y=\"120.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Entra ID</text><text x=\"320\" y=\"120.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Cloud Identity</text></g><g><rect x=\"450\" y=\"76\" width=\"210\" height=\"68\" rx=\"10\" class=\"nb\"/><text x=\"555\" y=\"101\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Control plane API</text><text x=\"555\" y=\"120.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">條件：來源 VPC / IP</text></g><g class=\"z-mgmt\"><rect x=\"450\" y=\"186\" width=\"210\" height=\"68\" rx=\"10\" class=\"nd\"/><text x=\"555\" y=\"211\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Session 服務</text><text x=\"555\" y=\"230.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">SSM Session Manager</text><text x=\"555\" y=\"230.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Azure Bastion</text><text x=\"555\" y=\"230.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">IAP TCP forwarding</text></g><g><rect x=\"710\" y=\"76\" width=\"210\" height=\"68\" rx=\"10\" class=\"nb\"/><text x=\"815\" y=\"101\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">帳號與資源設定</text><text x=\"815\" y=\"120.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">IaC 經 pipeline 變更</text></g><g class=\"z-int\"><rect x=\"710\" y=\"186\" width=\"210\" height=\"68\" rx=\"10\" class=\"nd\"/><text x=\"815\" y=\"211\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Workloads</text><text x=\"815\" y=\"230.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">不開 22 / 3389 對外</text></g><path d=\"M190 110 H238\" class=\"ln mg\" marker-end=\"url(#mcz07-ah-mg)\"/><path d=\"M400 110 H448\" class=\"ln mg\" marker-end=\"url(#mcz07-ah-mg)\"/><path d=\"M400 134 L448 206\" class=\"ln mg\" marker-end=\"url(#mcz07-ah-mg)\"/><path d=\"M660 110 H708\" class=\"ln mg\" marker-end=\"url(#mcz07-ah-mg)\"/><path d=\"M660 220 H708\" class=\"ln mg\" marker-end=\"url(#mcz07-ah-mg)\"/><path d=\"M40 296 H920\" class=\"ln dash\"/><text x=\"40\" y=\"326\" class=\"tl\" text-anchor=\"start\" dominant-baseline=\"central\">集中 LOG</text><g><rect x=\"40\" y=\"352\" width=\"250\" height=\"52\" rx=\"10\" class=\"nb\"/><text x=\"165\" y=\"369\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">AWS 各帳號</text><text x=\"165\" y=\"388.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">CloudTrail · VPC Flow Logs</text></g><g><rect x=\"40\" y=\"416\" width=\"250\" height=\"52\" rx=\"10\" class=\"nb\"/><text x=\"165\" y=\"433\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Azure 各訂閱</text><text x=\"165\" y=\"452.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">Activity Log · flow logs</text></g><g><rect x=\"40\" y=\"480\" width=\"250\" height=\"52\" rx=\"10\" class=\"nb\"/><text x=\"165\" y=\"497\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">GCP 各專案</text><text x=\"165\" y=\"516.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">Audit Logs · Flow Logs</text></g><g class=\"z-mgmt\"><rect x=\"380\" y=\"380\" width=\"250\" height=\"132\" rx=\"10\" class=\"nd\"/><text x=\"505\" y=\"418\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Log archive</text><text x=\"505\" y=\"438.5\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">每朵雲一份，不可竄改</text><text x=\"505\" y=\"457.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">S3 Object Lock</text><text x=\"505\" y=\"457.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Immutable Blob</text><text x=\"505\" y=\"457.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">GCS Bucket Lock</text><text x=\"505\" y=\"475.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Log Archive 帳號</text><text x=\"505\" y=\"475.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Management 訂閱</text><text x=\"505\" y=\"475.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">logging project</text></g><g class=\"z-mgmt\"><rect x=\"690\" y=\"380\" width=\"230\" height=\"132\" rx=\"10\" class=\"nd\"/><text x=\"805\" y=\"427\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">SIEM</text><text x=\"805\" y=\"447.5\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">跨雲單一視圖</text><text x=\"805\" y=\"466.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">告警 · 調查 · 稽核</text></g><path d=\"M290 378 L378 418\" class=\"ln mg\" marker-end=\"url(#mcz07-ah-mg)\"/><path d=\"M290 442 H378\" class=\"ln mg\" marker-end=\"url(#mcz07-ah-mg)\"/><path d=\"M290 506 L378 474\" class=\"ln mg\" marker-end=\"url(#mcz07-ah-mg)\"/><path d=\"M630 446 H688\" class=\"ln mg\" marker-end=\"url(#mcz07-ah-mg)\"/></svg>",
+   "services": {
+    "aws": [
+     {
+      "name": "IAM Identity Center",
+      "note": "SSO、permission set、與企業 IdP 串接"
+     },
+     {
+      "name": "AWS Control Tower",
+      "note": "Log Archive、Audit 帳號與基線"
+     },
+     {
+      "name": "CloudTrail organization trail",
+      "note": "所有帳號的 API 紀錄"
+     },
+     {
+      "name": "SSM Session Manager",
+      "note": "不開 SSH 也能進機器，全程記錄"
+     },
+     {
+      "name": "Security Hub · GuardDuty",
+      "note": "集中的資安發現與威脅偵測"
+     },
+     {
+      "name": "S3 Object Lock",
+      "note": "log 不可刪改"
+     }
+    ],
+    "azure": [
+     {
+      "name": "Entra ID + Conditional Access",
+      "note": "依裝置、位置、風險控管登入"
+     },
+     {
+      "name": "Entra PIM",
+      "note": "特權角色即時啟用"
+     },
+     {
+      "name": "Azure Bastion",
+      "note": "從瀏覽器或 CLI 連 VM，不開公網"
+     },
+     {
+      "name": "Log Analytics workspace",
+      "note": "集中 log"
+     },
+     {
+      "name": "Microsoft Sentinel",
+      "note": "SIEM"
+     },
+     {
+      "name": "Immutable Blob storage",
+      "note": "log 不可刪改"
+     }
+    ],
+    "gcp": [
+     {
+      "name": "Cloud Identity / Workforce Identity",
+      "note": "與企業 IdP federation"
+     },
+     {
+      "name": "IAP TCP forwarding",
+      "note": "不開外部 IP 也能 SSH / RDP"
+     },
+     {
+      "name": "Cloud Audit Logs + aggregated sinks",
+      "note": "org 層集中 log"
+     },
+     {
+      "name": "Security Command Center",
+      "note": "集中的資安發現"
+     },
+     {
+      "name": "Bucket Lock",
+      "note": "log 不可刪改"
+     }
+    ]
+   },
+   "summary": [
+    "管理動作大多走 control plane API，Mgmt zone 有一半是身分設計。",
+    "不開 SSH / RDP 對外，用 Session Manager、Bastion、IAP 進機器。",
+    "三朵雲的 log 匯入同一個 SIEM，log archive 不可竄改。",
+    "Mgmt 工具若集中在一朵雲，要評估跨雲單點故障。"
+   ],
+   "deepLede": "Mgmt zone 放什麼、管理存取怎麼設計、log 怎麼集中，以及跨雲依賴的取捨。",
+   "deepHtml": "<h2 id=\"accounts\">獨立帳號群組</h2>\n<div class=\"tablewrap\"><table class=\"wide\"><thead><tr><th>用途</th><th>AWS</th><th>Azure</th><th>GCP</th></tr></thead><tbody>\n<tr><th>Log archive</th><td>Log Archive 帳號</td><td>Management 訂閱</td><td>logging project</td></tr>\n<tr><th>資安工具</th><td>Audit / Security Tooling 帳號</td><td>Management 訂閱</td><td>security project</td></tr>\n<tr><th>網路</th><td>Network 帳號</td><td>Connectivity 訂閱</td><td>network host project</td></tr>\n<tr><th>共用服務</th><td>Shared Services 帳號</td><td>Identity 訂閱、共用訂閱</td><td>shared services project</td></tr>\n</tbody></table></div>\n<h2 id=\"access\">管理存取</h2>\n<ul class=\"pts\">\n<li>不開 SSH、RDP 到 internet。用 SSM Session Manager、Azure Bastion、IAP，或在 Mgmt zone 放 PAM jump host。</li>\n<li>Session 全程記錄，存到 log archive。</li>\n<li>資源設定一律經 IaC pipeline 變更，人員只有唯讀權限，緊急時才提權。</li>\n</ul>\n<h2 id=\"identity\">一半是身分設計</h2>\n<p>雲上大部分管理動作走 control plane API，不經過你的網路。要用身分條件來控制：</p>\n<ul class=\"pts\">\n<li>AWS：policy 條件 <code>aws:SourceVpce</code>、<code>aws:SourceIp</code>、<code>aws:PrincipalOrgID</code>。</li>\n<li>Azure：Conditional Access 依裝置、位置、風險控管；PIM 讓特權角色有時效。</li>\n<li>GCP：Access Context Manager 定義 access level，搭配 VPC Service Controls。</li>\n<li>Break-glass 帳號獨立保管、不走 IdP，使用時觸發告警並事後檢討。</li>\n</ul>\n<h2 id=\"direction\">連線方向</h2>\n<p>Mgmt 主動連進 Internal（patch、備份、CI/CD runner）。Internal 只允許 log 和 agent 回傳，不能主動連到 Mgmt 的管理介面。</p>\n<h2 id=\"logs\">Log 集中且不可竄改</h2>\n<ul class=\"pts\">\n<li>每朵雲先在自己的 log archive 留一份，開啟 S3 Object Lock、Azure immutable storage 或 GCS Bucket Lock。</li>\n<li>再匯入同一個 SIEM，做跨雲的告警與調查。</li>\n<li>保留期限依法規與客戶內控設定；金融客戶通常要求較長。</li>\n</ul>\n<h2 id=\"dependency\">跨雲依賴</h2>\n<p>如果 AWS 上的 Terraform runner 同時管 Azure，AWS 的 Mgmt zone 一出事，就變成跨雲的單點故障。</p>\n<div class=\"callout\"><b>取捨</b><p>一個 Mgmt zone 管三朵雲：工具一致，但有跨雲依賴。每朵雲各一個：韌性高，但工具、權限、runbook 要同步三份。折衷做法是 SIEM 與 IdP 集中，執行面（runner、bastion）每朵雲各自一套。</p></div>",
+   "sections": [
+    {
+     "id": "accounts",
+     "title": "獨立帳號群組"
+    },
+    {
+     "id": "access",
+     "title": "管理存取"
+    },
+    {
+     "id": "identity",
+     "title": "一半是身分設計"
+    },
+    {
+     "id": "direction",
+     "title": "連線方向"
+    },
+    {
+     "id": "logs",
+     "title": "Log 集中且不可竄改"
+    },
+    {
+     "id": "dependency",
+     "title": "跨雲依賴"
+    }
+   ]
+  },
+  {
+   "num": "08",
+   "slug": "08-traffic-matrix",
+   "title": "Zone 流量矩陣",
+   "short": "流量矩陣",
+   "lede": "先寫出 zone 對 zone 的規則，再設計網路。每一格都要對應到一個控制點。",
+   "zones": [
+    "ext",
+    "dmz",
+    "int",
+    "mgmt",
+    "peer"
+   ],
+   "caption": "列是發起端，欄是目的端。這是參考基線，實際要依客戶的資安政策調整。",
+   "svg": "<svg class=\"dg\" aria-label=\"Zone 流量矩陣\" viewBox=\"0 0 960 600\" role=\"img\" preserveAspectRatio=\"xMidYMid meet\"><title>Zone 流量矩陣</title><defs><marker id=\"mcz08-ah\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk \" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz08-ah-in\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk in\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz08-ah-out\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk out\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz08-ah-mg\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk mg\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz08-ah-int\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk int\" d=\"M1 1L9 5L1 9z\"/></marker></defs><text x=\"40\" y=\"60\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">發起端 ↓</text><text x=\"40\" y=\"82\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">目的端 →</text><g class=\"z-ext\"><rect x=\"232\" y=\"64\" width=\"168\" height=\"40\" rx=\"8\" class=\"nd\"/><text x=\"316\" y=\"84\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">External</text></g><g class=\"z-dmz\"><rect x=\"406\" y=\"64\" width=\"168\" height=\"40\" rx=\"8\" class=\"nd\"/><text x=\"490\" y=\"84\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">DMZ</text></g><g class=\"z-int\"><rect x=\"580\" y=\"64\" width=\"168\" height=\"40\" rx=\"8\" class=\"nd\"/><text x=\"664\" y=\"84\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Internal</text></g><g class=\"z-mgmt\"><rect x=\"754\" y=\"64\" width=\"168\" height=\"40\" rx=\"8\" class=\"nd\"/><text x=\"838\" y=\"84\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Mgmt</text></g><g class=\"z-ext\"><rect x=\"40\" y=\"116\" width=\"180\" height=\"80\" rx=\"10\" class=\"nd\"/><text x=\"56\" y=\"145.5\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">UNTRUSTED</text><text x=\"56\" y=\"165\" class=\"tt-s\" text-anchor=\"start\" dominant-baseline=\"central\">External</text></g><rect x=\"232\" y=\"116\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-na\"/><text x=\"246\" y=\"136\" class=\"tl v-na-t\" text-anchor=\"start\" dominant-baseline=\"central\">—</text><rect x=\"406\" y=\"116\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-allow\"/><text x=\"420\" y=\"136\" class=\"tl v-allow-t\" text-anchor=\"start\" dominant-baseline=\"central\">ALLOW</text><text x=\"420\" y=\"162\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">443</text><text x=\"420\" y=\"182\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">經 WAF / LB</text><rect x=\"580\" y=\"116\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-deny\"/><text x=\"594\" y=\"136\" class=\"tl v-deny-t\" text-anchor=\"start\" dominant-baseline=\"central\">DENY</text><text x=\"594\" y=\"162\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">不可直達</text><rect x=\"754\" y=\"116\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-deny\"/><text x=\"768\" y=\"136\" class=\"tl v-deny-t\" text-anchor=\"start\" dominant-baseline=\"central\">DENY</text><text x=\"768\" y=\"162\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">管理面不對外</text><g class=\"z-dmz\"><rect x=\"40\" y=\"202\" width=\"180\" height=\"80\" rx=\"10\" class=\"nd\"/><text x=\"56\" y=\"231.5\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">SEMI-TRUSTED</text><text x=\"56\" y=\"251\" class=\"tt-s\" text-anchor=\"start\" dominant-baseline=\"central\">DMZ</text></g><rect x=\"232\" y=\"202\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-inspect\"/><text x=\"246\" y=\"222\" class=\"tl v-inspect-t\" text-anchor=\"start\" dominant-baseline=\"central\">INSPECT</text><text x=\"246\" y=\"248\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">回應流量</text><text x=\"246\" y=\"268\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">egress proxy</text><rect x=\"406\" y=\"202\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-allow\"/><text x=\"420\" y=\"222\" class=\"tl v-allow-t\" text-anchor=\"start\" dominant-baseline=\"central\">ALLOW</text><text x=\"420\" y=\"248\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">hub 內部</text><rect x=\"580\" y=\"202\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-inspect\"/><text x=\"594\" y=\"222\" class=\"tl v-inspect-t\" text-anchor=\"start\" dominant-baseline=\"central\">INSPECT</text><text x=\"594\" y=\"248\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">指定 port</text><text x=\"594\" y=\"268\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">經 NGFW</text><rect x=\"754\" y=\"202\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-limit\"/><text x=\"768\" y=\"222\" class=\"tl v-limit-t\" text-anchor=\"start\" dominant-baseline=\"central\">LIMITED</text><text x=\"768\" y=\"248\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">僅 log、agent</text><g class=\"z-int\"><rect x=\"40\" y=\"288\" width=\"180\" height=\"80\" rx=\"10\" class=\"nd\"/><text x=\"56\" y=\"317.5\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">TRUSTED</text><text x=\"56\" y=\"337\" class=\"tt-s\" text-anchor=\"start\" dominant-baseline=\"central\">Internal</text></g><rect x=\"232\" y=\"288\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-inspect\"/><text x=\"246\" y=\"308\" class=\"tl v-inspect-t\" text-anchor=\"start\" dominant-baseline=\"central\">INSPECT</text><text x=\"246\" y=\"334\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">經 DMZ egress</text><text x=\"246\" y=\"354\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">FQDN allowlist</text><rect x=\"406\" y=\"288\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-limit\"/><text x=\"420\" y=\"308\" class=\"tl v-limit-t\" text-anchor=\"start\" dominant-baseline=\"central\">LIMITED</text><text x=\"420\" y=\"334\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">僅 egress 路徑</text><rect x=\"580\" y=\"288\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-inspect\"/><text x=\"594\" y=\"308\" class=\"tl v-inspect-t\" text-anchor=\"start\" dominant-baseline=\"central\">INSPECT</text><text x=\"594\" y=\"334\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">同段 allow</text><text x=\"594\" y=\"354\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">跨環境經檢查</text><rect x=\"754\" y=\"288\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-limit\"/><text x=\"768\" y=\"308\" class=\"tl v-limit-t\" text-anchor=\"start\" dominant-baseline=\"central\">LIMITED</text><text x=\"768\" y=\"334\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">僅 log、agent</text><text x=\"768\" y=\"354\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">回傳</text><g class=\"z-mgmt\"><rect x=\"40\" y=\"374\" width=\"180\" height=\"80\" rx=\"10\" class=\"nd\"/><text x=\"56\" y=\"403.5\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">PRIVILEGED</text><text x=\"56\" y=\"423\" class=\"tt-s\" text-anchor=\"start\" dominant-baseline=\"central\">Mgmt</text></g><rect x=\"232\" y=\"374\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-inspect\"/><text x=\"246\" y=\"394\" class=\"tl v-inspect-t\" text-anchor=\"start\" dominant-baseline=\"central\">INSPECT</text><text x=\"246\" y=\"420\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">patch repo</text><text x=\"246\" y=\"440\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">經 proxy</text><rect x=\"406\" y=\"374\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-allow\"/><text x=\"420\" y=\"394\" class=\"tl v-allow-t\" text-anchor=\"start\" dominant-baseline=\"central\">ALLOW</text><text x=\"420\" y=\"420\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">管理網路設備</text><rect x=\"580\" y=\"374\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-allow\"/><text x=\"594\" y=\"394\" class=\"tl v-allow-t\" text-anchor=\"start\" dominant-baseline=\"central\">ALLOW</text><text x=\"594\" y=\"420\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">單向發起管理</text><rect x=\"754\" y=\"374\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-allow\"/><text x=\"768\" y=\"394\" class=\"tl v-allow-t\" text-anchor=\"start\" dominant-baseline=\"central\">ALLOW</text><text x=\"768\" y=\"420\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">工具之間</text><g class=\"z-peer\"><rect x=\"40\" y=\"460\" width=\"180\" height=\"80\" rx=\"10\" class=\"nd\"/><text x=\"56\" y=\"489.5\" class=\"tl tz\" text-anchor=\"start\" dominant-baseline=\"central\">PEER</text><text x=\"56\" y=\"509\" class=\"tt-s\" text-anchor=\"start\" dominant-baseline=\"central\">其他雲 / 地端</text></g><rect x=\"232\" y=\"460\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-na\"/><text x=\"246\" y=\"480\" class=\"tl v-na-t\" text-anchor=\"start\" dominant-baseline=\"central\">—</text><rect x=\"406\" y=\"460\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-limit\"/><text x=\"420\" y=\"480\" class=\"tl v-limit-t\" text-anchor=\"start\" dominant-baseline=\"central\">LIMITED</text><text x=\"420\" y=\"506\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">經 hub 進入</text><rect x=\"580\" y=\"460\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-inspect\"/><text x=\"594\" y=\"480\" class=\"tl v-inspect-t\" text-anchor=\"start\" dominant-baseline=\"central\">INSPECT</text><text x=\"594\" y=\"506\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">指定服務</text><text x=\"594\" y=\"526\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">經 hub 檢查</text><rect x=\"754\" y=\"460\" width=\"168\" height=\"80\" rx=\"8\" class=\"v-limit\"/><text x=\"768\" y=\"480\" class=\"tl v-limit-t\" text-anchor=\"start\" dominant-baseline=\"central\">LIMITED</text><text x=\"768\" y=\"506\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">管理員經 PAM</text><text x=\"40\" y=\"580\" class=\"tl v-allow-t\" text-anchor=\"start\" dominant-baseline=\"central\">ALLOW</text><text x=\"85.5\" y=\"580\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">允許，仍受 SG / NSG 控制</text><text x=\"300\" y=\"580\" class=\"tl v-limit-t\" text-anchor=\"start\" dominant-baseline=\"central\">LIMITED</text><text x=\"360.5\" y=\"580\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">只開特定用途</text><text x=\"500\" y=\"580\" class=\"tl v-inspect-t\" text-anchor=\"start\" dominant-baseline=\"central\">INSPECT</text><text x=\"560.5\" y=\"580\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">必經 NGFW / proxy</text><text x=\"720\" y=\"580\" class=\"tl v-deny-t\" text-anchor=\"start\" dominant-baseline=\"central\">DENY</text><text x=\"758\" y=\"580\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">不允許</text></svg>",
+   "services": {
+    "aws": [
+     {
+      "name": "Security Group",
+      "note": "Allow：資源層放行"
+     },
+     {
+      "name": "Network ACL",
+      "note": "Deny：subnet 層明確拒絕"
+     },
+     {
+      "name": "TGW route tables",
+      "note": "決定 zone 之間是否可達"
+     },
+     {
+      "name": "Network Firewall policy",
+      "note": "Inspect：檢查與 FQDN 規則"
+     },
+     {
+      "name": "Firewall Manager",
+      "note": "跨帳號一致的規則"
+     },
+     {
+      "name": "Network Access Analyzer",
+      "note": "驗證實際設定是否符合矩陣"
+     }
+    ],
+    "azure": [
+     {
+      "name": "NSG / ASG",
+      "note": "Allow 與 Deny 規則"
+     },
+     {
+      "name": "Azure Firewall policy",
+      "note": "Inspect：檢查與 FQDN 規則"
+     },
+     {
+      "name": "User-defined routes",
+      "note": "決定流量是否經過 firewall"
+     },
+     {
+      "name": "AVNM security admin rules",
+      "note": "由平台團隊強制、spoke 無法覆蓋"
+     },
+     {
+      "name": "Network Watcher",
+      "note": "IP flow verify、連線檢查"
+     }
+    ],
+    "gcp": [
+     {
+      "name": "Hierarchical firewall policy",
+      "note": "org / folder 層的強制規則"
+     },
+     {
+      "name": "Network firewall policy",
+      "note": "VPC 層規則，搭配 secure tags"
+     },
+     {
+      "name": "Routes · ILB next hop",
+      "note": "決定流量是否經過檢查點"
+     },
+     {
+      "name": "Cloud NGFW",
+      "note": "Inspect：IPS 與 FQDN"
+     },
+     {
+      "name": "Connectivity Tests",
+      "note": "驗證可達性"
+     }
+    ]
+   },
+   "summary": [
+    "先寫出矩陣再設計網路：每一格都要對應到一個控制點。",
+    "External 只能到 DMZ；Internal 對外一律經 DMZ。",
+    "Mgmt 單向發起管理，其他 zone 到 Mgmt 只允許 log 與 agent。",
+    "用 Network Access Analyzer、Connectivity Tests 定期驗證。"
+   ],
+   "deepLede": "四種判定在三朵雲各用什麼實作，以及怎麼依客戶調整與驗證。",
+   "deepHtml": "<h2 id=\"read\">怎麼讀</h2>\n<p>列是發起連線的 zone，欄是目的地的 zone。例如「Internal → External：Inspect」表示 Internal 主動往外連時，一定要經過 DMZ 的 NGFW 或 proxy。</p>\n<p>這是參考基線。每個客戶的資安政策不同，先拿這張表和客戶逐格確認，再開始設計路由與規則。</p>\n<h2 id=\"implement\">四種判定怎麼實作</h2>\n<div class=\"tablewrap\"><table class=\"wide\"><thead><tr><th>判定</th><th>意思</th><th>AWS</th><th>Azure</th><th>GCP</th></tr></thead><tbody>\n<tr><th>Allow</th><td>放行，仍受資源層規則控制</td><td>SG</td><td>NSG / ASG</td><td>Firewall policy</td></tr>\n<tr><th>Limited</th><td>只開特定 port 或特定 endpoint</td><td>SG + endpoint policy</td><td>NSG + Private Endpoint</td><td>Firewall rule + PSC</td></tr>\n<tr><th>Inspect</th><td>路由必經檢查點</td><td>TGW RT → inspection</td><td>UDR → Azure Firewall</td><td>ILB next hop / Cloud NGFW</td></tr>\n<tr><th>Deny</th><td>沒有路由，加上明確拒絕</td><td>無路由 + NACL + SCP</td><td>無路由 + NSG deny + Policy</td><td>無路由 + firewall deny + Org Policy</td></tr>\n</tbody></table></div>\n<h2 id=\"tailor\">依客戶調整</h2>\n<ul class=\"pts\">\n<li>金融客戶常要求 Internal 之間也全部經檢查，把「同段 allow」改成 Inspect。</li>\n<li>有 OT 的製造業客戶要多一列、一欄：OT 只能和 IDMZ 互通。</li>\n<li>PCI DSS 範圍內的 CDE 通常獨立成一列，只對特定服務開 Limited。</li>\n</ul>\n<h2 id=\"verify\">定期驗證</h2>\n<ul class=\"pts\">\n<li><b>AWS：</b>Network Access Analyzer 用規則描述「不應該存在的路徑」，定期掃描；Reachability Analyzer 檢查單一路徑。</li>\n<li><b>Azure：</b>Network Watcher 的 IP flow verify 與 connection troubleshoot。</li>\n<li><b>GCP：</b>Connectivity Tests 分析設定上的可達性。</li>\n<li>把驗證放進 CI：網路設定變更後自動跑一次，結果對照這張矩陣。</li>\n</ul>",
+   "sections": [
+    {
+     "id": "read",
+     "title": "怎麼讀"
+    },
+    {
+     "id": "implement",
+     "title": "四種判定怎麼實作"
+    },
+    {
+     "id": "tailor",
+     "title": "依客戶調整"
+    },
+    {
+     "id": "verify",
+     "title": "定期驗證"
+    }
+   ]
+  },
+  {
+   "num": "09",
+   "slug": "09-data-perimeter",
+   "title": "Data perimeter 與 service model",
+   "short": "Data perimeter",
+   "lede": "PaaS、serverless、SaaS 預設不在你的 VPC 裡，zone 邊界要擴展成三道檢查。",
+   "zones": [
+    "int",
+    "ext",
+    "mgmt"
+   ],
+   "caption": "上：每個請求都要過可信身分、可信資源、預期網路三道檢查。下：各 service model 預設的位置，以及把它們拉進 zone 的方法。",
+   "svg": "<svg class=\"dg\" aria-label=\"Data perimeter 與 service model\" viewBox=\"0 0 960 576\" role=\"img\" preserveAspectRatio=\"xMidYMid meet\"><title>Data perimeter 與 service model</title><defs><marker id=\"mcz09-ah\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk \" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz09-ah-in\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk in\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz09-ah-out\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk out\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz09-ah-mg\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk mg\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz09-ah-int\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk int\" d=\"M1 1L9 5L1 9z\"/></marker></defs><text x=\"40\" y=\"44\" class=\"tl\" text-anchor=\"start\" dominant-baseline=\"central\">每個請求都要過三道檢查</text><g><rect x=\"40\" y=\"80\" width=\"120\" height=\"110\" rx=\"10\" class=\"nb\"/><text x=\"100\" y=\"116\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">請求者</text><text x=\"100\" y=\"136.5\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">人或服務</text><text x=\"100\" y=\"155.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">principal</text></g><g class=\"z-mgmt\"><rect x=\"200\" y=\"80\" width=\"160\" height=\"110\" rx=\"10\" class=\"nd\"/><text x=\"280\" y=\"107\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">可信身分</text><text x=\"280\" y=\"127.5\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">誰在存取？</text><text x=\"280\" y=\"146.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">SCP</text><text x=\"280\" y=\"146.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Entra ID</text><text x=\"280\" y=\"146.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Org Policy</text><text x=\"280\" y=\"164.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">PrincipalOrgID</text><text x=\"280\" y=\"164.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Conditional Access</text><text x=\"280\" y=\"164.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">限定網域成員</text></g><g class=\"z-mgmt\"><rect x=\"400\" y=\"80\" width=\"160\" height=\"110\" rx=\"10\" class=\"nd\"/><text x=\"480\" y=\"107\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">可信資源</text><text x=\"480\" y=\"127.5\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">存取誰的資源？</text><text x=\"480\" y=\"146.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">RCP</text><text x=\"480\" y=\"146.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Azure Policy</text><text x=\"480\" y=\"146.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">VPC-SC</text><text x=\"480\" y=\"164.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">ResourceOrgID</text><text x=\"480\" y=\"164.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">NSP 存取規則</text><text x=\"480\" y=\"164.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">perimeter 內資源</text></g><g class=\"z-mgmt\"><rect x=\"600\" y=\"80\" width=\"160\" height=\"110\" rx=\"10\" class=\"nd\"/><text x=\"680\" y=\"107\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">預期網路</text><text x=\"680\" y=\"127.5\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">從哪裡來？</text><text x=\"680\" y=\"146.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">endpoint policy</text><text x=\"680\" y=\"146.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Private Endpoint</text><text x=\"680\" y=\"146.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">VPC-SC</text><text x=\"680\" y=\"164.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">SourceVpce</text><text x=\"680\" y=\"164.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">關閉 public access</text><text x=\"680\" y=\"164.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">access levels</text></g><g><rect x=\"800\" y=\"80\" width=\"120\" height=\"110\" rx=\"10\" class=\"nb\"/><text x=\"860\" y=\"116\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">資源</text><text x=\"860\" y=\"136.5\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">資料、API</text><text x=\"860\" y=\"155.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">resource</text></g><path d=\"M160 135 H198\" class=\"ln in\" marker-end=\"url(#mcz09-ah-in)\"/><path d=\"M360 135 H398\" class=\"ln in\" marker-end=\"url(#mcz09-ah-in)\"/><path d=\"M560 135 H598\" class=\"ln in\" marker-end=\"url(#mcz09-ah-in)\"/><path d=\"M760 135 H798\" class=\"ln in\" marker-end=\"url(#mcz09-ah-in)\"/><text x=\"40\" y=\"236\" class=\"tl\" text-anchor=\"start\" dominant-baseline=\"central\">SERVICE MODEL 放在哪裡</text><g class=\"z-int\"><rect x=\"40\" y=\"256\" width=\"420\" height=\"300\" rx=\"16\" class=\"band\"/></g><text x=\"60\" y=\"282\" class=\"tt-s\" text-anchor=\"start\" dominant-baseline=\"central\">你的 VPC · Internal</text><g class=\"z-int\"><rect x=\"60\" y=\"304\" width=\"170\" height=\"80\" rx=\"10\" class=\"nd\"/><text x=\"145\" y=\"335\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">IaaS / 容器</text><text x=\"145\" y=\"354.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">EC2 · EKS</text><text x=\"145\" y=\"354.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">VM · AKS</text><text x=\"145\" y=\"354.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">GCE · GKE</text></g><g class=\"z-int\"><rect x=\"270\" y=\"304\" width=\"170\" height=\"80\" rx=\"10\" class=\"nd\"/><text x=\"355\" y=\"335\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Private endpoint</text><text x=\"355\" y=\"354.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Interface endpoint</text><text x=\"355\" y=\"354.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Private Endpoint</text><text x=\"355\" y=\"354.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">PSC endpoint</text></g><text x=\"60\" y=\"426\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">IaaS：所在 subnet 決定 zone</text><text x=\"60\" y=\"452\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">PaaS：private endpoint + 關閉 public</text><text x=\"60\" y=\"478\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">Serverless：誰能呼叫、能連到哪</text><text x=\"60\" y=\"504\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">SaaS：視為 External</text><rect x=\"500\" y=\"256\" width=\"420\" height=\"300\" rx=\"16\" class=\"nk\"/><text x=\"520\" y=\"282\" class=\"tt-s\" text-anchor=\"start\" dominant-baseline=\"central\">Provider 網路</text><g><rect x=\"520\" y=\"304\" width=\"180\" height=\"80\" rx=\"10\" class=\"nb\"/><text x=\"610\" y=\"335\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">PaaS</text><text x=\"610\" y=\"354.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">S3 · RDS · Bedrock</text><text x=\"610\" y=\"354.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Storage · SQL DB</text><text x=\"610\" y=\"354.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">GCS · BigQuery</text></g><g><rect x=\"720\" y=\"304\" width=\"180\" height=\"80\" rx=\"10\" class=\"nb\"/><text x=\"810\" y=\"335\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Serverless</text><text x=\"810\" y=\"354.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Lambda</text><text x=\"810\" y=\"354.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">Functions</text><text x=\"810\" y=\"354.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Cloud Run</text></g><g class=\"z-ext\"><rect x=\"520\" y=\"466\" width=\"380\" height=\"70\" rx=\"10\" class=\"nd\"/><text x=\"710\" y=\"492\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">SaaS（M365、Salesforce）</text><text x=\"710\" y=\"511.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">SSE / CASB · tenant restriction</text></g><path d=\"M440 344 H518\" class=\"ln in\" marker-end=\"url(#mcz09-ah-in)\"/><path d=\"M810 384 V420 H464\" class=\"ln int dash\" marker-end=\"url(#mcz09-ah-int)\"/><g class=\"pill\"><rect x=\"596.6\" y=\"409\" width=\"70.8\" height=\"22\" rx=\"11\"/><text x=\"632\" y=\"420\" class=\"\" text-anchor=\"middle\" dominant-baseline=\"central\">VPC 整合</text></g></svg>",
+   "services": {
+    "aws": [
+     {
+      "name": "SCP",
+      "note": "限定 principal 只能存取組織內資源"
+     },
+     {
+      "name": "RCP",
+      "note": "限定只有組織內 principal 能存取資源"
+     },
+     {
+      "name": "VPC endpoint policy",
+      "note": "限定經這個 endpoint 能存取什麼"
+     },
+     {
+      "name": "Resource-based policy",
+      "note": "S3 bucket policy 等，加 SourceVpce 條件"
+     },
+     {
+      "name": "IAM Access Analyzer",
+      "note": "找出對外部開放的資源"
+     },
+     {
+      "name": "Lambda VPC 整合",
+      "note": "Serverless 進到 Internal"
+     }
+    ],
+    "azure": [
+     {
+      "name": "Network Security Perimeter",
+      "note": "PaaS 資源的邏輯邊界"
+     },
+     {
+      "name": "Private Endpoint",
+      "note": "PaaS 以私有 IP 進到 VNet"
+     },
+     {
+      "name": "Azure Policy",
+      "note": "deny public network access"
+     },
+     {
+      "name": "Entra Conditional Access",
+      "note": "可信身分與裝置"
+     },
+     {
+      "name": "Functions VNet integration",
+      "note": "Serverless 進到 Internal"
+     },
+     {
+      "name": "Defender for Cloud Apps",
+      "note": "SaaS 的 CASB"
+     }
+    ],
+    "gcp": [
+     {
+      "name": "VPC Service Controls",
+      "note": "最完整的原生 perimeter，防資料帶出"
+     },
+     {
+      "name": "Access Context Manager",
+      "note": "定義 access level"
+     },
+     {
+      "name": "Private Service Connect",
+      "note": "私有存取 Google API"
+     },
+     {
+      "name": "Org Policy",
+      "note": "限定網域成員、禁外部 IP"
+     },
+     {
+      "name": "Cloud Run Direct VPC egress",
+      "note": "Serverless 進到 Internal"
+     }
+    ]
+   },
+   "summary": [
+    "PaaS、serverless、SaaS 預設不在你的 VPC 裡，zone 邊界要擴展成 data perimeter。",
+    "每個請求檢查三件事：可信身分、可信資源、預期網路。",
+    "PaaS 走 private endpoint 並關閉 public；serverless 看誰能呼叫、能連到哪。",
+    "SaaS 視為 External，用 SSE / CASB 與 tenant restriction 控管。"
+   ],
+   "deepLede": "三道檢查在各雲怎麼實作，以及 IaaS、PaaS、serverless、SaaS 各自的 zone 歸屬。",
+   "deepHtml": "<h2 id=\"why\">為什麼需要 data perimeter</h2>\n<p>網路邊界只管得到在你 VPC 裡的東西。PaaS、serverless、SaaS 預設走 public endpoint，任何拿到 credential 的人都可能從 internet 存取。所以 zone 的邊界要從「網路」擴展成「身分 + 資源 + 網路」三道檢查。</p>\n<h2 id=\"three\">三道檢查</h2>\n<div class=\"tablewrap\"><table class=\"wide\"><thead><tr><th>檢查</th><th>問題</th><th>AWS</th><th>Azure</th><th>GCP</th></tr></thead><tbody>\n<tr><th>可信身分</th><td>誰在存取？</td><td>SCP、<code>aws:PrincipalOrgID</code></td><td>Entra ID、Conditional Access</td><td>Org Policy 限定網域成員</td></tr>\n<tr><th>可信資源</th><td>存取誰的資源？</td><td>RCP、<code>aws:ResourceOrgID</code></td><td>Azure Policy、NSP</td><td>VPC Service Controls</td></tr>\n<tr><th>預期網路</th><td>從哪裡來？</td><td>endpoint policy、<code>aws:SourceVpce</code></td><td>Private Endpoint、關閉 public access</td><td>VPC-SC access levels</td></tr>\n</tbody></table></div>\n<h2 id=\"models\">各 service model 的 zone 歸屬</h2>\n<div class=\"tablewrap\"><table class=\"wide\"><thead><tr><th>Service model</th><th>預設位置</th><th>Zone 歸屬</th><th>控制手段</th></tr></thead><tbody>\n<tr><th>IaaS / 容器</th><td>你的 VPC</td><td>所在 subnet、VPC 決定</td><td>SG / NSG、route table、禁 public IP</td></tr>\n<tr><th>PaaS</th><td>Provider 的 public endpoint</td><td>看誰能存取、從哪裡存取</td><td>Private endpoint、關閉 public access、resource policy</td></tr>\n<tr><th>Serverless</th><td>Provider 管理的網路</td><td>看誰能呼叫、能連到哪</td><td>VPC 整合、invoke 權限、egress 管控</td></tr>\n<tr><th>SaaS</th><td>供應商環境</td><td>External</td><td>SSE / CASB、tenant restriction、egress allowlist</td></tr>\n</tbody></table></div>\n<h2 id=\"ai\">AI 服務也是 PaaS</h2>\n<p>生成式 AI 服務（例如 Amazon Bedrock、Vertex AI）和其他 PaaS 一樣處理：從 Internal 經 interface endpoint 或 PSC 存取，用 endpoint policy 與 IAM 限定能呼叫的資源，並把呼叫紀錄送進 log archive。</p>\n<h2 id=\"saas\">SaaS</h2>\n<ul class=\"pts\">\n<li>SaaS 一律視為 External。</li>\n<li>用 SSE / CASB 控管使用者存取，用 tenant restriction 避免員工登入非公司 tenant。</li>\n<li>SaaS 與內部系統的資料交換經 DMZ 的整合層，不讓 SaaS 直接連 Internal。</li>\n</ul>",
+   "sections": [
+    {
+     "id": "why",
+     "title": "為什麼需要 data perimeter"
+    },
+    {
+     "id": "three",
+     "title": "三道檢查"
+    },
+    {
+     "id": "models",
+     "title": "各 service model 的 zone 歸屬"
+    },
+    {
+     "id": "ai",
+     "title": "AI 服務也是 PaaS"
+    },
+    {
+     "id": "saas",
+     "title": "SaaS"
+    }
+   ]
+  },
+  {
+   "num": "10",
+   "slug": "10-ip-dns",
+   "title": "IP 與 DNS 規劃",
+   "short": "IP 與 DNS",
+   "lede": "上線後最難改的兩件事。在建第一個 VPC 之前就要定好。",
+   "zones": [
+    "dmz",
+    "int",
+    "mgmt"
+   ],
+   "caption": "上：CIDR 依「雲 × region × zone」切塊，每一層都留保留段。下：地端與雲之間的條件式轉送。",
+   "svg": "<svg class=\"dg\" aria-label=\"IP 與 DNS 規劃\" viewBox=\"0 0 960 594\" role=\"img\" preserveAspectRatio=\"xMidYMid meet\"><title>IP 規劃與 hybrid DNS</title><defs><marker id=\"mcz10-ah\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk \" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz10-ah-in\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk in\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz10-ah-out\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk out\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz10-ah-mg\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk mg\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz10-ah-int\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk int\" d=\"M1 1L9 5L1 9z\"/></marker></defs><text x=\"40\" y=\"28\" class=\"tl\" text-anchor=\"start\" dominant-baseline=\"central\">IP 規劃（範例）</text><text x=\"40\" y=\"52\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">10.0.0.0</text><text x=\"262\" y=\"52\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">10.64</text><text x=\"317\" y=\"52\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">10.80</text><text x=\"372\" y=\"52\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">10.96</text><text x=\"427\" y=\"52\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">10.112</text><text x=\"920\" y=\"52\" class=\"tm\" text-anchor=\"end\" dominant-baseline=\"central\">10.255.255.255</text><rect x=\"40\" y=\"64\" width=\"220\" height=\"48\" rx=\"4\" class=\"seg-n\"/><text x=\"150\" y=\"88\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">地端 /10</text><rect x=\"260\" y=\"64\" width=\"55\" height=\"48\" rx=\"4\" class=\"seg-c\"/><text x=\"287.5\" y=\"88\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">AWS</text><rect x=\"315\" y=\"64\" width=\"55\" height=\"48\" rx=\"4\" class=\"seg-c\"/><text x=\"342.5\" y=\"88\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Azure</text><rect x=\"370\" y=\"64\" width=\"55\" height=\"48\" rx=\"4\" class=\"seg-c\"/><text x=\"397.5\" y=\"88\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">GCP</text><rect x=\"425\" y=\"64\" width=\"495\" height=\"48\" rx=\"4\" class=\"seg-r\"/><text x=\"672.5\" y=\"88\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">保留：併購、新雲、新 region</text><path d=\"M260 112 L40 168\" class=\"ln dash\"/><path d=\"M315 112 L920 168\" class=\"ln dash\"/><g class=\"z-dmz\"><rect x=\"40\" y=\"168\" width=\"55\" height=\"56\" rx=\"4\" class=\"nd\"/><text x=\"67.5\" y=\"187\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">DMZ</text><text x=\"67.5\" y=\"207\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">/18</text></g><g class=\"z-mgmt\"><rect x=\"95\" y=\"168\" width=\"55\" height=\"56\" rx=\"4\" class=\"nd\"/><text x=\"122.5\" y=\"187\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Mgmt</text><text x=\"122.5\" y=\"207\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">/18</text></g><rect x=\"150\" y=\"168\" width=\"110\" height=\"56\" rx=\"4\" class=\"seg-r\"/><text x=\"205\" y=\"187\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">保留</text><text x=\"205\" y=\"207\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">/17</text><g class=\"z-int\"><rect x=\"260\" y=\"168\" width=\"220\" height=\"56\" rx=\"4\" class=\"nd\"/><text x=\"370\" y=\"187\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Internal prod</text><text x=\"370\" y=\"207\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">10.65.0.0/16</text></g><g class=\"z-int\"><rect x=\"480\" y=\"168\" width=\"220\" height=\"56\" rx=\"4\" class=\"nd\"/><text x=\"590\" y=\"187\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Internal non-prod</text><text x=\"590\" y=\"207\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">10.66.0.0/16</text></g><rect x=\"700\" y=\"168\" width=\"220\" height=\"56\" rx=\"4\" class=\"seg-r\"/><text x=\"810\" y=\"187\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">保留</text><text x=\"810\" y=\"207\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">10.67.0.0/16</text><text x=\"40\" y=\"246\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">放大：AWS 主要 region 10.64.0.0/14</text><text x=\"40\" y=\"292\" class=\"tl\" text-anchor=\"start\" dominant-baseline=\"central\">HYBRID DNS</text><g><rect x=\"40\" y=\"360\" width=\"180\" height=\"80\" rx=\"10\" class=\"nb\"/><text x=\"130\" y=\"391\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">地端 DNS</text><text x=\"130\" y=\"410.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">corp.example.com</text></g><g class=\"z-dmz\"><rect x=\"320\" y=\"316\" width=\"220\" height=\"64\" rx=\"10\" class=\"nd\"/><text x=\"430\" y=\"339\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Inbound endpoint</text><text x=\"430\" y=\"358.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Route 53 Resolver</text><text x=\"430\" y=\"358.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">DNS Private Resolver</text><text x=\"430\" y=\"358.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">inbound server policy</text></g><g class=\"z-dmz\"><rect x=\"320\" y=\"420\" width=\"220\" height=\"64\" rx=\"10\" class=\"nd\"/><text x=\"430\" y=\"443\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Outbound endpoint</text><text x=\"430\" y=\"462.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">forwarding rules</text><text x=\"430\" y=\"462.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">forwarding ruleset</text><text x=\"430\" y=\"462.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">forwarding zone</text></g><g class=\"z-mgmt\"><rect x=\"640\" y=\"316\" width=\"280\" height=\"64\" rx=\"10\" class=\"nd\"/><text x=\"780\" y=\"339\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Private DNS zones（hub）</text><text x=\"780\" y=\"358.5\" class=\"tm c-aws\" text-anchor=\"middle\" dominant-baseline=\"central\">Route 53 private hosted zone</text><text x=\"780\" y=\"358.5\" class=\"tm c-azure\" text-anchor=\"middle\" dominant-baseline=\"central\">privatelink.* zones</text><text x=\"780\" y=\"358.5\" class=\"tm c-gcp\" text-anchor=\"middle\" dominant-baseline=\"central\">Cloud DNS private zone</text></g><g class=\"z-int\"><rect x=\"640\" y=\"420\" width=\"280\" height=\"64\" rx=\"10\" class=\"nd\"/><text x=\"780\" y=\"443\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Spoke VPC</text><text x=\"780\" y=\"462.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">使用預設 resolver</text></g><path d=\"M220 384 L318 352\" class=\"ln in\" marker-end=\"url(#mcz10-ah-in)\"/><path d=\"M540 348 H638\" class=\"ln in\" marker-end=\"url(#mcz10-ah-in)\"/><path d=\"M780 420 V382\" class=\"ln dash\" marker-end=\"url(#mcz10-ah)\"/><path d=\"M640 452 H542\" class=\"ln out\" marker-end=\"url(#mcz10-ah-out)\"/><path d=\"M320 452 L222 418\" class=\"ln out\" marker-end=\"url(#mcz10-ah-out)\"/><text x=\"40\" y=\"520\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">藍：地端查雲上私有名稱，地端 DNS 轉送到 inbound endpoint</text><text x=\"40\" y=\"546\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">橙：雲上查地端名稱，forwarding rule 經 outbound endpoint 轉回地端</text><text x=\"40\" y=\"572\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">多雲：同一個 private zone 名稱只建一份，避免多個 hub 互相蓋掉</text></svg>",
+   "services": {
+    "aws": [
+     {
+      "name": "Amazon VPC IPAM",
+      "note": "跨帳號、跨 region 規劃與追蹤 CIDR"
+     },
+     {
+      "name": "Route 53 Resolver endpoints",
+      "note": "inbound / outbound 混合解析"
+     },
+     {
+      "name": "Resolver rules",
+      "note": "條件式轉送到地端"
+     },
+     {
+      "name": "Route 53 private hosted zones",
+      "note": "私有名稱"
+     },
+     {
+      "name": "Route 53 Profiles",
+      "note": "把 DNS 設定共享給多個 VPC 與帳號"
+     }
+    ],
+    "azure": [
+     {
+      "name": "AVNM IP address management",
+      "note": "集中規劃 VNet 位址空間"
+     },
+     {
+      "name": "DNS Private Resolver",
+      "note": "inbound / outbound endpoint"
+     },
+     {
+      "name": "DNS forwarding ruleset",
+      "note": "條件式轉送"
+     },
+     {
+      "name": "Private DNS zones",
+      "note": "privatelink.* 與自訂名稱"
+     }
+    ],
+    "gcp": [
+     {
+      "name": "Cloud DNS private zones",
+      "note": "私有名稱"
+     },
+     {
+      "name": "Forwarding zones",
+      "note": "轉送到地端 DNS"
+     },
+     {
+      "name": "Inbound server policy",
+      "note": "讓地端查詢 VPC 內名稱"
+     },
+     {
+      "name": "DNS peering",
+      "note": "service project 共用 host 的 DNS"
+     }
+    ]
+   },
+   "summary": [
+    "全企業一個 IPAM，CIDR 不重疊，CIDR 本身看得出雲、region、zone。",
+    "每一層都留保留段，給併購、新雲、新 region。",
+    "先決定權威 DNS 放哪裡，再用 inbound / outbound endpoint 串起來。",
+    "Private DNS zone 每個名稱只建一份，集中在 hub 管理。"
+   ],
+   "deepLede": "IP 規劃範例、CIDR 重疊的處理方式，以及多雲 DNS 的設計步驟。",
+   "deepHtml": "<h2 id=\"ipam\">IP 規劃原則</h2>\n<ul class=\"pts\">\n<li>全企業的私有網段由單一 IPAM 管理，三朵雲和地端都在同一張表上。</li>\n<li>依「雲 × region × zone」先切大塊，讓 CIDR 本身就看得出歸屬。</li>\n<li>每一層都留保留段。</li>\n</ul>\n<div class=\"tablewrap\"><table class=\"wide\"><thead><tr><th>範圍</th><th>CIDR</th><th>用途</th></tr></thead><tbody>\n<tr><td>企業總池</td><td class=\"mono\">10.0.0.0/8</td><td>所有私有網段</td></tr>\n<tr><td>地端</td><td class=\"mono\">10.0.0.0/10</td><td>既有資料中心、分支</td></tr>\n<tr><td>AWS</td><td class=\"mono\">10.64.0.0/12</td><td>每個 region 一個 /14</td></tr>\n<tr><td>　主要 region</td><td class=\"mono\">10.64.0.0/14</td><td>以下為 zone 切分</td></tr>\n<tr><td>　DMZ / hub</td><td class=\"mono\">10.64.0.0/18</td><td>ingress、egress、inspection</td></tr>\n<tr><td>　Mgmt</td><td class=\"mono\">10.64.64.0/18</td><td>shared services、工具</td></tr>\n<tr><td>　Internal prod</td><td class=\"mono\">10.65.0.0/16</td><td>再切 /20–/22 給各 spoke</td></tr>\n<tr><td>　Internal non-prod</td><td class=\"mono\">10.66.0.0/16</td><td>與 prod 路由隔離</td></tr>\n<tr><td>　保留</td><td class=\"mono\">10.64.128.0/17、10.67.0.0/16</td><td>成長空間</td></tr>\n<tr><td>Azure</td><td class=\"mono\">10.80.0.0/12</td><td>同上結構</td></tr>\n<tr><td>Google Cloud</td><td class=\"mono\">10.96.0.0/12</td><td>同上結構</td></tr>\n<tr><td>保留</td><td class=\"mono\">10.112.0.0 – 10.255.255.255</td><td>併購、新雲、新 region</td></tr>\n</tbody></table></div>\n<p>數字是範例，依實際規模調整。</p>\n<h2 id=\"overlap\">CIDR 重疊怎麼辦</h2>\n<ul class=\"pts\">\n<li><b>只暴露服務：</b>用 PrivateLink、Private Service Connect，對方只看到 endpoint，不需要路由互通。</li>\n<li><b>NAT：</b>AWS 的 private NAT gateway 可以把重疊網段轉成可路由的位址。</li>\n<li><b>長期：</b>重新編址。併購整合時排進計畫，不要一直靠 NAT 撐。</li>\n</ul>\n<h2 id=\"dns-steps\">DNS 設計步驟</h2>\n<ol class=\"steps\">\n<li>決定權威 DNS 放哪裡：多數企業以地端 DNS 為中樞。</li>\n<li>規劃名稱空間，例如 <code>corp.example.com</code> 在地端，<code>aws.corp.example.com</code>、<code>azure.corp.example.com</code> 各自委派。</li>\n<li>每朵雲在 hub 建 inbound 與 outbound endpoint。</li>\n<li>設定條件式轉送：地端查雲上名稱轉到 inbound，雲上查地端名稱經 outbound 轉回。</li>\n<li>Private endpoint 用的 private zone 集中在 hub，關聯到所有 spoke。</li>\n</ol>\n<h2 id=\"multicloud-dns\">多雲 DNS 的常見衝突</h2>\n<ul class=\"pts\">\n<li>同一個 <code>privatelink.*</code> zone 在多個 hub 各建一份，記錄互相蓋掉。</li>\n<li>兩朵雲都想當某個網域的權威，查詢結果取決於從哪裡查。</li>\n<li>條件式轉送形成迴圈：A 轉給 B，B 又轉回 A。</li>\n</ul>\n<h2 id=\"tools\">工具</h2>\n<p>AWS 有 VPC IPAM，Azure 有 Virtual Network Manager 的 IP 位址管理。要同時管三朵雲和地端，多數企業會用第三方 DDI / IPAM 工具當單一真相來源。</p>",
+   "sections": [
+    {
+     "id": "ipam",
+     "title": "IP 規劃原則"
+    },
+    {
+     "id": "overlap",
+     "title": "CIDR 重疊怎麼辦"
+    },
+    {
+     "id": "dns-steps",
+     "title": "DNS 設計步驟"
+    },
+    {
+     "id": "multicloud-dns",
+     "title": "多雲 DNS 的常見衝突"
+    },
+    {
+     "id": "tools",
+     "title": "工具"
+    }
+   ]
+  },
+  {
+   "num": "11",
+   "slug": "11-interconnect",
+   "title": "跨雲互連",
+   "short": "跨雲互連",
+   "lede": "三種做法：經地端、colo cloud router、雲對雲直連。依跨雲流量與 region 支援選擇。",
+   "zones": [
+    "peer"
+   ],
+   "caption": "三種拓撲的差別在中間那個節點是誰在管：自己的資料中心、colo 裡的虛擬 router，或雲端業者。",
+   "svg": "<svg class=\"dg\" aria-label=\"跨雲互連\" viewBox=\"0 0 960 620\" role=\"img\" preserveAspectRatio=\"xMidYMid meet\"><title>跨雲互連的三種做法</title><defs><marker id=\"mcz11-ah\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk \" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz11-ah-in\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk in\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz11-ah-out\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk out\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz11-ah-mg\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk mg\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz11-ah-int\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk int\" d=\"M1 1L9 5L1 9z\"/></marker></defs><text x=\"40\" y=\"50\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">A · 經地端 hub</text><text x=\"40\" y=\"76\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">既有線路接回 DC 再轉</text><rect x=\"40\" y=\"100\" width=\"280\" height=\"300\" rx=\"14\" class=\"nk\"/><g><rect x=\"60\" y=\"136\" width=\"110\" height=\"56\" rx=\"10\" class=\"nb\"/><text x=\"115\" y=\"164\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">AWS</text></g><g><rect x=\"190\" y=\"136\" width=\"110\" height=\"56\" rx=\"10\" class=\"nb\"/><text x=\"245\" y=\"164\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Azure</text></g><g><rect x=\"90\" y=\"276\" width=\"180\" height=\"72\" rx=\"10\" class=\"nb\"/><text x=\"180\" y=\"303\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">地端 DC</text><text x=\"180\" y=\"322.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">DX · ExpressRoute</text></g><path d=\"M115 192 L150 274\" class=\"ln \"/><path d=\"M245 192 L210 274\" class=\"ln \"/><text x=\"180\" y=\"376\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">Direct Connect + ExpressRoute</text><text x=\"40\" y=\"432\" class=\"ts ok-t\" text-anchor=\"start\" dominant-baseline=\"central\">✓ 重用既有線路與防火牆</text><text x=\"40\" y=\"458\" class=\"ts bad-t\" text-anchor=\"start\" dominant-baseline=\"central\">✕ 延遲高，地端成瓶頸</text><text x=\"40\" y=\"484\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">→ 跨雲流量少、DC 仍是主力</text><text x=\"340\" y=\"50\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">B · Colo cloud router</text><text x=\"340\" y=\"76\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">colo 裡的虛擬 router 接多雲</text><rect x=\"340\" y=\"100\" width=\"280\" height=\"300\" rx=\"14\" class=\"nk\"/><g><rect x=\"360\" y=\"136\" width=\"110\" height=\"56\" rx=\"10\" class=\"nb\"/><text x=\"415\" y=\"164\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">AWS</text></g><g><rect x=\"490\" y=\"136\" width=\"110\" height=\"56\" rx=\"10\" class=\"nb\"/><text x=\"545\" y=\"164\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Azure</text></g><g><rect x=\"390\" y=\"276\" width=\"180\" height=\"72\" rx=\"10\" class=\"nb\"/><text x=\"480\" y=\"303\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Cloud router</text><text x=\"480\" y=\"322.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">Equinix · Megaport</text></g><path d=\"M415 192 L450 274\" class=\"ln \"/><path d=\"M545 192 L510 274\" class=\"ln \"/><text x=\"480\" y=\"376\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">virtual cross-connect</text><text x=\"340\" y=\"432\" class=\"ts ok-t\" text-anchor=\"start\" dominant-baseline=\"central\">✓ 低延遲、頻寬彈性</text><text x=\"340\" y=\"458\" class=\"ts bad-t\" text-anchor=\"start\" dominant-baseline=\"central\">✕ 多一個供應商，HA 自己做</text><text x=\"340\" y=\"484\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">→ 跨雲流量中等以上</text><text x=\"640\" y=\"50\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">C · 雲對雲直連</text><text x=\"640\" y=\"76\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">雲端業者託管的互連</text><rect x=\"640\" y=\"100\" width=\"280\" height=\"300\" rx=\"14\" class=\"nk\"/><g><rect x=\"660\" y=\"136\" width=\"110\" height=\"56\" rx=\"10\" class=\"nb\"/><text x=\"715\" y=\"164\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">AWS</text></g><g><rect x=\"790\" y=\"136\" width=\"110\" height=\"56\" rx=\"10\" class=\"nb\"/><text x=\"845\" y=\"164\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">GCP</text></g><g><rect x=\"690\" y=\"276\" width=\"180\" height=\"72\" rx=\"10\" class=\"nb\"/><text x=\"780\" y=\"294\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">託管互連</text><text x=\"780\" y=\"313.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">AWS Interconnect</text><text x=\"780\" y=\"331.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">multicloud</text></g><path d=\"M715 192 L750 274\" class=\"ln \"/><path d=\"M845 192 L810 274\" class=\"ln \"/><text x=\"780\" y=\"376\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">GCP 另有 Cross-Cloud Interconnect</text><text x=\"640\" y=\"432\" class=\"ts ok-t\" text-anchor=\"start\" dominant-baseline=\"central\">✓ 託管，不用處理實體線路</text><text x=\"640\" y=\"458\" class=\"ts bad-t\" text-anchor=\"start\" dominant-baseline=\"central\">✕ 支援的 region 有限</text><text x=\"640\" y=\"484\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">→ 主要 region 有支援、流量大</text><rect x=\"40\" y=\"520\" width=\"880\" height=\"80\" rx=\"12\" class=\"nb\"/><text x=\"60\" y=\"544\" class=\"tl\" text-anchor=\"start\" dominant-baseline=\"central\">AWS INTERCONNECT – MULTICLOUD（截至 2026-10）</text><text x=\"60\" y=\"576\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">2026-04  GA，首家合作雲 Google Cloud</text><text x=\"380\" y=\"576\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">2026-07  OCI GA（us-east-1）</text><text x=\"660\" y=\"576\" class=\"tm\" text-anchor=\"start\" dominant-baseline=\"central\">Azure  官方表示 2026 年稍晚</text></svg>",
+   "services": {
+    "aws": [
+     {
+      "name": "AWS Direct Connect",
+      "note": "地端到 AWS 的專線"
+     },
+     {
+      "name": "Direct Connect Gateway",
+      "note": "一條線接多個 region 的 TGW"
+     },
+     {
+      "name": "AWS Interconnect – multicloud",
+      "note": "託管的雲對雲私有互連"
+     },
+     {
+      "name": "Site-to-Site VPN",
+      "note": "備援或小流量"
+     },
+     {
+      "name": "Transit Gateway / Cloud WAN",
+      "note": "互連的 AWS 端接點"
+     }
+    ],
+    "azure": [
+     {
+      "name": "ExpressRoute",
+      "note": "地端到 Azure 的專線"
+     },
+     {
+      "name": "ExpressRoute Global Reach",
+      "note": "經 Microsoft 骨幹串接地端站點"
+     },
+     {
+      "name": "VPN Gateway",
+      "note": "備援或小流量"
+     },
+     {
+      "name": "Virtual WAN",
+      "note": "互連的 Azure 端接點"
+     }
+    ],
+    "gcp": [
+     {
+      "name": "Dedicated / Partner Interconnect",
+      "note": "地端到 GCP 的專線"
+     },
+     {
+      "name": "Cross-Cloud Interconnect",
+      "note": "GCP 到其他雲的專線"
+     },
+     {
+      "name": "HA VPN",
+      "note": "備援或小流量"
+     },
+     {
+      "name": "Cloud Router · NCC",
+      "note": "動態路由與集中連線"
+     }
+    ]
+   },
+   "summary": [
+    "三種做法：經地端、colo cloud router、雲對雲直連。",
+    "跨雲流量少、地端仍是主 DC：經地端最省事。",
+    "跨雲流量中等以上且要彈性：colo cloud router。",
+    "雲對雲直連是託管服務，但要先確認主要 region 有沒有支援。"
+   ],
+   "deepLede": "三種做法的比較、AWS Interconnect – multicloud 目前狀態，以及備援、加密、路由的設計重點。",
+   "deepHtml": "<h2 id=\"options\">三種做法比較</h2>\n<div class=\"tablewrap\"><table class=\"wide\"><thead><tr><th></th><th>A · 經地端</th><th>B · Colo cloud router</th><th>C · 雲對雲直連</th></tr></thead><tbody>\n<tr><th>做法</th><td>各雲專線接回地端，跨雲流量在地端轉</td><td>colo 裡的虛擬 router 接多朵雲</td><td>雲端業者託管的互連</td></tr>\n<tr><th>優點</th><td>重用既有線路與防火牆</td><td>低延遲、頻寬彈性、不經地端</td><td>託管，不用處理實體線路</td></tr>\n<tr><th>限制</th><td>延遲高、hairpin，地端成瓶頸</td><td>多一個供應商，路由與 HA 自己設計</td><td>支援的 region 與合作雲有限</td></tr>\n<tr><th>適合</th><td>跨雲流量少，DC 仍是主力</td><td>跨雲流量中等以上</td><td>主要 region 有支援、流量大</td></tr>\n</tbody></table></div>\n<h2 id=\"status\">AWS Interconnect – multicloud 狀態</h2>\n<ul class=\"pts\">\n<li><b>2026-04：</b>正式推出，首家合作雲為 Google Cloud，在 5 個 AWS region 提供，可接 Transit Gateway 或 Cloud WAN。</li>\n<li><b>2026-07：</b>Oracle Cloud Infrastructure 正式支援，目前在 us-east-1。</li>\n<li><b>Azure：</b>AWS 官方表示會在 2026 年稍晚加入。</li>\n</ul>\n<p>資料來源：<a href=\"https://aws.amazon.com/es/about-aws/whats-new/2026/04/aws-announces-ga-AWS-interconnect-multicloud/\" target=\"_blank\" rel=\"noopener\">AWS What's New（2026-04）</a>、<a href=\"https://aws.amazon.com/about-aws/whats-new/2026/07/aws-announces-AWS-interconnect-multicloud-OCI-GA/\" target=\"_blank\" rel=\"noopener\">AWS What's New（2026-07）</a>。</p>\n<h2 id=\"design\">設計重點</h2>\n<ul class=\"pts\">\n<li><b>備援：</b>至少兩條線、兩個地點；VPN 當最後備援。</li>\n<li><b>加密：</b>專線本身不加密，需要時用 MACsec 或在上面跑 IPsec。</li>\n<li><b>路由：</b>先規劃全企業的 BGP ASN，設定 route filter，只宣告需要互通的網段。</li>\n<li><b>檢查點：</b>跨雲進來的流量一樣經過 hub 的 inspection。</li>\n<li><b>成本：</b>跨雲資料傳輸費常常比線路費高，架構決策前先估流量。</li>\n</ul>\n<h2 id=\"taiwan\">台灣客戶的注意事項</h2>\n<p>先確認主要使用的 region 是否在雲對雲直連的支援清單內。地端資料中心仍是主力的客戶，多半先從做法 A 開始，等跨雲流量成長再評估 B 或 C。</p>",
+   "sections": [
+    {
+     "id": "options",
+     "title": "三種做法比較"
+    },
+    {
+     "id": "status",
+     "title": "AWS Interconnect – multicloud 狀態"
+    },
+    {
+     "id": "design",
+     "title": "設計重點"
+    },
+    {
+     "id": "taiwan",
+     "title": "台灣客戶的注意事項"
+    }
+   ]
+  },
+  {
+   "num": "12",
+   "slug": "12-migration-path",
+   "title": "遷移路徑",
+   "short": "遷移路徑",
+   "lede": "客戶已經是「單一帳號 + 網狀 peering」時，分四步轉到 OU + hub，不需要一次重建。",
+   "zones": [
+    "dmz",
+    "int",
+    "mgmt"
+   ],
+   "caption": "四個步驟可以分批進行。Guardrail 先偵測、確認不影響現有服務後才改成阻擋。",
+   "svg": "<svg class=\"dg\" aria-label=\"遷移路徑\" viewBox=\"0 0 960 530\" role=\"img\" preserveAspectRatio=\"xMidYMid meet\"><title>從錯誤架構轉移的四個步驟</title><defs><marker id=\"mcz12-ah\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk \" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz12-ah-in\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk in\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz12-ah-out\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk out\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz12-ah-mg\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk mg\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz12-ah-int\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk int\" d=\"M1 1L9 5L1 9z\"/></marker></defs><rect x=\"40\" y=\"56\" width=\"220\" height=\"140\" rx=\"12\" class=\"nb\"/><text x=\"150\" y=\"78\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">現況</text><g class=\"z-ext\"><rect x=\"96\" y=\"98\" width=\"28\" height=\"22\" rx=\"4\" class=\"nd\"/></g><g class=\"z-dmz\"><rect x=\"176\" y=\"98\" width=\"28\" height=\"22\" rx=\"4\" class=\"nd\"/></g><g class=\"z-int\"><rect x=\"96\" y=\"138\" width=\"28\" height=\"22\" rx=\"4\" class=\"nd\"/></g><g class=\"z-mgmt\"><rect x=\"176\" y=\"138\" width=\"28\" height=\"22\" rx=\"4\" class=\"nd\"/></g><path d=\"M124 109 H176\" class=\"ln bad\"/><path d=\"M124 149 H176\" class=\"ln bad\"/><path d=\"M110 120 V138\" class=\"ln bad\"/><path d=\"M190 120 V138\" class=\"ln bad\"/><path d=\"M124 120 L176 138\" class=\"ln bad\"/><path d=\"M176 120 L124 138\" class=\"ln bad\"/><text x=\"150\" y=\"180\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">單一帳號 + 網狀 peering</text><rect x=\"700\" y=\"56\" width=\"220\" height=\"140\" rx=\"12\" class=\"nb\"/><text x=\"810\" y=\"78\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">目標</text><g class=\"z-mgmt\"><rect x=\"724\" y=\"94\" width=\"48\" height=\"46\" rx=\"6\" class=\"nd\"/></g><g class=\"z-dmz\"><rect x=\"786\" y=\"94\" width=\"48\" height=\"46\" rx=\"6\" class=\"nd\"/></g><g class=\"z-int\"><rect x=\"848\" y=\"94\" width=\"48\" height=\"46\" rx=\"6\" class=\"nd\"/></g><rect x=\"724\" y=\"150\" width=\"172\" height=\"12\" rx=\"4\" class=\"nk\"/><text x=\"810\" y=\"180\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">OU + hub-and-spoke</text><path d=\"M270 126 H690\" class=\"ln \" marker-end=\"url(#mcz12-ah)\"/><g class=\"pill\"><rect x=\"409.8\" y=\"115\" width=\"140.4\" height=\"22\" rx=\"11\"/><text x=\"480\" y=\"126\" class=\"\" text-anchor=\"middle\" dominant-baseline=\"central\">4 個步驟，可分批進行</text></g><path d=\"M142 232 H818\" class=\"ln \"/><rect x=\"40\" y=\"256\" width=\"205\" height=\"250\" rx=\"12\" class=\"nb\"/><text x=\"56\" y=\"286\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">止血</text><text x=\"56\" y=\"320\" class=\"ts c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">建立 Organization</text><text x=\"56\" y=\"320\" class=\"ts c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">建立 MG 階層</text><text x=\"56\" y=\"320\" class=\"ts c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">建立 Folder 階層</text><text x=\"56\" y=\"346\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">現有帳號先放進</text><text x=\"56\" y=\"372\" class=\"ts c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">Transitional OU</text><text x=\"56\" y=\"372\" class=\"ts c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">過渡用 MG</text><text x=\"56\" y=\"372\" class=\"ts c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">過渡用 folder</text><text x=\"56\" y=\"398\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">偵測新增 peering 與公網</text><rect x=\"56\" y=\"452\" width=\"84\" height=\"28\" rx=\"6\" class=\"v-allow\"/><text x=\"98\" y=\"466\" class=\"ts v-allow-t\" text-anchor=\"middle\" dominant-baseline=\"central\">風險：低</text><g class=\"bdg\"><circle cx=\"142.5\" cy=\"232\" r=\"11\"/><text x=\"142.5\" y=\"232.5\" text-anchor=\"middle\" dominant-baseline=\"central\">1</text></g><rect x=\"265\" y=\"256\" width=\"205\" height=\"250\" rx=\"12\" class=\"nb\"/><text x=\"281\" y=\"286\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">建 hub</text><text x=\"281\" y=\"320\" class=\"ts c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">開 Network 帳號與 TGW</text><text x=\"281\" y=\"320\" class=\"ts c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">開 Connectivity 訂閱</text><text x=\"281\" y=\"320\" class=\"ts c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">開 hub host project</text><text x=\"281\" y=\"346\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">現有 VPC 逐一接上 hub</text><text x=\"281\" y=\"372\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">逐條拆掉 peering</text><text x=\"281\" y=\"398\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">流量改經 inspection</text><rect x=\"281\" y=\"452\" width=\"84\" height=\"28\" rx=\"6\" class=\"v-inspect\"/><text x=\"323\" y=\"466\" class=\"ts v-inspect-t\" text-anchor=\"middle\" dominant-baseline=\"central\">風險：中</text><g class=\"bdg\"><circle cx=\"367.5\" cy=\"232\" r=\"11\"/><text x=\"367.5\" y=\"232.5\" text-anchor=\"middle\" dominant-baseline=\"central\">2</text></g><rect x=\"490\" y=\"256\" width=\"205\" height=\"250\" rx=\"12\" class=\"nb\"/><text x=\"506\" y=\"286\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">搬 Mgmt</text><text x=\"506\" y=\"320\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">Log、資安工具搬到</text><text x=\"506\" y=\"346\" class=\"ts c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">Security OU 獨立帳號</text><text x=\"506\" y=\"346\" class=\"ts c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">Management 訂閱</text><text x=\"506\" y=\"346\" class=\"ts c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">common folder</text><text x=\"506\" y=\"372\" class=\"ts c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">啟用 org trail</text><text x=\"506\" y=\"372\" class=\"ts c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">啟用集中 Log Analytics</text><text x=\"506\" y=\"372\" class=\"ts c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">啟用 org 層 log sink</text><text x=\"506\" y=\"398\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">與不可竄改儲存</text><rect x=\"506\" y=\"452\" width=\"84\" height=\"28\" rx=\"6\" class=\"v-allow\"/><text x=\"548\" y=\"466\" class=\"ts v-allow-t\" text-anchor=\"middle\" dominant-baseline=\"central\">風險：低</text><g class=\"bdg\"><circle cx=\"592.5\" cy=\"232\" r=\"11\"/><text x=\"592.5\" y=\"232.5\" text-anchor=\"middle\" dominant-baseline=\"central\">3</text></g><rect x=\"715\" y=\"256\" width=\"205\" height=\"250\" rx=\"12\" class=\"nb\"/><text x=\"731\" y=\"286\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">新舊分流</text><text x=\"731\" y=\"320\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">新 workload 開新帳號</text><text x=\"731\" y=\"346\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">舊系統改版時再搬</text><text x=\"731\" y=\"372\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">偵測確認無誤後</text><text x=\"731\" y=\"398\" class=\"ts c-aws\" text-anchor=\"start\" dominant-baseline=\"central\">改成 SCP deny</text><text x=\"731\" y=\"398\" class=\"ts c-azure\" text-anchor=\"start\" dominant-baseline=\"central\">Policy 改成 deny</text><text x=\"731\" y=\"398\" class=\"ts c-gcp\" text-anchor=\"start\" dominant-baseline=\"central\">Org Policy 正式生效</text><rect x=\"731\" y=\"452\" width=\"84\" height=\"28\" rx=\"6\" class=\"v-inspect\"/><text x=\"773\" y=\"466\" class=\"ts v-inspect-t\" text-anchor=\"middle\" dominant-baseline=\"central\">風險：中</text><g class=\"bdg\"><circle cx=\"817.5\" cy=\"232\" r=\"11\"/><text x=\"817.5\" y=\"232.5\" text-anchor=\"middle\" dominant-baseline=\"central\">4</text></g></svg>",
+   "services": {
+    "aws": [
+     {
+      "name": "AWS Control Tower",
+      "note": "把現有帳號 enroll 進 landing zone"
+     },
+     {
+      "name": "AWS Organizations",
+      "note": "建立 OU，搬移帳號"
+     },
+     {
+      "name": "AWS Config rules",
+      "note": "先偵測新增的 peering 與 IGW"
+     },
+     {
+      "name": "Transit Gateway + RAM",
+      "note": "建 hub，逐一接上現有 VPC"
+     },
+     {
+      "name": "CloudTrail organization trail",
+      "note": "集中 log 到 Log Archive"
+     }
+    ],
+    "azure": [
+     {
+      "name": "Management groups",
+      "note": "建立 ALZ 階層，搬移訂閱"
+     },
+     {
+      "name": "Azure Policy（audit → deny）",
+      "note": "先稽核，再改成阻擋"
+     },
+     {
+      "name": "Hub VNet / Virtual WAN",
+      "note": "建 hub，逐一 peering"
+     },
+     {
+      "name": "Subscription vending",
+      "note": "新 workload 用範本開訂閱"
+     }
+    ],
+    "gcp": [
+     {
+      "name": "Resource Manager",
+      "note": "建立 folder，搬移 project"
+     },
+     {
+      "name": "Org Policy dry-run",
+      "note": "先試跑，確認影響範圍"
+     },
+     {
+      "name": "Shared VPC / NCC",
+      "note": "建 hub，接上現有 VPC"
+     },
+     {
+      "name": "Aggregated log sinks",
+      "note": "集中 log"
+     }
+    ]
+   },
+   "summary": [
+    "不要一次重建：先止血、再建 hub、搬 Mgmt，最後新舊分流。",
+    "Guardrail 先偵測再阻擋，避免影響現有服務。",
+    "Log 與資安工具先搬，風險低、效益高。",
+    "舊系統跟著改版或換約的時機搬，不另開專案硬搬。"
+   ],
+   "deepLede": "每個步驟要做什麼、各雲的對應做法，以及「先偵測再阻擋」怎麼落地。",
+   "deepHtml": "<h2 id=\"principle\">原則</h2>\n<p>一次全部重建不實際，也風險太高。目標是讓新東西一開始就長在對的地方，舊東西在有機會時逐步搬過去。</p>\n<h2 id=\"step1\">1. 止血</h2>\n<p>建立 Organization 或 Control Tower，把現有的大帳號放進 Transitional / Exceptions OU。先用 Config rule 偵測新增的 peering 和 IGW，不要一開始就套 SCP deny，以免擋到現有服務的維運動作。</p>\n<h2 id=\"step2\">2. 建 hub</h2>\n<p>開 Network 帳號和 TGW，用 RAM 共享出去。把現有 VPC 一個一個 attach 上去，確認路由正確後，逐條拆掉 peering，流量改經 inspection VPC。每拆一條就驗證一次連線。</p>\n<h2 id=\"step3\">3. 搬 Mgmt</h2>\n<p>Log 和資安工具先搬到 Security OU 的獨立帳號，啟用 organization trail 與不可竄改儲存。這一步不影響應用流量，風險低、效益高，適合最早做。</p>\n<h2 id=\"step4\">4. 新舊分流</h2>\n<p>新 workload 一律開新帳號，直接放在 Workloads OU。舊系統等改版或換約時再搬。偵測規則跑一段時間、確認沒有誤判後，再改成 SCP deny。</p>\n<h2 id=\"detect\">先偵測再阻擋</h2>\n<div class=\"tablewrap\"><table class=\"wide\"><thead><tr><th>雲</th><th>偵測</th><th>阻擋</th></tr></thead><tbody>\n<tr><th>AWS</th><td>AWS Config rules、Control Tower detective controls</td><td>SCP、Control Tower preventive controls</td></tr>\n<tr><th>Azure</th><td>Azure Policy effect = audit</td><td>Azure Policy effect = deny</td></tr>\n<tr><th>GCP</th><td>Org Policy dry-run</td><td>Org Policy 正式生效</td></tr>\n</tbody></table></div>",
+   "sections": [
+    {
+     "id": "principle",
+     "title": "原則"
+    },
+    {
+     "id": "step1",
+     "title": "1. 止血"
+    },
+    {
+     "id": "step2",
+     "title": "2. 建 hub"
+    },
+    {
+     "id": "step3",
+     "title": "3. 搬 Mgmt"
+    },
+    {
+     "id": "step4",
+     "title": "4. 新舊分流"
+    },
+    {
+     "id": "detect",
+     "title": "先偵測再阻擋"
+    }
+   ]
+  },
+  {
+   "num": "13",
+   "slug": "13-industry",
+   "title": "產業補充",
+   "short": "產業補充",
+   "lede": "金融、製造、零售各有一個會改變 zone 設計的要求。",
+   "zones": [
+    "dmz",
+    "int"
+   ],
+   "caption": "左：金融常見的雙層異質防火牆。中：製造業的 Purdue 分層，雲端不直連 OT。右：零售把 CDE 獨立成 restricted 子區。",
+   "svg": "<svg class=\"dg\" aria-label=\"產業補充\" viewBox=\"0 0 960 550\" role=\"img\" preserveAspectRatio=\"xMidYMid meet\"><title>產業別的 zone 調整</title><defs><marker id=\"mcz13-ah\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk \" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz13-ah-in\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk in\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz13-ah-out\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk out\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz13-ah-mg\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk mg\" d=\"M1 1L9 5L1 9z\"/></marker><marker id=\"mcz13-ah-int\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path class=\"mk int\" d=\"M1 1L9 5L1 9z\"/></marker></defs><text x=\"40\" y=\"44\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">金融</text><text x=\"40\" y=\"70\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">內外層異質防火牆</text><text x=\"340\" y=\"44\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">製造</text><text x=\"340\" y=\"70\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">IT / OT 分離</text><text x=\"640\" y=\"44\" class=\"tt\" text-anchor=\"start\" dominant-baseline=\"central\">零售</text><text x=\"640\" y=\"70\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">CDE 獨立成 restricted 子區</text><g class=\"z-ext\"><rect x=\"80\" y=\"100\" width=\"200\" height=\"44\" rx=\"10\" class=\"nd\"/><text x=\"180\" y=\"122\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Internet</text></g><g><rect x=\"80\" y=\"170\" width=\"200\" height=\"44\" rx=\"10\" class=\"nb\"/><text x=\"180\" y=\"192\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">防火牆 · 廠牌 A</text></g><g class=\"z-dmz\"><rect x=\"80\" y=\"240\" width=\"200\" height=\"44\" rx=\"10\" class=\"nd\"/><text x=\"180\" y=\"262\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">DMZ</text></g><g><rect x=\"80\" y=\"310\" width=\"200\" height=\"44\" rx=\"10\" class=\"nb\"/><text x=\"180\" y=\"332\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">防火牆 · 廠牌 B</text></g><g class=\"z-int\"><rect x=\"80\" y=\"380\" width=\"200\" height=\"44\" rx=\"10\" class=\"nd\"/><text x=\"180\" y=\"402\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">Internal</text></g><path d=\"M180 144 V168\" class=\"ln \" marker-end=\"url(#mcz13-ah)\"/><path d=\"M180 214 V238\" class=\"ln \" marker-end=\"url(#mcz13-ah)\"/><path d=\"M180 284 V308\" class=\"ln \" marker-end=\"url(#mcz13-ah)\"/><path d=\"M180 354 V378\" class=\"ln \" marker-end=\"url(#mcz13-ah)\"/><g class=\"z-int\"><rect x=\"360\" y=\"100\" width=\"240\" height=\"70\" rx=\"10\" class=\"nd\"/><text x=\"480\" y=\"126\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">雲端 / 企業 IT</text><text x=\"480\" y=\"145.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">Purdue L4–5</text></g><g class=\"z-dmz\"><rect x=\"360\" y=\"220\" width=\"240\" height=\"70\" rx=\"10\" class=\"nd\"/><text x=\"480\" y=\"246\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">IDMZ</text><text x=\"480\" y=\"265.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">L3.5 · historian · broker</text></g><g><rect x=\"360\" y=\"340\" width=\"240\" height=\"84\" rx=\"10\" class=\"nk\"/><text x=\"480\" y=\"373\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">OT 網路</text><text x=\"480\" y=\"392.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">L0–3 · PLC · SCADA · MES</text></g><path d=\"M480 172 V218\" class=\"ln \" marker-end=\"url(#mcz13-ah)\" marker-start=\"url(#mcz13-ah)\"/><path d=\"M480 292 V338\" class=\"ln \" marker-end=\"url(#mcz13-ah)\" marker-start=\"url(#mcz13-ah)\"/><path d=\"M600 135 H616 V382 H600\" class=\"ln bad\"/><g class=\"xm\"><circle cx=\"616\" cy=\"258\" r=\"11\"/><path d=\"M612 254L620 262M620 254L612 262\"/></g><g class=\"z-int\"><rect x=\"656\" y=\"100\" width=\"248\" height=\"330\" rx=\"14\" class=\"band\"/></g><text x=\"672\" y=\"124\" class=\"tt-s\" text-anchor=\"start\" dominant-baseline=\"central\">Internal zone</text><g><rect x=\"676\" y=\"146\" width=\"208\" height=\"64\" rx=\"10\" class=\"nb\"/><text x=\"780\" y=\"169\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">一般 workload</text><text x=\"780\" y=\"188.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">電商、會員、庫存</text></g><g class=\"z-cde\"><rect x=\"676\" y=\"290\" width=\"208\" height=\"120\" rx=\"10\" class=\"nd\"/><text x=\"780\" y=\"331\" class=\"tt-s\" text-anchor=\"middle\" dominant-baseline=\"central\">CDE（restricted）</text><text x=\"780\" y=\"351.5\" class=\"ts\" text-anchor=\"middle\" dominant-baseline=\"central\">持卡人資料</text><text x=\"780\" y=\"370.5\" class=\"tm\" text-anchor=\"middle\" dominant-baseline=\"central\">獨立帳號與 segment</text></g><path d=\"M780 210 V288\" class=\"ln \" marker-end=\"url(#mcz13-ah)\"/><g class=\"pill\"><rect x=\"738.6\" y=\"238\" width=\"82.8\" height=\"22\" rx=\"11\"/><text x=\"780\" y=\"249\" class=\"\" text-anchor=\"middle\" dominant-baseline=\"central\">token API</text></g><text x=\"40\" y=\"470\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">• log 長期留存、不可竄改</text><text x=\"40\" y=\"496\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">• 先拿到客戶內控條文</text><text x=\"40\" y=\"522\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">• NGFW 選型受異質要求影響</text><text x=\"340\" y=\"470\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">• 雲端不直連 OT</text><text x=\"340\" y=\"496\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">• OT 資料經 IDMZ 鏡像上雲</text><text x=\"340\" y=\"522\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">• 對照 IEC 62443</text><text x=\"640\" y=\"470\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">• 縮小 PCI DSS 稽核範圍</text><text x=\"640\" y=\"496\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">• 付款流量不共用 segment</text><text x=\"640\" y=\"522\" class=\"ts\" text-anchor=\"start\" dominant-baseline=\"central\">• CDE 有自己的 guardrail</text></svg>",
+   "services": {
+    "aws": [
+     {
+      "name": "GWLB + 第三方 NGFW",
+      "note": "與 Network Firewall 組成異質防火牆"
+     },
+     {
+      "name": "S3 Object Lock",
+      "note": "log 長期留存、不可刪改"
+     },
+     {
+      "name": "AWS IoT SiteWise",
+      "note": "OT 資料經 edge gateway 上雲"
+     },
+     {
+      "name": "AWS Artifact",
+      "note": "下載合規報告"
+     },
+     {
+      "name": "獨立 CDE 帳號",
+      "note": "縮小 PCI DSS 範圍"
+     }
+    ],
+    "azure": [
+     {
+      "name": "Azure Firewall + NVA",
+      "note": "異質防火牆組合"
+     },
+     {
+      "name": "Immutable Blob storage",
+      "note": "log 長期留存"
+     },
+     {
+      "name": "Azure IoT Operations",
+      "note": "工廠端的資料收集與轉送"
+     },
+     {
+      "name": "Defender for IoT",
+      "note": "OT 網路的資產與威脅監控"
+     },
+     {
+      "name": "Service Trust Portal",
+      "note": "下載合規報告"
+     }
+    ],
+    "gcp": [
+     {
+      "name": "Cloud NGFW + 第三方 NVA",
+      "note": "異質防火牆組合"
+     },
+     {
+      "name": "Bucket Lock",
+      "note": "log 長期留存"
+     },
+     {
+      "name": "Manufacturing Data Engine",
+      "note": "工廠資料上雲與建模"
+     },
+     {
+      "name": "Assured Workloads",
+      "note": "依法規套用控管"
+     },
+     {
+      "name": "Compliance Reports Manager",
+      "note": "下載合規報告"
+     }
+    ]
+   },
+   "summary": [
+    "金融：內外層異質防火牆，log 不可竄改且長期留存。",
+    "製造：IT / OT 分離，雲端只接 IDMZ，不直連 OT。",
+    "零售：CDE 獨立成 restricted 子區，縮小 PCI DSS 範圍。",
+    "先拿到客戶的內控條文或稽核要求，再定 zone 細節。"
+   ],
+   "deepLede": "三個產業各自的要求怎麼影響 zone 設計，以及開始設計前該問客戶的問題。",
+   "deepHtml": "<h2 id=\"finance\">金融</h2>\n<ul class=\"pts\">\n<li>不少客戶的內控要求內外層防火牆異質（不同廠牌）。常見組合是外層用雲原生 firewall，內層用第三方 NGFW，或反過來。</li>\n<li>DMZ 與內部區要有明確隔離，east-west 流量也常要求經過檢查。</li>\n<li>Log 長期留存且不可竄改，保留期限依客戶內控與主管機關要求。</li>\n<li>選 NGFW 和規劃 log 架構之前，先拿到客戶的內控條文。</li>\n</ul>\n<h2 id=\"manufacturing\">製造</h2>\n<ul class=\"pts\">\n<li>IT 和 OT 要分開。雲端與企業 IT 在 Purdue 模型的 L4–5，OT 在 L0–3，中間是 IDMZ（L3.5）。</li>\n<li>OT 資料經 IDMZ 的 historian 或 message broker 鏡像上雲，雲端不直接連 OT。</li>\n<li>可以對照 IEC 62443 的 zones and conduits，把 OT 的分區對應到雲上的 zone 矩陣。</li>\n</ul>\n<h2 id=\"retail\">零售</h2>\n<ul class=\"pts\">\n<li>PCI DSS 的持卡人資料環境（CDE）獨立成 restricted 子區，有自己的帳號、segment 和 guardrail。</li>\n<li>其他系統只透過 token 化 API 與 CDE 互動，縮小稽核範圍。</li>\n<li>付款流量不和一般 Internal 共用 segment。</li>\n</ul>\n<h2 id=\"ask\">開始設計前該問客戶的問題</h2>\n<ol class=\"steps\">\n<li>有哪些內控條文或法規要求會影響網路分區？</li>\n<li>防火牆是否要求異質？由誰維運？</li>\n<li>Log 要保留多久？誰能存取？</li>\n<li>有沒有 OT、支付、個資等需要獨立分區的系統？</li>\n<li>地端資料中心未來幾年的角色是什麼？</li>\n</ol>",
+   "sections": [
+    {
+     "id": "finance",
+     "title": "金融"
+    },
+    {
+     "id": "manufacturing",
+     "title": "製造"
+    },
+    {
+     "id": "retail",
+     "title": "零售"
+    },
+    {
+     "id": "ask",
+     "title": "開始設計前該問客戶的問題"
+    }
+   ]
+  }
+ ],
+ "checklist": [
+  {
+   "zone": "mgmt",
+   "tag": "共同",
+   "text": "每個 zone 對應到帳號層（account / subscription / project），並有對應的 OU / MG / Folder guardrail"
+  },
+  {
+   "zone": "mgmt",
+   "tag": "共同",
+   "text": "全企業 IPAM，CIDR 不重疊，每一層都有保留段"
+  },
+  {
+   "zone": "mgmt",
+   "tag": "共同",
+   "text": "Hybrid DNS 架構已定：權威在哪、轉送規則、private zone 歸屬"
+  },
+  {
+   "zone": "ext",
+   "tag": "External",
+   "text": "Edge 方案已決定（原生或第三方），公開網域與憑證集中管理"
+  },
+  {
+   "zone": "dmz",
+   "tag": "DMZ",
+   "text": "Ingress 集中或分散已決定，WAF 規則由 platform team 統一管理"
+  },
+  {
+   "zone": "dmz",
+   "tag": "DMZ",
+   "text": "Egress 經 DMZ，有 FQDN allowlist，TLS inspection 範圍已和法遵確認"
+  },
+  {
+   "zone": "dmz",
+   "tag": "DMZ",
+   "text": "Stateful 防火牆的路由對稱性已驗證"
+  },
+  {
+   "zone": "int",
+   "tag": "Internal",
+   "text": "Internal spoke 以 policy 禁止公網出口與自建 peering"
+  },
+  {
+   "zone": "int",
+   "tag": "Internal",
+   "text": "PaaS 關閉 public access，走 private endpoint 加 resource policy"
+  },
+  {
+   "zone": "mgmt",
+   "tag": "Mgmt",
+   "text": "管理存取不開 SSH / RDP 對外，break-glass 帳號已建立並有監控"
+  },
+  {
+   "zone": "mgmt",
+   "tag": "Mgmt",
+   "text": "三朵雲的 log 匯入同一個 SIEM，log archive 不可竄改"
+  },
+  {
+   "zone": "ext",
+   "tag": "互連",
+   "text": "跨雲互連的路徑、頻寬、egress 成本與故障切換已驗證"
+  },
+  {
+   "zone": "mgmt",
+   "tag": "共同",
+   "text": "Zone 流量矩陣已和客戶逐格確認，並有定期驗證機制"
+  }
+ ],
+ "sources": [
+  {
+   "url": "https://aws.amazon.com/es/about-aws/whats-new/2026/04/aws-announces-ga-AWS-interconnect-multicloud/",
+   "name": "AWS Interconnect – multicloud 正式推出",
+   "note": "AWS What's New，2026-04"
+  },
+  {
+   "url": "https://aws.amazon.com/about-aws/whats-new/2026/07/aws-announces-AWS-interconnect-multicloud-OCI-GA/",
+   "name": "AWS Interconnect – multicloud 支援 OCI",
+   "note": "AWS What's New，2026-07"
+  },
+  {
+   "url": "https://docs.aws.amazon.com/solutions/network-security-on-aws/",
+   "name": "Guidance for Network Security on AWS",
+   "note": "AWS Solutions"
+  },
+  {
+   "url": "https://docs.aws.amazon.com/solutions/latest/centralized-network-inspection-on-aws/guidance-overview.html",
+   "name": "Centralized Network Inspection on AWS",
+   "note": "AWS Solutions"
+  },
+  {
+   "url": "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-area/network-topology-and-connectivity",
+   "name": "Network topology and connectivity for Azure",
+   "note": "Microsoft Cloud Adoption Framework"
+  },
+  {
+   "url": "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/virtual-wan-network-topology",
+   "name": "Virtual WAN network topology in an Azure landing zone",
+   "note": "Microsoft Cloud Adoption Framework"
+  },
+  {
+   "url": "https://docs.cloud.google.com/architecture/security-foundations/networking",
+   "name": "Enterprise foundations blueprint: Networking",
+   "note": "Google Cloud Architecture Center"
+  },
+  {
+   "url": "https://docs.cloud.google.com/architecture/deploy-hub-spoke-vpc-network-topology",
+   "name": "Deploy a hub-and-spoke VPC network topology",
+   "note": "Google Cloud Architecture Center"
+  }
+ ]
+}

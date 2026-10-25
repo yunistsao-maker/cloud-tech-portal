@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { Report } from "@/lib/report-schema";
 import { t } from "@/lib/i18n";
 import { usePrefs } from "@/lib/prefs";
-import { reportHref, reports } from "@/lib/reports";
+import { publications, type Publication } from "@/lib/publications";
 import { compareHref } from "../SearchBox";
 import { Card } from "../SideCards";
 
@@ -63,11 +63,14 @@ export function ReportAside({ report }: { report: Report }) {
   );
 }
 
-export function ReportCard({ report }: { report: Report }) {
+export function PublicationCard({ item: report }: { item: Publication }) {
   const { lang } = usePrefs();
   return (
-    <Link href={reportHref(report.slug)} className="flex flex-col gap-2.5 rounded-xl border border-border bg-surface p-5 hover:no-underline">
+    <Link href={report.href} className="flex flex-col gap-2.5 rounded-xl border border-border bg-surface p-5 hover:no-underline">
       <div className="flex flex-wrap gap-1.5">
+        {report.kind === "deck" && (
+          <span className="rounded border border-control px-2 py-0.5 font-mono text-xs text-strong">{t("deck", lang)}</span>
+        )}
         {report.categories.map((id) => (
           <span key={id} className="rounded bg-raised px-2 py-0.5 font-mono text-xs text-sub">
             {getCategory(id)?.name[lang] ?? id}
@@ -93,24 +96,25 @@ export function ReportsIndex() {
         <p className="text-sub">{t("reportsIntro", lang)}</p>
       </div>
       <div className="flex flex-col gap-4">
-        {reports.map((r) => (
-          <ReportCard key={r.slug} report={r} />
+        {publications.map((p) => (
+          <PublicationCard key={p.slug} item={p} />
         ))}
       </div>
     </div>
   );
 }
 
-/** Side card for hubs, Pulse and Compare: reports that cover this category or capability. */
-export function ReportsCard({ items }: { items: Report[] }) {
+/** Side card for hubs, Pulse and Compare: reports and decks that cover this category or capability. */
+export function ReportsCard({ items }: { items: Publication[] }) {
   const { lang } = usePrefs();
   if (items.length === 0) return null;
   return (
     <Card title={t("reports", lang)}>
       {items.map((r) => (
-        <Link key={r.slug} href={reportHref(r.slug)} className="flex flex-col gap-1 text-sm leading-snug">
+        <Link key={r.slug} href={r.href} className="flex flex-col gap-1 text-sm leading-snug">
           <span className="font-medium text-strong">{r.title}</span>
           <span className="text-muted">
+            {r.kind === "deck" && `${t("deck", lang)} · `}
             {r.author} · {r.updatedAt ?? r.publishedAt}
           </span>
         </Link>

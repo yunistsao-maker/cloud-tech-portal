@@ -15,7 +15,7 @@ import { shortDate } from "@/lib/format";
 import { t } from "@/lib/i18n";
 import { recentlyChanged, useFeed } from "@/lib/items";
 import { usePrefs } from "@/lib/prefs";
-import { reportsFor } from "@/lib/reports";
+import { publicationsFor } from "@/lib/publications";
 import { PROVIDER_TEXT, ProviderBadge } from "./Badges";
 import { ReportsCard } from "./reports/ReportChrome";
 import { CategoryRail } from "./CategoryRail";
@@ -167,7 +167,7 @@ function Detail({ capability }: { capability: Capability }) {
           <p className="rounded-lg bg-raised p-3 text-sm text-sub">{t("notAuthored", lang)}</p>
         )}
       </section>
-      <ReportsCard items={reportsFor({ capability: capability.id })} />
+      <ReportsCard items={publicationsFor({ capability: capability.id })} />
       <section className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4.5">
         <h2 className="label-mono font-medium">{t("recentChanges", lang)}</h2>
         {news.length === 0 && <p className="text-sm text-muted">{t("noRecentChanges", lang)}</p>}

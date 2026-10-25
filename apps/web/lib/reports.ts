@@ -11,12 +11,7 @@ export function getReport(slug: string): Report | undefined {
   return reports.find((r) => r.slug === slug);
 }
 
-export function reportsFor(f: { category?: string; capability?: string }): Report[] {
-  return reports.filter(
-    (r) => (!f.category || r.categories.includes(f.category)) && (!f.capability || r.capabilities.includes(f.capability)),
-  );
-}
-
+/** Reports and diagram decks share this path; see lib/publications.ts. */
 export function reportHref(slug: string) {
   return `/reports/${slug}/`;
 }

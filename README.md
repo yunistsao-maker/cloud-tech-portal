@@ -128,6 +128,25 @@ A report is written in Claude Docs and imported as JSON:
 
 The page links back to the source doc, which stays the place to edit; re-run the import to refresh (set `updatedAt` in the meta file so the page shows the revision date). The importer prints a `warning:` line for any element it cannot render, so a new kind of block in the doc is never dropped silently — add support for it before publishing.
 
+### Diagram decks
+
+A deck is a diagram-first report: one diagram page and one deep-dive page per topic, read in order with the pager or ← → keys (or a swipe on phones). Diagrams show AWS, Azure or Google Cloud names from the cloud switch in the deck bar; the choice is a portal preference (`ctp.prefs`), so it sticks across pages. Decks share `/reports/` with reports and appear in the same index and side cards.
+
+| Path | What it is |
+| --- | --- |
+| `/reports/<deck>/` | Cover: core idea and every topic's diagram as a card |
+| `/reports/<deck>/<topic>/` | Diagram, with key services per cloud and a summary beside it |
+| `/reports/<deck>/<topic>/deep-dive/` | Full explanation |
+| `/reports/<deck>/checklist/` | Review checklist (ticks stay in the reader's browser) and references |
+
+Content lives in `apps/web/content/decks/<slug>/`:
+
+- `meta.json` — hand-edited listing fields (same as a report's), cover text and appendix intro.
+- `source/` — the topics as Python (`topics_*.py`, diagrams drawn with the helpers in `lib.py`).
+- `deck.json` — generated; do not edit. After changing a topic run `python3 source/export.py` (standard library only) and commit both.
+
+The exporter scopes diagram ids per topic and rewrites links between topics to portal paths. Register a new deck in `lib/deck-metas.ts` and `lib/decks.ts`; the tests check catalog ids, anchors, links and that the injected markup has no scripts or event handlers. Styles are in `components/decks/deck.css`, scoped under `.deck` and driven by the sky theme.
+
 ## Known gaps (milestone 1)
 
 - The Google Cloud Blog feed returned HTTP 500 from the build sandbox; check its row in the first Lambda run's log.
