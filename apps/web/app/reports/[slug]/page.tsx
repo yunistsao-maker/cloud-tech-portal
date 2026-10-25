@@ -1,24 +1,31 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { DeckCover } from "@/components/decks/DeckPages";
 import { ReportBody } from "@/components/reports/ReportBody";
 import { ReportAside, ReportHeader } from "@/components/reports/ReportChrome";
+import { decks, getDeck } from "@/lib/decks";
 import { getReport, reports } from "@/lib/reports";
 
 export const dynamicParams = false;
 
+/** Reports and diagram decks share /reports/<slug>/; a deck's slug opens its cover. */
 export function generateStaticParams() {
-  return reports.map((r) => ({ slug: r.slug }));
+  return [...reports, ...decks].map((r) => ({ slug: r.slug }));
 }
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const r = getReport((await params).slug);
+  const { slug } = await params;
+  const r = getReport(slug) ?? getDeck(slug);
   return r ? { title: r.title, description: r.summary.en } : {};
 }
 
 export default async function ReportPage({ params }: Props) {
-  const report = getReport((await params).slug);
+  const { slug } = await params;
+  const deck = getDeck(slug);
+  if (deck) return <DeckCover deck={deck} />;
+  const report = getReport(slug);
   if (!report) notFound();
   return (
     <div className="flex flex-col gap-8">

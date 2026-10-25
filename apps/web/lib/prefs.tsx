@@ -9,18 +9,25 @@ export const SKIES = [
 ] as const;
 export type Sky = (typeof SKIES)[number]["id"];
 export type Lang = "en" | "zh";
+/** Cloud shown where a page has one variant per provider (diagram decks). */
+export const CLOUD_PREFS = ["aws", "azure", "gcp"] as const;
+export type CloudPref = (typeof CLOUD_PREFS)[number];
 
 interface Prefs {
   sky: Sky;
   lang: Lang;
+  cloud: CloudPref;
   setSky: (s: Sky) => void;
   setLang: (l: Lang) => void;
+  setCloud: (c: CloudPref) => void;
 }
+
+type Stored = Partial<Pick<Prefs, "sky" | "lang" | "cloud">>;
 
 const PrefsContext = createContext<Prefs | null>(null);
 const KEY = "ctp.prefs";
 
-function read(): Partial<Pick<Prefs, "sky" | "lang">> {
+function read(): Stored {
   try {
     return JSON.parse(localStorage.getItem(KEY) ?? "{}");
   } catch {
@@ -28,20 +35,25 @@ function read(): Partial<Pick<Prefs, "sky" | "lang">> {
   }
 }
 
-/** Runs before first paint (inlined in <head>) so a stored theme never flashes white. */
-export const PREFS_BOOT_SCRIPT = `try{var p=JSON.parse(localStorage.getItem("${KEY}")||"{}");if(p.sky)document.documentElement.dataset.sky=p.sky;if(p.lang==="zh")document.documentElement.lang="zh-Hant-TW"}catch(e){}`;
+/** Runs before first paint (inlined in <head>) so a stored theme or cloud never flashes the default. */
+export const PREFS_BOOT_SCRIPT = `try{var p=JSON.parse(localStorage.getItem("${KEY}")||"{}"),d=document.documentElement;if(p.sky)d.dataset.sky=p.sky;if(p.lang==="zh")d.lang="zh-Hant-TW";if(${JSON.stringify(CLOUD_PREFS)}.indexOf(p.cloud)>=0)d.dataset.cloud=p.cloud}catch(e){}`;
 
 export function PrefsProvider({ children }: { children: ReactNode }) {
   const [sky, setSkyState] = useState<Sky>("white");
   const [lang, setLangState] = useState<Lang>("en");
+  const [cloud, setCloudState] = useState<CloudPref>("aws");
+  // Until stored prefs are read, leave the <html> attributes the boot script set.
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     const p = read();
     if (p.sky && SKIES.some((s) => s.id === p.sky)) setSkyState(p.sky);
     if (p.lang === "zh" || p.lang === "en") setLangState(p.lang);
+    if (p.cloud && CLOUD_PREFS.includes(p.cloud)) setCloudState(p.cloud);
+    setLoaded(true);
   }, []);
 
-  const persist = useCallback((next: Partial<Pick<Prefs, "sky" | "lang">>) => {
+  const persist = useCallback((next: Stored) => {
     try {
       localStorage.setItem(KEY, JSON.stringify({ ...read(), ...next }));
     } catch {
@@ -50,16 +62,20 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    document.documentElement.dataset.sky = sky;
-  }, [sky]);
+    if (loaded) document.documentElement.dataset.sky = sky;
+  }, [sky, loaded]);
   useEffect(() => {
-    document.documentElement.lang = lang === "zh" ? "zh-Hant-TW" : "en";
-  }, [lang]);
+    if (loaded) document.documentElement.lang = lang === "zh" ? "zh-Hant-TW" : "en";
+  }, [lang, loaded]);
+  useEffect(() => {
+    if (loaded) document.documentElement.dataset.cloud = cloud;
+  }, [cloud, loaded]);
 
   const value = useMemo<Prefs>(
     () => ({
       sky,
       lang,
+      cloud,
       setSky: (s) => {
         setSkyState(s);
         persist({ sky: s });
@@ -68,8 +84,12 @@ export function PrefsProvider({ children }: { children: ReactNode }) {
         setLangState(l);
         persist({ lang: l });
       },
+      setCloud: (c) => {
+        setCloudState(c);
+        persist({ cloud: c });
+      },
     }),
-    [sky, lang, persist],
+    [sky, lang, cloud, persist],
   );
 
   return <PrefsContext.Provider value={value}>{children}</PrefsContext.Provider>;

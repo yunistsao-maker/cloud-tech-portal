@@ -1,0 +1,25 @@
+{
+  "slug": "multicloud-zones",
+  "title": "多雲 Zone 架構設計",
+  "summary": {
+    "en": "How External, DMZ, Internal and Mgmt zones map onto AWS, Azure and Google Cloud landing zones. Thirteen diagram-first topics cover the trust model, account structure and guardrails, hub-and-spoke routing, DMZ traffic paths, private access to PaaS, the management plane, a zone traffic matrix, data perimeters, IP and DNS planning, cross-cloud interconnect, a migration path from on-prem zones and industry variations, with a design-review checklist. Every diagram switches between AWS, Azure and GCP.",
+    "zh": "External、DMZ、Internal、Mgmt 四個 zone 在 AWS、Azure、Google Cloud 的 landing zone 上怎麼設計。13 個以圖為主的主題，涵蓋信任模型、帳號結構與 guardrail、hub-and-spoke 路由、DMZ 流量路徑、PaaS 私有化、管理面、zone 流量矩陣、data perimeter、IP 與 DNS 規劃、跨雲互連、從地端 zone 遷移的路徑與產業補充，另附設計審查清單。每張圖都能切換 AWS、Azure、GCP。"
+  },
+  "author": "Eunice Tsao",
+  "publishedAt": "2026-10-25",
+  "lang": "zh-Hant-TW",
+  "categories": ["networking", "security", "devops"],
+  "capabilities": ["virtual-network", "dedicated-connectivity", "dns", "load-balancing", "cdn", "waf", "identity-access", "threat-detection", "audit-logging", "monitoring"],
+  "sourceUrl": "https://claude.ai/artifact/9emZfrjGjiuwx7X3wQtGDG",
+  "cover": {
+    "eyebrow": "Enterprise landing zone · 研究筆記 · 2026-10",
+    "lede": "External、DMZ、Internal、Mgmt 四個 zone 在 AWS、Azure、Google Cloud 上怎麼設計。每個主題一張圖，旁邊是主要雲服務與重點，完整說明在各自的 deep dive 頁。",
+    "thesis": "Zone 是「信任邊界 + 控制點」的邏輯分類，不是一個 zone 對應一個 VPC。分類在每朵雲都一樣，實作用各雲的原生元件，隔離從帳號層開始往下設計。"
+  },
+  "appendix": {
+    "slug": "checklist",
+    "title": "設計審查清單",
+    "lede": "和客戶做設計審查時逐項確認。勾選狀態只存在你自己的瀏覽器裡。",
+    "note": "內容為研究整理，服務名稱與上線狀態以各雲官方公告為準。最後更新：2026-10-25。"
+  }
+}
