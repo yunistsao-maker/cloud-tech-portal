@@ -1,5 +1,6 @@
 import type { ComponentType, ReactNode } from "react";
 import type { Block, Inline, ListBlock, ListItem } from "@/lib/report-schema";
+import { AgentMapFigure } from "./AgentMapFigure";
 import { CrossEnvFigure } from "./CrossEnvFigure";
 import { RoadmapFigure } from "./RoadmapFigure";
 
@@ -7,6 +8,7 @@ import { RoadmapFigure } from "./RoadmapFigure";
 const FIGURES: Record<string, ComponentType> = {
   "0c77155c-215c": RoadmapFigure,
   "29b6e777-ead8": CrossEnvFigure,
+  "ed591473-9950": AgentMapFigure,
 };
 
 function Inlines({ parts }: { parts: Inline[] }) {
