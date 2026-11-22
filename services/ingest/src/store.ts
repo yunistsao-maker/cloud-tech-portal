@@ -8,7 +8,16 @@ export interface Store {
   /** Ids from `ids` that are already stored. */
   existing(ids: string[]): Promise<Set<string>>;
   put(item: FeedItem): Promise<void>;
-  latest(limit: number): Promise<FeedItem[]>;
+  /** Newest first, at most `limit`; with `since` (an ISO timestamp), only items published at or after it. */
+  latest(limit: number, since?: string): Promise<FeedItem[]>;
+}
+
+/** In-memory version of `latest` for the file and memory stores. */
+function newest(items: Iterable<FeedItem>, limit: number, since?: string): FeedItem[] {
+  return [...items]
+    .filter((it) => !since || it.publishedAt >= since)
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+    .slice(0, limit);
 }
 
 const GSI = "byPublished";
@@ -55,7 +64,7 @@ export class DynamoStore implements Store {
     });
   }
 
-  async latest(limit: number): Promise<FeedItem[]> {
+  async latest(limit: number, since?: string): Promise<FeedItem[]> {
     const items: FeedItem[] = [];
     let start: Record<string, unknown> | undefined;
     do {
@@ -63,8 +72,9 @@ export class DynamoStore implements Store {
         new QueryCommand({
           TableName: this.table,
           IndexName: GSI,
-          KeyConditionExpression: "gsi1pk = :p",
-          ExpressionAttributeValues: { ":p": "ITEM" },
+          // gsi1sk is `${publishedAt}#${id}` with ISO dates, so a string comparison selects by date.
+          KeyConditionExpression: since ? "gsi1pk = :p AND gsi1sk >= :s" : "gsi1pk = :p",
+          ExpressionAttributeValues: since ? { ":p": "ITEM", ":s": since } : { ":p": "ITEM" },
           ScanIndexForward: false,
           Limit: Math.min(limit - items.length, 200),
           ExclusiveStartKey: start,
@@ -104,9 +114,9 @@ export class FileStore implements Store {
     await this.load();
     if (!this.items.has(item.id)) this.items.set(item.id, item);
   }
-  async latest(limit: number) {
+  async latest(limit: number, since?: string) {
     await this.load();
-    return [...this.items.values()].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0, limit);
+    return newest(this.items.values(), limit, since);
   }
   async save(snapshot: FeedSnapshot) {
     await mkdir(dirname(this.path), { recursive: true });
@@ -122,7 +132,7 @@ export class MemoryStore implements Store {
   async put(item: FeedItem) {
     if (!this.items.has(item.id)) this.items.set(item.id, item);
   }
-  async latest(limit: number) {
-    return [...this.items.values()].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0, limit);
+  async latest(limit: number, since?: string) {
+    return newest(this.items.values(), limit, since);
   }
 }

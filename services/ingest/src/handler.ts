@@ -14,6 +14,12 @@ function env(name: string): string {
   return v;
 }
 
+/** A positive number from the environment, or `fallback` when unset or invalid. */
+function positive(name: string, fallback: number): number {
+  const n = Number(process.env[name]);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+
 /** Scheduled by EventBridge. Writes new items to DynamoDB and a snapshot the site reads. */
 export async function handler(): Promise<{ newItems: number; summarised: number; failedSources: string[] }> {
   const report = await runIngest({
@@ -24,8 +30,11 @@ export async function handler(): Promise<{ newItems: number; summarised: number;
     summarizer: new BedrockSummarizer(env("MODEL_ID")),
     summariesEnabled: true,
     maxSummaries: Number(process.env.MAX_SUMMARIES ?? 40),
+    snapshotDays: positive("SNAPSHOT_DAYS", 14),
+    snapshotMax: positive("SNAPSHOT_MAX", 2500),
     log: (m) => console.warn(m),
   });
+  const published = report.snapshot.items;
 
   await s3.send(
     new PutObjectCommand({
@@ -45,6 +54,7 @@ export async function handler(): Promise<{ newItems: number; summarised: number;
       summarised: report.summarised,
       summaryFailures: report.summaryFailures,
       deferred: report.deferred,
+      snapshot: { items: published.length, oldest: published.at(-1)?.publishedAt },
       sources: report.sources,
     }),
   );

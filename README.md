@@ -13,7 +13,7 @@ AWS, Azure and Google Cloud announcements, engineering blogs and research in one
 ```
 EventBridge (rate 2h) ──▶ Lambda: ingest ──▶ DynamoDB  items (pk id, GSI byPublished)
                               │   fetch 9 feeds → parse → tag capability → Bedrock summary (EN + zh-TW)
-                              └──▶ S3 data bucket  data/items.json  (latest 400)
+                              └──▶ S3 data bucket  data/items.json  (last 14 days, ≤ 2,500 items)
                                             │
 Browser ──▶ CloudFront ──┬── /*       → S3 site bucket (Next.js static export)
                          └── /data/*  → S3 data bucket
@@ -32,6 +32,7 @@ Browser ──▶ CloudFront ──┬── /*       → S3 site bucket (Next.j
 - **Google Cloud release notes** publish one entry per day for every product; the parser splits it into one item per product.
 - **arXiv** keeps only `new` papers that the tagger can place in a capability.
 - **Tagging** is keyword-based from the catalog (service names, aliases, former names, capability keywords). Generic words like "Batch" or "Workflows" only count on their own provider's items. Bedrock then confirms or corrects the capability ids (restricted to catalog ids) and writes the summaries.
+- **Snapshot** (`services/ingest/src/snapshot.ts`): `data/items.json` holds everything published in the last `snapshotDays` (14), so a burst on one feed — AWS What's New runs at 40+ items a day before re:Invent — cannot push the blogs or the other clouds out of the window, as the old fixed 400-item cap did. Over `snapshotMax` (2,500) the busiest feeds give up their oldest items first; if fewer than 200 items fall in the window (a long feed outage), the newest 200 are published instead.
 - **Cost guard**: at most `maxSummaries` (default 40) model calls per run; newer items beyond that wait for the next run. Items already in DynamoDB are never re-summarised. Reserved concurrency 1 keeps runs from overlapping.
 - Feed text is passed to the model as fenced, untrusted data; replies are schema-validated and unknown capability ids dropped.
 
@@ -70,6 +71,8 @@ Context settings (`infra/cdk.json`, or `-c key=value`):
 | `modelId` | `global.anthropic.claude-haiku-4-5-20251001-v1:0` | Any Bedrock model or inference profile your account can invoke in the region. The IAM policy is scoped to this id. |
 | `ingestRate` | `2 hours` | EventBridge `rate()` body. |
 | `maxSummaries` | `40` | Bedrock calls per run. |
+| `snapshotDays` | `14` | Days of history in `data/items.json`. The Pulse page's `14d` chip assumes this value. |
+| `snapshotMax` | `2500` | Most items in `data/items.json`; the busiest feeds are trimmed first. |
 | `runIngestOnDeploy` | `true` | Invoke the ingester once during deploy. |
 
 ### Automated deploys (GitHub Actions + OIDC)

@@ -1,6 +1,7 @@
 import type { FeedItem, FeedSnapshot, Tagger } from "@ctp/catalog";
 import { categoriesFor, classify, type Draft } from "./classify";
 import { parseFeed } from "./parse";
+import { selectSnapshot } from "./snapshot";
 import type { Source } from "./sources";
 import type { Store } from "./store";
 import type { Summarizer } from "./summarize";
@@ -15,7 +16,12 @@ export interface IngestOptions {
   summariesEnabled: boolean;
   /** Model calls allowed per run; new items beyond it wait for the next run. */
   maxSummaries?: number;
-  snapshotSize?: number;
+  /** Days of history in the snapshot the site reads (default 14). */
+  snapshotDays?: number;
+  /** Most items in the snapshot (default 2,500); over it, the busiest feeds give up their oldest items first. */
+  snapshotMax?: number;
+  /** Fewest items in the snapshot (default 200), so a long feed outage never empties the site. */
+  snapshotMin?: number;
   now?: () => Date;
   log?: (msg: string) => void;
 }
@@ -112,14 +118,20 @@ export async function runIngest(opts: IngestOptions): Promise<IngestReport> {
 
   for (const item of finished) await opts.store.put(item);
 
-  const items = await opts.store.latest(opts.snapshotSize ?? 400);
+  const now = opts.now?.() ?? new Date();
+  const items = await selectSnapshot(opts.store, {
+    now,
+    days: opts.snapshotDays ?? 14,
+    max: opts.snapshotMax ?? 2500,
+    min: opts.snapshotMin ?? 200,
+  });
   return {
     sources: perSource.map((p) => p.report),
     newItems: finished.length,
     summarised,
     summaryFailures,
     deferred,
-    snapshot: { generatedAt: (opts.now?.() ?? new Date()).toISOString(), items },
+    snapshot: { generatedAt: now.toISOString(), items },
   };
 }
 

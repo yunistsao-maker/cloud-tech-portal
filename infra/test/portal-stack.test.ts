@@ -67,6 +67,8 @@ const synth = () => {
     modelId: "global.anthropic.claude-haiku-4-5-20251001-v1:0",
     ingestRate: "2 hours",
     maxSummaries: 40,
+    snapshotDays: 14,
+    snapshotMax: 2500,
     runIngestOnDeploy: false,
     siteDir: "/nonexistent",
   });
@@ -103,7 +105,14 @@ describe("PortalStack", () => {
       Runtime: "nodejs22.x",
       Architectures: ["arm64"],
       ReservedConcurrentExecutions: 1,
-      Environment: { Variables: Match.objectLike({ MODEL_ID: "global.anthropic.claude-haiku-4-5-20251001-v1:0", MAX_SUMMARIES: "40" }) },
+      Environment: {
+        Variables: Match.objectLike({
+          MODEL_ID: "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+          MAX_SUMMARIES: "40",
+          SNAPSHOT_DAYS: "14",
+          SNAPSHOT_MAX: "2500",
+        }),
+      },
     });
   });
 

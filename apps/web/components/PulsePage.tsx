@@ -16,7 +16,8 @@ import { EquivalentsCard, EventsCard, ItemListCard } from "./SideCards";
 const RANGES = [
   { id: "1", days: 1, label: "24h" },
   { id: "7", days: 7, label: "7d" },
-  { id: "30", days: 30, label: "30d" },
+  // The ingester publishes the last 14 days (infra context snapshotDays).
+  { id: "14", days: 14, label: "14d" },
   { id: "all", days: undefined, label: "All" },
 ] as const;
 

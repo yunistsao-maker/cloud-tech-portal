@@ -1,8 +1,9 @@
-import { buildTagger, capabilities } from "@ctp/catalog";
+import { buildTagger, capabilities, type FeedItem } from "@ctp/catalog";
 import { describe, expect, it, vi } from "vitest";
 import { classify } from "../src/classify";
 import { parseFeed } from "../src/parse";
 import { runIngest } from "../src/pipeline";
+import { balanceBySource, selectSnapshot } from "../src/snapshot";
 import { SOURCES, type Source } from "../src/sources";
 import { MemoryStore } from "../src/store";
 import { buildPrompt, parseModelReply, type Summarizer } from "../src/summarize";
@@ -144,5 +145,81 @@ describe("runIngest", () => {
     expect(r.newItems).toBe(2);
     expect(r.summaryFailures).toBe(2);
     expect(store.items.size).toBe(2);
+  });
+});
+
+describe("snapshot window", () => {
+  const now = new Date("2026-11-22T08:00:00.000Z");
+  const DAY = 86_400_000;
+  let seq = 0;
+  // Each call is one second older than the last, so creation order is newest-first.
+  const item = (sourceId: string, daysAgo: number): FeedItem => {
+    seq++;
+    return {
+      id: `${sourceId}-${String(seq).padStart(8, "0")}`,
+      url: `https://example.com/${sourceId}/${seq}`,
+      title: `${sourceId} item ${seq}`,
+      sourceId,
+      sourceName: sourceId,
+      provider: "aws",
+      type: "announcement",
+      publishedAt: new Date(now.getTime() - daysAgo * DAY - seq * 1000).toISOString(),
+      capabilities: [],
+      categories: [],
+    };
+  };
+  const storeWith = async (items: FeedItem[]) => {
+    const store = new MemoryStore();
+    for (const it of items) await store.put(it);
+    return store;
+  };
+  const count = (items: FeedItem[], sourceId: string) => items.filter((i) => i.sourceId === sourceId).length;
+
+  it("keeps every feed's last 14 days instead of only the newest few hundred items", async () => {
+    // A What's New burst (60 a day for 14 days) next to a blog that posts twice a week.
+    const busy = Array.from({ length: 14 * 60 }, (_, i) => item("aws-whats-new", Math.floor(i / 60)));
+    const quiet = [1, 4, 8, 11, 13.5].map((d) => item("azure-blog", d));
+    const old = [15, 20, 40].map((d) => item("azure-blog", d));
+    const store = await storeWith([...busy, ...quiet, ...old]);
+
+    const snap = await selectSnapshot(store, { now, days: 14, max: 2500, min: 200 });
+    expect(snap).toHaveLength(busy.length + quiet.length);
+    expect(count(snap, "azure-blog")).toBe(5);
+    const cutoff = new Date(now.getTime() - 14 * DAY).toISOString();
+    expect(snap.every((i) => i.publishedAt >= cutoff)).toBe(true);
+    expect(snap[0]!.publishedAt >= snap.at(-1)!.publishedAt).toBe(true);
+  });
+
+  it("trims the busiest feed first when the window holds more than the ceiling", async () => {
+    const busy = Array.from({ length: 50 }, () => item("aws-whats-new", 1));
+    const blogA = Array.from({ length: 5 }, () => item("azure-blog", 2));
+    const blogB = Array.from({ length: 3 }, () => item("gcp-blog", 3));
+    const store = await storeWith([...busy, ...blogA, ...blogB]);
+
+    const snap = await selectSnapshot(store, { now, days: 14, max: 20, min: 1 });
+    expect(snap).toHaveLength(20);
+    expect(count(snap, "azure-blog")).toBe(5);
+    expect(count(snap, "gcp-blog")).toBe(3);
+    // The busy feed keeps its newest items.
+    expect(snap.filter((i) => i.sourceId === "aws-whats-new").map((i) => i.id)).toEqual(busy.slice(0, 12).map((i) => i.id));
+  });
+
+  it("gives the slots left by rounding to the newest trimmed items", () => {
+    const a = Array.from({ length: 10 }, () => item("a-feed", 1));
+    const b = Array.from({ length: 10 }, () => item("b-feed", 2));
+    const c = [item("c-feed", 3)];
+    const out = balanceBySource([...b, ...c, ...a], 8);
+    expect(out).toHaveLength(8);
+    expect(count(out, "c-feed")).toBe(1);
+    // Quota 3 each for a and b; the one free slot goes to a, whose trimmed items are newer.
+    expect(count(out, "a-feed")).toBe(4);
+    expect(count(out, "b-feed")).toBe(3);
+  });
+
+  it("falls back to the newest items when the window is nearly empty", async () => {
+    const stale = [20, 25, 30, 35].map((d) => item("azure-blog", d));
+    const store = await storeWith(stale);
+    const snap = await selectSnapshot(store, { now, days: 14, max: 2500, min: 3 });
+    expect(snap.map((i) => i.id)).toEqual(stale.slice(0, 3).map((i) => i.id));
   });
 });

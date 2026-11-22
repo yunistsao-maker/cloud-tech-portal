@@ -24,6 +24,10 @@ export interface PortalStackProps extends StackProps {
   /** EventBridge rate expression body, e.g. "2 hours". */
   ingestRate: string;
   maxSummaries: number;
+  /** Days of history in data/items.json. */
+  snapshotDays: number;
+  /** Most items in data/items.json; over it, the busiest feeds give up their oldest items first. */
+  snapshotMax: number;
   /** Invoke the ingester once at deploy time so the site has data straight away. */
   runIngestOnDeploy: boolean;
   /** Folder with the static export; defaults to apps/web/out. Skipped when missing (e.g. in tests). */
@@ -130,6 +134,8 @@ export class PortalStack extends Stack {
         DATA_BUCKET: dataBucket.bucketName,
         MODEL_ID: props.modelId,
         MAX_SUMMARIES: String(props.maxSummaries),
+        SNAPSHOT_DAYS: String(props.snapshotDays),
+        SNAPSHOT_MAX: String(props.snapshotMax),
         NODE_OPTIONS: "--enable-source-maps",
       },
       bundling: { format: OutputFormat.CJS, sourceMap: true, target: "node22", minify: true },

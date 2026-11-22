@@ -11,6 +11,8 @@ new PortalStack(app, "CloudTechPortal", {
   modelId: String(ctx("modelId")),
   ingestRate: String(ctx("ingestRate")),
   maxSummaries: Number(ctx("maxSummaries")),
+  snapshotDays: Number(ctx("snapshotDays") ?? 14),
+  snapshotMax: Number(ctx("snapshotMax") ?? 2500),
   runIngestOnDeploy: ctx("runIngestOnDeploy") !== false && ctx("runIngestOnDeploy") !== "false",
   description: "cloud/pulse — cross-cloud tech portal (site, feed ingestion, Bedrock summaries)",
 });
